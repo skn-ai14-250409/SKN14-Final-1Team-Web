@@ -15,7 +15,7 @@
 -- grant all privileges on codenovadb.* to 'django'@'%';
 
 
-flush privileges;
+-- flush privileges;
 
 -- app > models.py 작업 후
 -- python manage.py makemigrations
