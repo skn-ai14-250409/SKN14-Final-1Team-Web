@@ -386,3 +386,5 @@ $RECYCLE.BIN/
 # Streamlit secrets
 .streamlit/
 .streamlit/secrets.toml
+
+staticfiles
