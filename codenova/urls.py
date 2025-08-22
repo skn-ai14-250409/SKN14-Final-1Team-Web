@@ -23,7 +23,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
     path('', lambda _: HttpResponse("Hello, Codenova!")),
     # 모든 미정의된 경로 → 메인 페이지
     re_path(r'^.*$', RedirectView.as_view(url='/', permanent=False)),

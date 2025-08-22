@@ -18,6 +18,5 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # 프로젝트 파일을 image 내부 WORKDIR로 복사
 COPY . .
 
-# Gunicorn으로 Django 실행
-ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn -c gunicorn.conf.py"]
 EXPOSE 8000

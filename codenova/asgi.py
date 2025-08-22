@@ -19,4 +19,4 @@ application = get_asgi_application()
 
 # blacknoise(asgi전용) 설정
 application = BlackNoise(get_asgi_application())
-application.add(settings.BASE_DIR / "static", "/static")
+application.add(settings.BASE_DIR / "staticfiles", "/static")
