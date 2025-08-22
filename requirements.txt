@@ -3,3 +3,4 @@ django
 gunicorn
 uvicorn
 blacknoise
+django-cors-headers
