@@ -58,7 +58,7 @@ ROOT_URLCONF = 'codenova.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'main/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,10 +136,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static', # 정적 파일 경로
+    BASE_DIR / 'main/static', # 정적 파일 경로
 ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
