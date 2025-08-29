@@ -1,0 +1,20 @@
+{% extends 'my_app/base.html' %}
+{% load static %}
+
+{% block title %}환영합니다{% endblock %}
+
+{% block content %}
+<div class="home-content-wrapper">
+
+    <!-- 로고 이미지를 추가합니다. 'logo.png'는 실제 파일명으로 변경하세요. -->
+    <img src="{% static 'my_app/image/image.png' %}" alt="CodeNova Logo" class="home-logo">
+
+    <h1>CodeNova 홈페이지입니다.</h1>
+    <p>좌측 사이드바 메뉴를 클릭하여 각 페이지로 이동할 수 있습니다.</p>
+
+    <div class="home-buttons">
+        <a href="{% url 'api-chatbot' %}">메인 챗봇 페이지로 이동</a>
+        <a href="{% url 'internal-docs' %}">사내 내부 문서 챗봇으로 이동</a>
+    </div>
+</div>
+{% endblock %}

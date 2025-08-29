@@ -1,0 +1,24 @@
+{% extends 'my_app/base.html' %}
+{% block title %}사내 내부 문서{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="search-bar">
+        <input type="text" placeholder="검색창에 문서 내용을 찾아보세요">
+        <button type="submit">🔍</button>
+    </div>
+    <button>공손 말투</button>
+    <button>친구 말투</button>
+</div>
+
+<div class="chat-area">
+    <h2>채팅 영역</h2>
+</div>
+
+<div class="chat-input-area">
+    <button>사진 업로드</button>
+    <input type="text" placeholder="질문하는 INPUT 영역">
+    <button>음성 버튼</button>
+    <button>보내기</button>
+</div>
+{% endblock %}

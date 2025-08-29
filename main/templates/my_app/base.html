@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeNova{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'my_app/css/style.css' %}">
+</head>
+<body>
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <a href="{% url 'home' %}">CodeNova</a>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="{% url 'api-chatbot' %}">메인 챗봇</a></li>
+                    <li><a href="{% url 'internal-docs' %}">사내 내부 문서 챗봇</a></li>
+                    <li><a href="#">지식 hub</a></li>
+                </ul>
+            </nav>
+            <div class="chat-history">
+                <p>채팅 메시지 영역</p>
+                <button class="btn-new-chat">새 채팅</button>
+                <ul>
+                    <li>채팅 내용 제목/요약</li>
+                </ul>
+            </div>
+        </aside>
+
+        <div class="content-wrapper">
+            <header class="top-header">
+                <div class="header-buttons">
+                    <button class="btn-header">이름 / 직급 / 권한</button>
+                    <button class="btn-header">마이페이지</button>
+                    <button class="btn-header">로그아웃</button>
+                </div>
+            </header>
+            <main class="main-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>
