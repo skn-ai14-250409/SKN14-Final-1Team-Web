@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'uauth'
+    'uauth',
+    'apichat'
 ]
 
 AUTH_USER_MODEL = "uauth.User"
