@@ -1,0 +1,35 @@
+{% extends 'my_app/base.html' %}
+{% block title %}커뮤니티 게시글{% endblock %}
+
+{% block content %}
+<div class="community-container">
+    <h1 class="page-title">게시글 목록</h1>
+
+    <div class="post-section">
+        <h2>✨ 이달의 베스트 게시글</h2>
+        <ul class="post-list">
+            {% for post in best_posts %}
+            <li class="post-list-item best-post">
+                <a href="{% url 'post-detail' post_id=1 %}">
+                    {# post_id는 나중에 실제 게시물의 ID로 동적으로 변경해야 합니다 #}
+                    <span class="best-post-badge">🏆</span>
+                    {{ post.title }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="post-section">
+        <h2>일반 게시글</h2>
+        <ul class="post-list">
+            {% for post in regular_posts %}
+            <li class="post-list-item">
+                <a href="{% url 'post-detail' post_id=2 %}">{{ post.title }}</a>
+            {# post_id는 나중에 실제 게시물의 ID로 동적으로 변경해야 합니다 #}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
