@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import torch
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
+from .vector_db import create_chroma_db
 
 # .env 로드
 load_dotenv()
@@ -23,7 +24,7 @@ embeddings = HuggingFaceEmbeddings(
 def retriever_setting():
     # (선택) 디렉토리 존재 확인
     if not os.path.isdir(DB_DIR):
-        raise FileNotFoundError(f"Chroma DB 경로가 없습니다: {DB_DIR}")
+        create_chroma_db()
 
     # 기존 크로마 벡터스토어 로드
     vs = Chroma(
