@@ -1,0 +1,145 @@
+/* Reset & Global */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; padding: 0; margin: 0; }
+button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; padding: 8px 16px; border-radius: 4px; }
+
+/* Main Layout */
+.main-layout {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: #fff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+}
+.sidebar-brand { font-size: 24px; font-weight: bold; margin-bottom: 30px; }
+.sidebar-nav li a { display: block; padding: 12px 16px; margin-bottom: 8px; border-radius: 6px; }
+.sidebar-nav li a:hover { background-color: #f1f1f1; }
+.chat-history { margin-top: auto; border-top: 1px solid #e0e0e0; padding-top: 16px; }
+.btn-new-chat { width: 100%; margin-top: 8px; margin-bottom: 16px; }
+
+/* Content Area */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Top Header */
+.top-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #fff;
+}
+.btn-header { margin-left: 8px; }
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.content-header { display: flex; align-items: center; margin-bottom: 24px; gap: 16px; }
+.search-bar { flex: 1; display: flex; }
+.search-bar input { flex: 1; padding: 10px; border: 1px solid #ccc; border-right: none; border-radius: 4px 0 0 4px; }
+.search-bar button { border-radius: 0 4px 4px 0; background-color: #eee; }
+
+/* Chat Area */
+.chat-area {
+    flex: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.chat-area h2 { font-size: 2rem; color: #aaa; }
+
+/* Chat Input */
+.chat-input-area {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.chat-input-area input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Home Page Styles */
+.home-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.home-logo {
+    width: 150px; /* 로고 크기 조절 */
+    margin-bottom: 2rem; /* 로고와 제목 사이 간격 */
+}
+
+.home-content-wrapper h1 {
+    margin-bottom: 1rem;
+}
+
+.home-content-wrapper p {
+    color: #6c757d;
+    margin-bottom: 2rem; /* 설명과 버튼 사이 간격 */
+}
+
+/* Home Page Button Styles */
+.home-buttons a {
+    margin: 0 0.5rem;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+/* 1번째 버튼: 메인 챗봇 */
+.home-buttons a:nth-child(1) {
+    background-color: #007bff;
+}
+
+/* 2번째 버튼: 사내 내부 문서 */
+.home-buttons a:nth-child(2) {
+    background-color: #6c757d;
+}
+
+/* 3번째 버튼: 커뮤니티 */
+.home-buttons a:nth-child(3) {
+    background-color: #28a745;
+}
+

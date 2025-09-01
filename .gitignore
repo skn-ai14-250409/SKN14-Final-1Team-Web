@@ -388,3 +388,6 @@ $RECYCLE.BIN/
 .streamlit/secrets.toml
 
 staticfiles
+
+/**/vectordb
+/**/chroma_db

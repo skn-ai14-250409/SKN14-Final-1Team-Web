@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path,include
 from django.http import HttpResponse
 from django.views.generic import RedirectView
 
@@ -24,9 +24,12 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin', admin.site.urls),
-    path('', lambda _: HttpResponse("Hello, Codenova!")),
+    path('', include('main.urls')),
     # 모든 미정의된 경로 → 메인 페이지
     re_path(r'^.*$', RedirectView.as_view(url='/', permanent=False)),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

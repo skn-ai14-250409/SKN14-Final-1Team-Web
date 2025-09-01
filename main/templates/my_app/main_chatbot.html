@@ -1,0 +1,30 @@
+{% extends 'my_app/base.html' %}
+{% load static %}
+{% block title %}API 문서 검색{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'my_app/css/chat/chat.css' %}">
+
+<div class="content-header">
+    <div class="search-bar">
+        <input type="text" placeholder="검색창에 문서 내용을 찾아보세요">
+        <button type="submit">🔍</button>
+    </div>
+    <button>카드만들기</button>
+    <button>카드 저장</button>
+</div>
+
+<div class="chat-area">
+    <h2></h2>
+    <ul id="chatLog" class="chat-log"></ul>
+</div>
+
+<div class="chat-input-area">
+    <button id="uploadBtn">사진 업로드</button>
+    <input id="chatInput" type="text" placeholder="질문하는 INPUT 영역">
+    <button id="voiceBtn">🎤</button>
+    <button id="sendBtn">보내기</button>
+</div>
+
+<script src="{% static 'my_app/js/chat/chat.js' %}" defer></script>
+{% endblock %}
