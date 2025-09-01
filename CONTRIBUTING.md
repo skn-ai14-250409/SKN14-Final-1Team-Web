@@ -22,5 +22,5 @@ python manage.py runserver 0.0.0.0:8000
 
 ```bash
 $ docker build -t codenova-web . 
-$ docker run -d --name codenova-web -p 8000:8000 codenova-web
+$ docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 ```
