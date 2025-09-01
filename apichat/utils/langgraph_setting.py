@@ -8,8 +8,8 @@ basic_chain = basic_chain_setting()
 retriever = retriever_setting()
 
 class ChatState(TypedDict, total=False):
-    question: str              # 질문
-    answer: str
+    question: str # 질문
+    answer: str # 답변
 
 # 기본 답변 노드
 def basic_langgraph_node(state: ChatState):
@@ -29,12 +29,12 @@ def graph_setting():
     graph = StateGraph(ChatState)
 
     # 노드 등록
-    graph.add_node("basic", basic_langgraph_node)  # 질문 분류
+    graph.add_node("basic", basic_langgraph_node)  # 기본 답변 노드
 
-    # 흐름 정의
+    # 시작 노드 정의
     graph.set_entry_point("basic")
 
-    graph.add_edge("basic", END)
+    graph.add_edge("basic", END) # basic에서 바로 end로 보내기
 
     compiled_graph = graph.compile()
 
