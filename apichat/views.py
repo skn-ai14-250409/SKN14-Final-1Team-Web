@@ -12,7 +12,8 @@ from datetime import datetime, timedelta, timezone
 
 from main.models import *
 from uauth.models import *
-from .utils.main import run_rag
+from .utils.main import run_rag, run_graph
+
 
 # Create your views here.
 
@@ -24,7 +25,7 @@ def chat(request):
         user_message = data.get('message')
         print(user_message)
 
-        response = run_rag(user_message)
+        response = run_graph(user_message)
 
         response_data = {
             'success': True,
