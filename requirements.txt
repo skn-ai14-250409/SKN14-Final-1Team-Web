@@ -10,6 +10,7 @@ langchain_core
 langchain_openai
 langchain_huggingface
 langchain_community
+langgraph
 sentence-transformers
 chromadb
 requests
