@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "main",
     "uauth",
     "apichat",
+    "mypage",
 ]
 
 AUTH_USER_MODEL = "uauth.User"
