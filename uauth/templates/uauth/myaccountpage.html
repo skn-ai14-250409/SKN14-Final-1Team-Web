@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 28rem;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-home {
+            background-color: #111827;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background-color: #1f2937;
+        }
+
+        .btn-edit {
+            background-color: #111827;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #1f2937;
+        }
+
+        .form-section {
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .form-section h2 {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-section > p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background-color: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-control:disabled {
+            background-color: #f3f4f6;
+            color: #374151;
+            cursor: not-allowed;
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .password-toggle:hover {
+            color: #374151;
+        }
+
+        .btn-save {
+            width: 100%;
+            background-color: #111827;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-save:hover {
+            background-color: #1f2937;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>마이페이지</h1>
+            <p>회원가입을 위한 정보를 입력해주세요</p>
+        </div>
+
+        <!-- 상단 버튼들 -->
+        <div class="button-group">
+            <button class="btn btn-home" onclick="goHome()">
+                <i data-lucide="home" class="icon"></i>
+                홈으로
+            </button>
+            <button class="btn btn-edit" id="editBtn" onclick="toggleEdit()">
+                <i data-lucide="edit-3" class="icon"></i>
+                <span id="editBtnText">수정</span>
+            </button>
+        </div>
+
+        <!-- 회원가입 섹션 -->
+        <div class="form-section">
+            <h2>회원가입</h2>
+            <p>아래 정보를 입력하여 회원가입을 완료해주세요.</p>
+            
+            <!-- 아이디, 이름 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>아이디</label>
+                    <input type="text" class="form-control" id="userId" value="user123" placeholder="아이디를 입력하세요" disabled>
+                </div>
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" class="form-control" id="userName" value="홍길동" placeholder="이름을 입력하세요" disabled>
+                </div>
+            </div>
+
+            <!-- 비밀번호, 비밀번호 확인 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>비밀번호</label>
+                    <div class="password-group">
+                        <input type="password" class="form-control" id="password" value="mypassword123" placeholder="비밀번호를 입력하세요" disabled>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', 'passwordEye')">
+                            <i data-lucide="eye" class="icon" id="passwordEye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호 확인</label>
+                    <div class="password-group">
+                        <input type="password" class="form-control" id="passwordConfirm" value="mypassword123" placeholder="비밀번호를 다시 입력하세요" disabled>
+                        <button type="button" class="password-toggle" onclick="togglePassword('passwordConfirm', 'passwordConfirmEye')">
+                            <i data-lucide="eye" class="icon" id="passwordConfirmEye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 이메일, 직급 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" class="form-control" id="email" value="hong@example.com" placeholder="이메일을 입력하세요" disabled>
+                </div>
+                <div class="form-group">
+                    <label>직급</label>
+                    <select class="form-control" id="position" disabled>
+                        <option value="">직급을 선택하세요</option>
+                        <option value="사원">사원</option>
+                        <option value="주임">주임</option>
+                        <option value="대리">대리</option>
+                        <option value="과장">과장</option>
+                        <option value="차장">차장</option>
+                        <option value="부장">부장</option>
+                        <option value="이사">이사</option>
+                        <option value="개발자" selected>개발자</option>
+                        <option value="디자이너">디자이너</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 생년월일, 성별 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>생년월일</label>
+                    <input type="date" class="form-control" id="birthDate" value="1990-05-15" disabled>
+                </div>
+                <div class="form-group">
+                    <label>성별</label>
+                    <select class="form-control" id="gender" disabled>
+                        <option value="">성별을 선택하세요</option>
+                        <option value="남성" selected>남성</option>
+                        <option value="여성">여성</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 전화번호 -->
+            <div class="form-group">
+                <label>전화번호</label>
+                <input type="tel" class="form-control" id="phone" value="010-1234-5678" placeholder="010-1234-5678" disabled>
+            </div>
+        </div>
+
+        <!-- 저장 버튼 -->
+        <button class="btn-save hidden" id="saveBtn" onclick="saveInfo()">
+            저장하기
+        </button>
+    </div>
+
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+
+        let isEditing = false;
+
+        function toggleEdit() {
+            isEditing = !isEditing;
+            const inputs = document.querySelectorAll('.form-control');
+            const editBtnText = document.getElementById('editBtnText');
+            const saveBtn = document.getElementById('saveBtn');
+
+            inputs.forEach(input => {
+                input.disabled = !isEditing;
+            });
+
+            if (isEditing) {
+                editBtnText.textContent = '취소';
+                saveBtn.classList.remove('hidden');
+            } else {
+                editBtnText.textContent = '수정';
+                saveBtn.classList.add('hidden');
+            }
+        }
+
+        function togglePassword(inputId, eyeId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eye.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                eye.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function saveInfo() {
+            isEditing = false;
+            const inputs = document.querySelectorAll('.form-control');
+            const editBtnText = document.getElementById('editBtnText');
+            const saveBtn = document.getElementById('saveBtn');
+
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            editBtnText.textContent = '수정';
+            saveBtn.classList.add('hidden');
+            
+            alert('정보가 저장되었습니다.');
+        }
+
+        function goHome() {
+            alert('홈으로 이동합니다.');
+            // 실제 구현시: window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

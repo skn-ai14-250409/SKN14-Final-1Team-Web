@@ -1,0 +1,131 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>회원가입</title>
+
+  <!-- CSS 불러오기 -->
+  <link rel="stylesheet" href="{% static 'uauth/css/signup.css' %}">
+</head>
+<body>
+  <!-- 상단 페이지 타이틀/설명 -->
+  <header class="page" aria-labelledby="pagetitle">
+    <h1 id="pagetitle">회원가입</h1>
+    <p>회원가입을 위한 정보를 입력해주세요</p>
+  </header>
+
+  <!-- 카드: "회원가입" 섹션 -->
+  <main class="card" role="main" aria-labelledby="sectionTitle">
+    
+    <div class="section-desc">아래 정보를 입력하여 회원가입을 완료해주세요.</div>
+
+    <form id="registerForm" class="form"  method="post" action="{% url 'uauth:signup' %}" novalidate>
+      {% csrf_token %}
+      <div class="grid">
+        <!-- 아이디 -->
+        <div class="form-item">
+          <label for="userId">아이디</label>
+          <input id="userId" name="userId" type="text" placeholder="아이디를 입력하세요"
+                 required minlength="4" maxlength="20"
+                 pattern="^[a-zA-Z0-9_]{4,20}$" autocomplete="username" aria-describedby="userIdErr">
+          <div id="userIdErr" class="error"></div>
+        </div>
+
+        <!-- 이름 -->
+        <div class="form-item">
+          <label for="name">이름</label>
+          <input id="name" name="name" type="text" placeholder="이름을 입력하세요"
+                 required minlength="2" maxlength="10" aria-describedby="nameErr">
+          <div id="nameErr" class="error"></div>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="form-item">
+          <label for="password">비밀번호</label>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password" placeholder="비밀번호를 입력하세요"
+                   required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+                   aria-describedby="passwordErr" autocomplete="new-password">
+            <button class="toggle" type="button" aria-label="비밀번호 표시" data-target="password">👁</button>
+          </div>
+          <div id="passwordErr" class="error"></div>
+        </div>
+
+        <!-- 비밀번호 확인 -->
+        <div class="form-item">
+          <label for="confirmPassword">비밀번호 확인</label>
+          <div class="password-wrap">
+            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="비밀번호를 다시 입력하세요"
+                   required aria-describedby="confirmErr" autocomplete="new-password">
+            <button class="toggle" type="button" aria-label="비밀번호 확인 표시" data-target="confirmPassword">👁</button>
+          </div>
+          <div id="confirmErr" class="error"></div>
+        </div>
+
+        <!-- 이메일 -->
+        <div class="form-item">
+          <label for="email">이메일</label>
+          <input id="email" name="email" type="email" placeholder="이메일을 입력하세요"
+                 required aria-describedby="emailErr" autocomplete="email">
+          <div id="emailErr" class="error"></div>
+        </div>
+
+        <!-- 팀 -->
+        <div class="form-item">
+          <label for="team">팀</label>
+          <select id="team" name="team" required aria-describedby="teamErr">
+            <option value="" selected disabled>팀을 선택하세요</option>
+            <option>프론트엔드</option><option>백엔드</option><option>AI/데이터팀</option>
+            
+          </select>
+          <div id="teamErr" class="error"></div>
+        </div>
+        
+        <!--직급-->
+         <div class="form-item">
+          <label for="role">직급</label>
+          <select id="role" name="role" required aria-describedby="roleErr">
+            <option value="" selected disabled>직급을 선택하세요</option>
+            <option>일반</option><option>CTO</option>
+            
+          </select>
+          <div id="roleErr" class="error"></div>
+        </div>
+
+        <!-- 생년월일 -->
+        <div class="form-item">
+          <label for="birthDate">생년월일</label>
+          <input id="birthDate" name="birthDate" type="date" required aria-describedby="birthErr" min="1900-01-01">
+          <div id="birthErr" class="error"></div>
+        </div>
+
+        <!-- 성별 -->
+        <div class="form-item">
+          <label for="gender">성별</label>
+          <select id="gender" name="gender" required aria-describedby="genderErr">
+            <option value="" selected disabled>성별을 선택하세요</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+          </select>
+          <div id="genderErr" class="error"></div>
+        </div>
+
+        <!-- 전화번호 -->
+        <div class="form-item full">
+          <label for="phoneNumber">전화번호</label>
+          <input id="phoneNumber" name="phoneNumber" type="text" inputmode="numeric"
+                 placeholder="010-1234-5678" required pattern="^010-\\d{4}-\\d{4}$" aria-describedby="phoneErr">
+          <div id="phoneErr" class="error"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit">회원가입</button>
+    </form>
+  </main>
+
+  <!-- JS 불러오기 -->
+  <script src="{% static 'uauth/js/signup.js' %}"></script>
+</body>
+</html>
