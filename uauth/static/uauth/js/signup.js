@@ -79,39 +79,6 @@ const validationMessages = {
   }
 };
 
-// 에러 메시지 설정
-function setErrorMessage(fieldId, message = '') {
-  const el = document.getElementById(fieldId + 'Err');
-  if (el) el.textContent = message;
-}
-
-// 필드 검증
-function validateField(element) {
-  const validity = element.validity;
-  const messages = validationMessages[element.id];
-  if (!messages) return true;
-
-  // 비밀번호 확인 특별 처리
-  if (element.id === 'confirmPassword') {
-    const p1 = document.getElementById('password')?.value || '';
-    if (element.value !== p1) {
-      setErrorMessage(element.id, messages.mismatch);
-      return false;
-    }
-  }
-
-  if (validity.valueMissing) { setErrorMessage(element.id, messages.valueMissing); return false; }
-  if (validity.typeMismatch && messages.typeMismatch) { setErrorMessage(element.id, messages.typeMismatch); return false; }
-  if (validity.patternMismatch && messages.patternMismatch) { setErrorMessage(element.id, messages.patternMismatch); return false; }
-  if (validity.tooShort && messages.tooShort) { setErrorMessage(element.id, messages.tooShort); return false; }
-  if (validity.tooLong && messages.tooLong) { setErrorMessage(element.id, messages.tooLong); return false; }
-  if (validity.rangeOverflow && messages.rangeOverflow) { setErrorMessage(element.id, messages.rangeOverflow); return false; }
-  if (validity.rangeUnderflow && messages.rangeUnderflow) { setErrorMessage(element.id, messages.rangeUnderflow); return false; }
-
-  setErrorMessage(element.id, '');
-  return true;
-}
-
 // 폼 제출 → 검증 통과 시 실제 제출(서버로 POST)
 document.getElementById('registerForm').addEventListener('submit', e => {
   e.preventDefault();
