@@ -1,66 +1,40 @@
 /* Community Board Page */
-.community-container {
-    background-color: #fff;
-    padding: 24px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-.page-title {
-    background-color: #f1f1f1;
-    padding: 16px;
-    border-radius: 6px;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 32px;
-}
-.post-section {
-    margin-bottom: 32px;
-}
-.post-section h2 {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
-}
-.post-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.post-list-item a {
-    display: block;
-    padding: 12px 8px;
-    border-bottom: 1px solid #f0f0f0;
+.community-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.9rem;
     color: #333;
-    text-decoration: none;
-    transition: background-color 0.2s;
 }
-.post-list-item a:hover {
+.community-table th, .community-table td {
+    padding: 13px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+    vertical-align: middle;
+}
+.community-table th {
     background-color: #f8f9fa;
+    font-weight: 500;
+    color: #555;
+    border-top: 1px solid #e0e0e0;
 }
-.best-post-badge {
-    margin-right: 10px;
-}
+.community-table tbody tr:hover { background-color: #f5f5f5; }
+.col-number { width: 8%; }
+.col-title { width: auto; text-align: left; }
+.col-author { width: 15%; }
+.col-date { width: 12%; }
+.col-views { width: 8%; }
+.col-likes { width: 8%; }
+.col-title a { text-decoration: none; color: inherit; display: inline-flex; align-items: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comment-count { color: #d9534f; margin-left: 8px; font-weight: normal; font-size: 0.9em; flex-shrink: 0; }
+.best-post { font-weight: bold; color: #007bff; }
+.best-post-icon { margin-right: 8px; }
 
 /* Post Detail Page */
-.post-detail-container {
-    padding: 24px;
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-}
-.post-header h1 {
-    font-size: 2rem;
-    margin: 0 0 16px 0;
-}
-.post-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
-    color: #555;
-}
+.post-detail-container { padding: 24px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 8px; }
+.post-header h1 { font-size: 2rem; margin: 0 0 16px 0; }
+.post-meta { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #eee; font-size: 0.9rem; color: #555; }
 .author-info .author-name { font-weight: bold; }
 .author-info .post-time { margin-left: 12px; color: #888; }
 .action-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
@@ -75,13 +49,12 @@
 /* Comments Section */
 .comments-section { margin-top: 24px; border-top: 1px solid #eee; padding-top: 24px; }
 .comments-header { margin-bottom: 16px; font-size: 0.9rem; }
-.comments-header strong { margin-right: 16px; }
 .comment-item { display: flex; padding: 16px 0; border-top: 1px solid #f5f5f5; position: relative; }
 .comment-author-profile { width: 36px; height: 36px; background-color: #eee; border-radius: 50%; margin-right: 12px; }
 .comment-content-wrapper { flex: 1; }
 .comment-author-name { font-weight: bold; font-size: 0.9rem; }
 .comment-text { margin: 4px 0; }
-.comment-meta { font-size: 0.8rem; color: #888; }
+.comment-meta { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 12px; }
 .comment-kebab { opacity: 0; transition: opacity 0.2s; }
 .comment-item.is-own:hover .comment-kebab { opacity: 1; }
 
@@ -91,4 +64,3 @@
 .like-btn:hover .heart-icon { color: #e53e3e; transform: scale(1.1); }
 .post-like-btn { margin-right: 16px; font-size: 0.9rem; }
 .post-like-btn strong { font-weight: bold; }
-.comment-meta { display: flex; align-items: center; gap: 12px; }
