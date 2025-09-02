@@ -48,7 +48,8 @@
             <header class="top-header">
                 <div class="header-buttons">
                     <button class="btn-header">이름 / 직급 / 권한</button>
-                    <button class="btn-header">마이페이지</button>
+                    {% comment %} <a href="{% url 'mypage' %}" class="btn-header">마이페이지</a> {% endcomment %}
+                    <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
                     <button class="btn-header">로그아웃</button>
                 </div>
             </header>

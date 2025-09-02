@@ -8,6 +8,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("main.urls")),
     path("", include("uauth.urls")),
+    path("mypage/", include("mypage.urls")),
     # ✅ catch-all 위에 둠
 ]
 
