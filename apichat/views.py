@@ -10,7 +10,7 @@ import requests
 import os
 from datetime import datetime, timedelta, timezone
 
-from main.models import *
+from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
 from .utils.main import run_rag, run_graph
 
@@ -64,7 +64,7 @@ def create_session(request):
     if request.method == "POST":
         try:
             session = ChatSession.objects.create(
-                user=request.user, id=uuid.uuid4(), mode="api", title="새로운 대화"
+                user=request.user, mode="api", title="새로운 대화"
             )
 
             return JsonResponse(
