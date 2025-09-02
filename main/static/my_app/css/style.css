@@ -118,18 +118,28 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     margin-bottom: 2rem; /* 설명과 버튼 사이 간격 */
 }
 
+/* Home Page Button Styles */
 .home-buttons a {
     margin: 0 0.5rem;
     padding: 10px 20px;
     color: white;
     border-radius: 5px;
     text-decoration: none;
+    transition: background-color 0.2s;
 }
 
-.home-buttons a:first-child {
+/* 1번째 버튼: 메인 챗봇 */
+.home-buttons a:nth-child(1) {
     background-color: #007bff;
 }
 
-.home-buttons a:last-child {
+/* 2번째 버튼: 사내 내부 문서 */
+.home-buttons a:nth-child(2) {
     background-color: #6c757d;
 }
+
+/* 3번째 버튼: 커뮤니티 */
+.home-buttons a:nth-child(3) {
+    background-color: #28a745;
+}
+

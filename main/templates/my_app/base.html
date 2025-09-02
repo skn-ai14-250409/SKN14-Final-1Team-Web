@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CodeNova{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'my_app/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="main-layout">
@@ -15,9 +16,9 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="{% url 'api-chatbot' %}">메인 챗봇</a></li>
+                    <li><a href="{% url 'main-chatbot' %}">메인 챗봇</a></li>
                     <li><a href="{% url 'internal-docs' %}">사내 내부 문서 챗봇</a></li>
-                    <li><a href="#">지식 hub</a></li>
+                    <li><a href="{% url 'community-board' %}">커뮤니티 게시글</a></li>
                 </ul>
             </nav>
             <div class="chat-history">
