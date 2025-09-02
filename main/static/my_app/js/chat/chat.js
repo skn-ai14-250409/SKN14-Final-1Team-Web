@@ -87,7 +87,7 @@ async function session_create() {
     sessionList.prepend(li);
 
 // ✅ 현재 선택된 세션 타이틀 업데이트
-    if (sessionTitle) sessionTitle.textContent = data.title || '새 채팅';
+//     if (sessionTitle) sessionTitle.textContent = data.title || '새 채팅';
   } catch (err) {
     console.error('요청 실패:', err);
   }
