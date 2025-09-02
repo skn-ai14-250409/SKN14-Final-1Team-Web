@@ -13,7 +13,7 @@ from blacknoise import BlackNoise
 from django.conf import settings
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'codenova.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "codenova.settings")
 
 application = get_asgi_application()
 

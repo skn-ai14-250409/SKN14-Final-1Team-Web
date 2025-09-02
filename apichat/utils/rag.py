@@ -9,17 +9,20 @@ from langchain_openai import ChatOpenAI
 
 load_dotenv()
 
-def basic_chain_setting():
-    llm = ChatOpenAI(model='gpt-4o-mini', temperature=0)
 
-    basic_prompt = PromptTemplate.from_template("""
+def basic_chain_setting():
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+    basic_prompt = PromptTemplate.from_template(
+        """
     당신은 api 문서 관련 전문 챗봇으로서 사용자의 질문에 정확하고 친절하게 답변해야 합니다.
     아래 제공되는 문서에 없는 내용은 절대 답변에 포함하지 말고, 문서 내에서만 답변 내용을 찾아서 제공하세요.
     
     문서 : {context}
     
     사용자 질문 : {question}
-    """)
+    """
+    )
 
     basic_chain = basic_prompt | llm | StrOutputParser()
 
