@@ -18,5 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 프로젝트 파일을 image 내부 WORKDIR로 복사
 COPY . .
 
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py collectstatic --noinput && gunicorn -c gunicorn.conf.py"]
+RUN python manage.py collectstatic --noinput
+
+CMD ["gunicorn", "-c", "gunicorn.conf.py"]
 EXPOSE 8000
