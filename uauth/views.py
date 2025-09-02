@@ -142,8 +142,8 @@ def signup_view(request):
         id=userId,
         email=email,
         name=name,
-        # department=department,
-        # rank=rank,
+        department=team,
+        rank=role,
         birthday=birth_date,
         gender=gender,
         phone=phone,
@@ -155,7 +155,7 @@ def signup_view(request):
     # from .models import Profile
     # Profile.objects.create(...)
 
-    # login(request, user)
+    login(request, user)
     messages.success(request, "회원가입이 완료되었습니다.")
     return redirect("home")
 

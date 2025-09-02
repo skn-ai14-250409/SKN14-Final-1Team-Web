@@ -83,12 +83,6 @@ const validationMessages = {
 document.getElementById('registerForm').addEventListener('submit', e => {
   e.preventDefault();
 
-  let isFormValid = true;
-  document.querySelectorAll('#registerForm input, #registerForm select').forEach(el => {
-    if (!validateField(el)) isFormValid = false;
-  });
-  if (!isFormValid) return;
-
   // AJAX가 아니라 실제 제출
   e.currentTarget.submit();
 });
