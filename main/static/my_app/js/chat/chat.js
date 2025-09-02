@@ -1,4 +1,8 @@
 console.log('채팅 페이지 JavaScript 시작!');
+const sessionList = document.getElementById('sessionList');
+const sessionTitle = document.getElementById('sessionTitle');
+
+let selectedSessionId = null; // 현재 선택된 세션 id
 
 
 // 요소 선택
@@ -12,6 +16,44 @@ if (newsessionBtn) {
   newsessionBtn.addEventListener('click', session_create);
 } else {
   console.warn('.btn-new-chat 를 찾지 못했습니다.');}
+
+// 세션 목록 로드
+async function loadSessions() {
+  const resp = await fetch('/api-chat/sessions/', { credentials: 'same-origin' });
+  const data = await resp.json();
+
+  sessionList.innerHTML = '';
+  (data.results || []).forEach(s => {
+    const li = document.createElement('li');
+    li.className = 'session-item';
+    li.innerHTML = `<button class="session-link" data-session-id="${s.id}">${s.title}</button>`;
+    sessionList.appendChild(li);
+  });
+
+  // 기본: 가장 최근 세션을 선택 상태로 표시
+  if (data.results && data.results.length > 0) {
+    selectedSessionId = data.results[0].id;
+    sessionTitle.textContent = data.results[0].title;
+    sessionList.querySelector('li').classList.add('is-active');
+  }
+}
+
+// 세션 클릭 이벤트
+sessionList.addEventListener('click', (e) => {
+  const btn = e.target.closest('.session-link');
+  if (!btn) return;
+  selectedSessionId = btn.dataset.sessionId;
+  console.log(selectedSessionId);
+  sessionTitle.textContent = btn.textContent.trim();
+
+  // 선택 표시 업데이트
+  document.querySelectorAll('#sessionList .is-active').forEach(el => el.classList.remove('is-active'));
+  btn.parentElement.classList.add('is-active');
+});
+
+// 초기 실행
+loadSessions();
+
 
 
 async function session_create() {
@@ -37,6 +79,15 @@ async function session_create() {
 
     const data = await response.json();
     console.log('성공', data);
+
+    // ✅ 새 세션 리스트에 추가
+      const li = document.createElement('li');
+    li.className = 'session-item';
+    li.innerHTML = `<button class="session-link" data-session-id="${data.session.id}">${data.session.title}</button>`;
+    sessionList.prepend(li);
+
+// ✅ 현재 선택된 세션 타이틀 업데이트
+    if (sessionTitle) sessionTitle.textContent = data.title || '새 채팅';
   } catch (err) {
     console.error('요청 실패:', err);
   }

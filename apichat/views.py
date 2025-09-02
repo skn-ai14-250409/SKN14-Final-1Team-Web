@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 
 from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
-from .utils.main import run_rag, run_graph
+from .utils.main import run_graph
 
 
 # Create your views here.
@@ -81,3 +81,14 @@ def create_session(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+
+@login_required
+def session_list(request):
+    sessions = ChatSession.objects.filter(owner=request.user).order_by("-created_at")
+    data = [
+        {"id": str(s.id), "title": s.title, "created_at": s.created_at.isoformat()}
+        for s in sessions
+    ]
+    print(data)
+    return JsonResponse({"results": data})

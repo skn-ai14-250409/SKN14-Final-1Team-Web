@@ -1,25 +1,28 @@
-# Python 3.12 이미지를 기반으로 사용
+# build dependencies
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# runtime image
 FROM python:3.12-slim
-
-# 환경 변수 설정
-# .pyc 파일 생성 방지
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Python 출력 버퍼링 방지
-ENV PYTHONUNBUFFERED=1
-
-# 작업 디렉토리 생성 및 설정
 WORKDIR /app
 
-# 의존성 파일 복사 및 설치
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# copy only installed packages from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
 
-# 프로젝트 파일을 image 내부 WORKDIR로 복사
+# copy project files
 COPY . .
 
+# collect static files during build
 RUN python manage.py collectstatic --noinput
 RUN python -c "from apichat.utils.vector_db import create_chroma_db; create_chroma_db()"
+# RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')"
 
-CMD ["gunicorn", "-c", "gunicorn.conf.py"]
+# expose container port
 EXPOSE 8000
+
+# start gunicorn with custom config
+ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py"]

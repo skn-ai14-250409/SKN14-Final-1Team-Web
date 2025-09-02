@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CodeNova{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'my_app/css/style.css' %}">
+    <!-- 선택: JS에서 meta로 CSRF를 읽고 싶으면 추가 -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -22,11 +24,22 @@
                 </ul>
             </nav>
             <div class="chat-history">
-                <p>채팅 메시지 영역</p>
-                <button class="btn-new-chat">새 채팅</button>
-                <ul>
-                    <li>채팅 내용 제목/요약</li>
-                </ul>
+                <div class="chat-history__header">
+                    <p>채팅 메시지 영역</p>
+                    <button class="btn-new-chat" type="button">새 채팅</button>
+                </div>
+
+                <!-- ✅ 여기서 세션 안내 문구/제목 표기 -->
+                <h3 id="sessionTitle" class="session-title">세션을 선택하세요</h3>
+
+                <!-- ✅ 여기서 세션 리스트 렌더 -->
+	    <ul id="sessionList" class="session-list">
+		    {% for s in request.user.chat_sessions.all %}
+    <li class="session-item">
+      <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
+    </li>
+  {% empty %}{% endfor %}
+</ul>
             </div>
         </aside>
 
@@ -39,8 +52,7 @@
                 </div>
             </header>
             <main class="main-content">
-                {% block content %}
-                {% endblock %}
+                {% block content %}{% endblock %}
             </main>
         </div>
     </div>
