@@ -42,7 +42,8 @@ class UserManager(BaseUserManager):
         return self.create_user(id, email, password, **extra_fields)
 
 
-# User
+
+# User 회원가입
 class User(AbstractBaseUser, PermissionsMixin):
     # id = 로그인 ID (문자열 PK)
     id = models.CharField(max_length=50, primary_key=True)  
@@ -84,6 +85,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.id} ({self.name})"
     
+
+
+
+
 
 # ApprovalLog
 class ApprovalLog(models.Model):
