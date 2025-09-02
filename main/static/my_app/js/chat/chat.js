@@ -1,7 +1,50 @@
+console.log('채팅 페이지 JavaScript 시작!');
+
+
 // 요소 선택
 const chatLog = document.getElementById('chatLog');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
+
+const newsessionBtn = document.querySelector('.btn-new-chat');
+
+if (newsessionBtn) {
+  newsessionBtn.addEventListener('click', session_create);
+} else {
+  console.warn('.btn-new-chat 를 찾지 못했습니다.');}
+
+
+async function session_create() {
+  try {
+    const csrfToken = getCSRFToken();
+
+    const response = await fetch('/api-chat/session_create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({ title: 'title' }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();       // ⬅️ 에러 본문 확인
+      console.error('HTTP', response.status, text);
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('성공', data);
+  } catch (err) {
+    console.error('요청 실패:', err);
+  }
+}
+
+
+
+
 
 // 메시지를 채팅창에 추가하는 함수
 function addMessage(text, role = 'user') {
@@ -90,5 +133,4 @@ function getCSRFToken() {
   }
 
   console.warn('CSRF 토큰을 찾을 수 없습니다.');
-  return '';
-}
+  return '';}

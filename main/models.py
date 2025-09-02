@@ -3,7 +3,7 @@ from django.db import models
 
 
 class ChatMode(models.TextChoices):
-    GOOGLE_API = "google_api", "Google API"
+    API = "api", "API"
     INTERNAL = "internal", "Internal"
 
 
