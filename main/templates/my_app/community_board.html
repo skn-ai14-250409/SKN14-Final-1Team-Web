@@ -4,37 +4,58 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">
 {% endblock %}
+
 {% block title %}커뮤니티 게시글{% endblock %}
 
 {% block content %}
 <div class="community-container">
-    <h1 class="page-title">게시글 목록</h1>
-
-    <div class="post-section">
-        <h2>✨ 이달의 베스트 게시글</h2>
-        <ul class="post-list">
+    <table class="community-table">
+        <thead>
+            <tr>
+                <th class="col-number">번호</th>
+                <th class="col-title">제목</th>
+                <th class="col-author">글쓴이</th>
+                <th class="col-date">작성일</th>
+                <th class="col-views">조회</th>
+                <th class="col-likes">추천</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Best Posts -->
             {% for post in best_posts %}
-            <li class="post-list-item best-post">
-                <a href="{% url 'post-detail' post_id=1 %}">
-                    {# post_id는 나중에 실제 게시물의 ID로 동적으로 변경해야 합니다 #}
-                    <span class="best-post-badge">🏆</span>
-                    {{ post.title }}
-                </a>
-            </li>
+            <tr>
+                <td class="col-number">{{ post.number }}</td>
+                <td class="col-title">
+                    <a href="{% url 'post-detail' post_id=post.id %}">
+                        <span class="best-post-icon">🏆</span>
+                        <span class="best-post title-text">{{ post.title }}</span>
+                        <span class="comment-count">[{{ post.comment_count }}]</span>
+                    </a>
+                </td>
+                <td class="col-author">{{ post.author }}</td>
+                <td class="col-date">{{ post.date }}</td>
+                <td class="col-views">{{ post.views }}</td>
+                <td class="col-likes">{{ post.likes }}</td>
+            </tr>
             {% endfor %}
-        </ul>
-    </div>
 
-    <div class="post-section">
-        <h2>일반 게시글</h2>
-        <ul class="post-list">
+            <!-- Regular Posts -->
             {% for post in regular_posts %}
-            <li class="post-list-item">
-                <a href="{% url 'post-detail' post_id=2 %}">{{ post.title }}</a>
-            {# post_id는 나중에 실제 게시물의 ID로 동적으로 변경해야 합니다 #}
-            </li>
+            <tr>
+                <td class="col-number">{{ post.number }}</td>
+                <td class="col-title">
+                    <a href="{% url 'post-detail' post_id=post.id %}">
+                        <span class="title-text">{{ post.title }}</span>
+                        <span class="comment-count">[{{ post.comment_count }}]</span>
+                    </a>
+                </td>
+                <td class="col-author">{{ post.author }}</td>
+                <td class="col-date">{{ post.date }}</td>
+                <td class="col-views">{{ post.views }}</td>
+                <td class="col-likes">{{ post.likes }}</td>
+            </tr>
             {% endfor %}
-        </ul>
-    </div>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
