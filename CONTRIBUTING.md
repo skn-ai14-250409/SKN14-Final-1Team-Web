@@ -8,6 +8,9 @@
 conda create -n codenova python=3.12 -y
 conda activate codenova
 pip install -r requirements.txt
+
+# black 코드 포멧팅 설정
+pre-commit install
 ```
 
 # 로컬 실행 방법

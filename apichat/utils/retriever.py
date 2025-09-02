@@ -21,6 +21,7 @@ embeddings = HuggingFaceEmbeddings(
     encode_kwargs={"normalize_embeddings": True},  # DB 생성 시 설정과 일치해야 함
 )
 
+
 def retriever_setting():
     # (선택) 디렉토리 존재 확인
     if not os.path.isdir(DB_DIR):
@@ -28,7 +29,7 @@ def retriever_setting():
 
     # 기존 크로마 벡터스토어 로드
     vs = Chroma(
-        collection_name=COLLECTION_NAME,      # DB 생성 시 컬렉션명과 동일해야 함
+        collection_name=COLLECTION_NAME,  # DB 생성 시 컬렉션명과 동일해야 함
         persist_directory=DB_DIR,
         embedding_function=embeddings,
     )

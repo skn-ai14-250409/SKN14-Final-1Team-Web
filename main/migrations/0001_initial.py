@@ -15,59 +15,150 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ChatSession',
+            name="ChatSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('mode', models.CharField(choices=[('google_api', 'Google API'), ('internal', 'Internal')], max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='chat_sessions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                (
+                    "mode",
+                    models.CharField(
+                        choices=[
+                            ("google_api", "Google API"),
+                            ("internal", "Internal"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="chat_sessions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'chat_session',
-                'ordering': ['-created_at'],
+                "db_table": "chat_session",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='ChatMessage',
+            name="ChatMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('user', 'User'), ('assistant', 'Assistant')], max_length=20)),
-                ('content', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='main.chatsession')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[("user", "User"), ("assistant", "Assistant")],
+                        max_length=20,
+                    ),
+                ),
+                ("content", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="messages",
+                        to="main.chatsession",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'chat_message',
-                'ordering': ['created_at'],
+                "db_table": "chat_message",
+                "ordering": ["created_at"],
             },
         ),
         migrations.CreateModel(
-            name='Card',
+            name="Card",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cards', to=settings.AUTH_USER_MODEL)),
-                ('session', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='cards', to='main.chatsession')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="cards",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "session",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="cards",
+                        to="main.chatsession",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'card',
-                'ordering': ['-created_at'],
+                "db_table": "card",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='CardMessage',
+            name="CardMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('position', models.IntegerField()),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='card_messages', to='main.card')),
-                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_cards', to='main.chatmessage')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("position", models.IntegerField()),
+                (
+                    "card",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="card_messages",
+                        to="main.card",
+                    ),
+                ),
+                (
+                    "message",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="in_cards",
+                        to="main.chatmessage",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'card_message',
-                'ordering': ['position'],
-                'unique_together': {('card', 'message')},
+                "db_table": "card_message",
+                "ordering": ["position"],
+                "unique_together": {("card", "message")},
             },
         ),
     ]
