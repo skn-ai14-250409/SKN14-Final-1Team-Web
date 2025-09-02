@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 
 from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
-from .utils.main import run_rag, run_graph
+from .utils.main import run_graph
 
 
 # Create your views here.
