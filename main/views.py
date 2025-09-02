@@ -10,24 +10,26 @@ def internal_docs_view(request):
     return render(request, 'my_app/internal_docs.html')
 
 def community_board_view(request):
-    # 나중에 실제 데이터베이스에서 데이터 가져와야 함!!
+    # 각 게시물 데이터에 'id' 값을 다시 추가합니다.
     best_posts = [
-        {'title': '코드노바 근황...'},
-        {'title': 'Docker, 초보자를 위한 완벽 가이드'},
-        {'title': 'PyCharm 디버깅, 이렇게 하면 쉬워져요'},
-        {'title': 'Git 충돌 해결의 모든 것'},
-        {'title': 'REST API 설계 원칙 정리'},
+        {'id': 1, 'number': 7768, 'title': '즐거운 식사 되세요', 'comment_count': 1, 'author': '흑마렁', 'date': '10:32', 'views': 2, 'likes': 0},
+        {'id': 2, 'number': 7726, 'title': '즐거운 일요일 되세요!', 'comment_count': 0, 'author': '흑마렁', 'date': '2025.08.31', 'views': 8, 'likes': 0},
+        {'id': 3, 'number': 7724, 'title': '8월의 마지막 날', 'comment_count': 0, 'author': '레드9', 'date': '2025.08.31', 'views': 34, 'likes': 0},
+        {'id': 4, 'number': 7722, 'title': '촬영회 초보도 참석되나요', 'comment_count': 3, 'author': '초필', 'date': '2025.08.31', 'views': 64, 'likes': 0},
+        {'id': 5, 'number': 7706, 'title': '오늘 하루 즐거운 시간 되시길', 'comment_count': 1, 'author': '흑마렁', 'date': '2025.08.30', 'views': 17, 'likes': 0},
     ]
     regular_posts = [
-        {'title': '오늘의 개발 일지'},
-        {'title': '새로운 사이드 프로젝트 멤버 구합니다'},
-        {'title': 'CSS Flexbox 질문 있습니다!'},
+        {'id': 6, 'number': 7691, 'title': '맛점하세요!', 'comment_count': 2, 'author': '흑마렁', 'date': '2025.08.29', 'views': 15, 'likes': 0},
+        {'id': 7, 'number': 7667, 'title': '초보 사진입니다', 'comment_count': 0, 'author': '우헤히히호', 'date': '2025.08.27', 'views': 48, 'likes': 0},
+        {'id': 8, 'number': 7666, 'title': '오늘 하루 마무리 잘보내세요', 'comment_count': 0, 'author': '우헤히히호', 'date': '2025.08.27', 'views': 13, 'likes': 1},
+        {'id': 9, 'number': 7657, 'title': '이제 가을이 오려고 하네요', 'comment_count': 0, 'author': '우헤히히호', 'date': '2025.08.27', 'views': 25, 'likes': 1},
     ]
     context = {
         'best_posts': best_posts,
         'regular_posts': regular_posts,
     }
     return render(request, 'my_app/community_board.html', context)
+
 
 def post_detail_view(request, post_id):
     # 나중에 post_id를 사용해 실제 데이터베이스에서 게시글을 조회합니다.
