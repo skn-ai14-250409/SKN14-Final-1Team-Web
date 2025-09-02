@@ -5,10 +5,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('main.urls')),
-    path('', include('uauth.urls')),
-      # ✅ catch-all 위에 둠
+    path("admin/", admin.site.urls),
+    path("", include("main.urls")),
+    path("", include("uauth.urls")),
+    # ✅ catch-all 위에 둠
 ]
 
 # 개발 환경에서 정적/미디어 서빙
@@ -18,5 +18,5 @@ if settings.DEBUG:
 
 # 모든 미정의 경로 → 메인으로 리다이렉트 (맨 마지막)
 urlpatterns += [
-    re_path(r'^.*$', RedirectView.as_view(url='/', permanent=False)),
+    re_path(r"^.*$", RedirectView.as_view(url="/", permanent=False)),
 ]

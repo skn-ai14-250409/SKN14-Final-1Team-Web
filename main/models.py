@@ -15,13 +15,12 @@ class ChatSession(models.Model):
         related_name="chat_sessions",
     )
     title = models.CharField(max_length=200)
-    mode = models.CharField(max_length=20, 
-                            choices=ChatMode.choices)
+    mode = models.CharField(max_length=20, choices=ChatMode.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "chat_session"
-        ordering = ["-created_at"] # 최신부터
+        ordering = ["-created_at"]  # 최신부터
 
     def __str__(self):
         return f"[{self.mode}] {self.title}"
@@ -34,16 +33,15 @@ class ChatMessage(models.Model):
         on_delete=models.CASCADE,
         related_name="messages",
     )
-    role = models.CharField(max_length=20, choices=[
-        ("user", "User"),
-        ("assistant", "Assistant")
-    ])
+    role = models.CharField(
+        max_length=20, choices=[("user", "User"), ("assistant", "Assistant")]
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "chat_message"
-        ordering = ["created_at"] # 시간순
+        ordering = ["created_at"]  # 시간순
 
     def __str__(self):
         return f"{self.session.title}, {self.role}: {self.content[:30]}"

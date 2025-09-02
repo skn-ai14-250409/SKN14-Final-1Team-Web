@@ -22,6 +22,7 @@ import json
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django.contrib import messages
+
 # from django.contrib.auth import get_user_model, login
 from django.utils.dateparse import parse_date
 from django.core.exceptions import ValidationError
@@ -37,13 +38,7 @@ from django.contrib.auth import authenticate, login
 @login_required
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
-    return redirect(getattr(settings, 'LOGOUT_REDIRECT_URL', '/'))
-
-
-
-
-
-
+    return redirect(getattr(settings, "LOGOUT_REDIRECT_URL", "/"))
 
 
 # login page
@@ -55,10 +50,12 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_protect
 
+
 def _wants_json(request):
     accept = request.headers.get("Accept", "")
     xrw = request.headers.get("X-Requested-With", "")
     return "application/json" in accept or xrw == "XMLHttpRequest"
+
 
 @csrf_protect
 @require_http_methods(["GET", "POST"])
@@ -83,7 +80,9 @@ def login_view(request):
 
     if field_errors:
         if _wants_json(request):
-            return JsonResponse({"success": False, "field_errors": field_errors}, status=400)
+            return JsonResponse(
+                {"success": False, "field_errors": field_errors}, status=400
+            )
         for _, msgs in field_errors.items():
             messages.error(request, msgs[0])
         return render(request, "uauth/login.html", {"username": username})
@@ -99,18 +98,23 @@ def login_view(request):
     else:
         if _wants_json(request):
             return JsonResponse(
-                {"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."},
+                {
+                    "success": False,
+                    "message": "아이디 또는 비밀번호가 올바르지 않습니다.",
+                },
                 status=401,
             )
         messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
         return render(request, "uauth/login.html", {"username": username})
 
 
-
-USERNAME_RE = re.compile(r'^[a-zA-Z0-9_]{4,20}$')
-PASSWORD_RE = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
-PHONE_RE = re.compile(r'^010-\d{4}-\d{4}$')
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9_]{4,20}$")
+PASSWORD_RE = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+)
+PHONE_RE = re.compile(r"^010-\d{4}-\d{4}$")
 MIN_BIRTH = date(1900, 1, 1)
+
 
 @require_http_methods(["GET", "POST"])
 def signup_view(request):
@@ -120,7 +124,7 @@ def signup_view(request):
     # --- POST ---
     print("✅ POST 요청 도착")
     print("➡ request.POST:", request.POST)
-    
+
     userId = request.POST.get("userId", "").strip()
     name = request.POST.get("name", "").strip()
     password = request.POST.get("password", "")
@@ -133,18 +137,17 @@ def signup_view(request):
     gender = request.POST.get("gender", "").strip()
     phone = request.POST.get("phoneNumber", "").strip()
 
-   
     print(userId)
     user = User(
-    id=userId,
-    email=email,
-    name=name,
-    # department=department,
-    # rank=rank,
-    birthday=birth_date,
-    gender=gender,
-    phone=phone
-)
+        id=userId,
+        email=email,
+        name=name,
+        # department=department,
+        # rank=rank,
+        birthday=birth_date,
+        gender=gender,
+        phone=phone,
+    )
     user.set_password(password)
     user.save()
 
@@ -155,6 +158,7 @@ def signup_view(request):
     # login(request, user)
     messages.success(request, "회원가입이 완료되었습니다.")
     return redirect("home")
+
 
 # -------------------------------------------------------------------
 # (옵션) JSON API 회원가입 엔드포인트
@@ -167,15 +171,17 @@ def signup_api(request: HttpRequest) -> JsonResponse:
     try:
         data = json.loads(request.body.decode() or "{}")
     except Exception:
-        return JsonResponse({'ok': False, 'msg': 'Invalid JSON'}, status=400)
+        return JsonResponse({"ok": False, "msg": "Invalid JSON"}, status=400)
 
-    form = UserCreationForm({
-        'username': data.get('username', ''),
-        'password1': data.get('password1', ''),
-        'password2': data.get('password2', ''),
-    })
+    form = UserCreationForm(
+        {
+            "username": data.get("username", ""),
+            "password1": data.get("password1", ""),
+            "password2": data.get("password2", ""),
+        }
+    )
 
     if form.is_valid():
         user = form.save()
-        return JsonResponse({'ok': True, 'username': user.username}, status=201)
-    return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
+        return JsonResponse({"ok": True, "username": user.username}, status=201)
+    return JsonResponse({"ok": False, "errors": form.errors}, status=400)
