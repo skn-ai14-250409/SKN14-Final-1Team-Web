@@ -21,21 +21,22 @@ from .utils.main import run_rag, run_graph
 @csrf_exempt
 # @login_required # 이후 로그인 기능 구현되면 주석 풀고 구현 필요
 def chat(request):
-    try:
-        data = json.loads(request.body)
-        user_message = data.get("message")
-        print(user_message)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_message = data.get("message")
+            print(user_message)
 
-        response = run_graph(user_message)
+            response = run_graph(user_message)
 
-        response_data = {"success": True, "bot_message": response}
+            response_data = {"success": True, "bot_message": response}
 
-        return JsonResponse(response_data)
+            return JsonResponse(response_data)
 
-    except Exception as e:
-        return JsonResponse(
-            {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
-        )
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
+            )
 
 
 @csrf_exempt
@@ -57,7 +58,26 @@ def chat_sessions(request):
 
 
 @csrf_exempt
-@login_required
+# @login_required
 def create_session(request):
     """새 채팅 세션 생성"""
-    pass
+    if request.method == "POST":
+        try:
+            session = ChatSession.objects.create(
+                user=request.user, id=uuid.uuid4(), mode="api", title="새로운 대화"
+            )
+
+            return JsonResponse(
+                {
+                    "session": {
+                        "id": session.id,
+                        "session_id": session.id,
+                        "title": session.title,
+                        "created_at": session.created_at.isoformat(),
+                    }
+                }
+            )
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
