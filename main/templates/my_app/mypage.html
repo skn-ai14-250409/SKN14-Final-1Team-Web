@@ -99,7 +99,14 @@
                     <li>
                         <span>{{ key.name }}</span>
                         <span class="api-value">{{ key.secret_key }}</span>
-                        <button onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
+                        <div class="actions">
+                            <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
+                            <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="key_id" value="{{ key.id }}">
+                                <button type="submit" class="delete-button">❌</button>
+                            </form>
+                        </div>
                     </li>
                     {% empty %}
                     <li>등록된 API 키가 없습니다.</li>

@@ -43,7 +43,7 @@ def mypage(request):
                 user=request.user, name=key_name, secret_key=key_value
             )
 
-        # return redirect('mypage') # my_app:mypage
+        return redirect('mypage:mypage')
 
     # [GET] 페이지 로딩
     api_keys = request.user.api_keys.all().order_by("-created_at")
@@ -56,6 +56,15 @@ def mypage(request):
     }
     return render(request, "my_app/mypage.html", context)
 
+@login_required
+def api_key_delete(request, key_id):
+    if request.method == 'POST':
+        try:
+            api_key = ApiKey.objects.get(pk=key_id, user=request.user)
+            api_key.delete()
+        except ObjectDoesNotExist:
+            pass
+    return redirect('mypage:mypage')
 
 @login_required
 def card_detail(request, card_id):
