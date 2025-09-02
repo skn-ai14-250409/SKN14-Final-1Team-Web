@@ -4,7 +4,9 @@ def home_view(request):
     return render(request, 'my_app/home.html')
 
 def main_chatbot_view(request):
-    return render(request, 'my_app/main_chatbot.html')
+    chat_sessions = request.user.chat_sessions.filter(mode='api')
+    
+    return render(request, 'my_app/main_chatbot.html', {'chat_sessions': chat_sessions})
 
 def internal_docs_view(request):
     return render(request, 'my_app/internal_docs.html')
