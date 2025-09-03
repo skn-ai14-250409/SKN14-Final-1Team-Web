@@ -109,7 +109,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_URL = "/uauth/"          # 로그인 페이지
-LOGIN_REDIRECT_URL = "/main/"  # 로그인 성공 후 이동
-LOGOUT_REDIRECT_URL = "/uauth/"  # 로그아웃 후 이동(선택)
+LOGIN_URL = "/uauth/login/"
+LOGIN_REDIRECT_URL = "/main/home/"
+LOGOUT_REDIRECT_URL = "/uauth/login/"
 APPEND_SLASH = True
