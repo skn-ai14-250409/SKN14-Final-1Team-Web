@@ -39,6 +39,6 @@ $ docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 # 도커 허브이미지 실행방법
 
 ```bash
-$ docker pull vulpes94/codenova
-$ docker run -d --name codenova --env-file .env -p 8000:8000 vulpes94/codenova
+$ docker pull skn14f1/codenova
+$ docker run -d --name codenova --env-file .env -p 8000:8000 skn14f1/codenova
 ```
