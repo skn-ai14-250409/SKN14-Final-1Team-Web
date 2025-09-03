@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from uauth.models import ApiKey, User
 from django.core.exceptions import ObjectDoesNotExist
 from main.models import Card
+from django.contrib import messages
+
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 # @login_required
@@ -43,7 +46,7 @@ def mypage(request):
                 user=request.user, name=key_name, secret_key=key_value
             )
 
-        # return redirect('mypage') # my_app:mypage
+        return redirect('mypage:mypage')
 
     # [GET] 페이지 로딩
     api_keys = request.user.api_keys.all().order_by("-created_at")
@@ -56,6 +59,52 @@ def mypage(request):
     }
     return render(request, "my_app/mypage.html", context)
 
+@csrf_exempt
+@login_required
+def mypage_edit(request):
+    if request.method == 'POST':
+        print("POST 데이터:", request.POST)
+        try:
+            name = request.POST.get('name')
+            rank = request.POST.get('rank')
+            department = request.POST.get('department')
+            email = request.POST.get('email')
+            gender = request.POST.get('gender')
+            phone = request.POST.get('phone')
+            birthday = request.POST.get('birthday')
+
+            if name:
+                request.user.name = name
+            if rank:
+                request.user.rank = rank
+            if department:
+                request.user.department = department
+            if email:
+                request.user.email = email
+            if gender:
+                request.user.gender = gender
+            if phone:
+                request.user.phone = phone
+            if birthday:
+                request.user.birthday = birthday
+
+            request.user.save()
+            messages.success(request, '프로필 정보가 성공적으로 수정되었습니다.')
+
+        except Exception as e:
+            messages.error(request, f'프로필 수정 중 오류가 발생했습니다: {e}')
+        
+        return redirect('mypage:mypage')
+
+@login_required
+def api_key_delete(request, key_id):
+    if request.method == 'POST':
+        try:
+            api_key = ApiKey.objects.get(pk=key_id, user=request.user)
+            api_key.delete()
+        except ObjectDoesNotExist:
+            pass
+    return redirect('mypage:mypage')
 
 @login_required
 def card_detail(request, card_id):

@@ -5,40 +5,53 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>회원가입</title>
-
-  <!-- CSS 불러오기 -->
   <link rel="stylesheet" href="{% static 'uauth/css/signup.css' %}">
 </head>
 <body>
-  <!-- 상단 페이지 타이틀/설명 -->
   <header class="page" aria-labelledby="pagetitle">
     <h1 id="pagetitle">회원가입</h1>
     <p>회원가입을 위한 정보를 입력해주세요</p>
   </header>
 
-  <!-- 카드: "회원가입" 섹션 -->
   <main class="card" role="main" aria-labelledby="sectionTitle">
-    
     <div class="section-desc">아래 정보를 입력하여 회원가입을 완료해주세요.</div>
 
-    <form id="registerForm" class="form"  method="post" action="{% url 'uauth:signup' %}" novalidate>
+    <form id="registerForm" class="form" method="post" action="{% url 'uauth:signup' %}" novalidate>
       {% csrf_token %}
+
+      {# 🔧 추가: 전체(non-field) 에러 표시 #}
+      {% if form and form.non_field_errors %}
+        <div class="error nonfield">
+          {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
       <div class="grid">
         <!-- 아이디 -->
         <div class="form-item">
           <label for="userId">아이디</label>
           <input id="userId" name="userId" type="text" placeholder="아이디를 입력하세요"
                  required minlength="4" maxlength="20"
-                 pattern="^[a-zA-Z0-9_]{4,20}$" autocomplete="username" aria-describedby="userIdErr">
-          <div id="userIdErr" class="error"></div>
+                 pattern="^[a-zA-Z0-9_]{4,20}$" autocomplete="username" aria-describedby="userIdErr"
+                 {# 🔧 추가: 값 유지 & 에러시 aria-invalid #}
+                 value="{{ form.userId.value|default:'' }}"
+                 {% if form.userId.errors %}aria-invalid="true"{% endif %}>
+          <div id="userIdErr" class="error">
+            {# 🔧 추가: 필드 에러 출력 (중복 아이디 메시지가 여기로 옴) #}
+            {% for err in form.userId.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 이름 -->
         <div class="form-item">
           <label for="name">이름</label>
           <input id="name" name="name" type="text" placeholder="이름을 입력하세요"
-                 required minlength="2" maxlength="10" aria-describedby="nameErr">
-          <div id="nameErr" class="error"></div>
+                 required minlength="2" maxlength="10" aria-describedby="nameErr"
+                 value="{{ form.name.value|default:'' }}"
+                 {% if form.name.errors %}aria-invalid="true"{% endif %}>
+          <div id="nameErr" class="error">
+            {% for err in form.name.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 비밀번호 -->
@@ -46,11 +59,14 @@
           <label for="password">비밀번호</label>
           <div class="password-wrap">
             <input id="password" name="password" type="password" placeholder="비밀번호를 입력하세요"
-                   required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
-                   aria-describedby="passwordErr" autocomplete="new-password">
+                   required pattern="^(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[a-z\d@$!%*?&]{8,}$"
+                   aria-describedby="passwordErr" autocomplete="new-password"
+                   {% if form.password.errors %}aria-invalid="true"{% endif %}>
             <button class="toggle" type="button" aria-label="비밀번호 표시" data-target="password">👁</button>
           </div>
-          <div id="passwordErr" class="error"></div>
+          <div id="passwordErr" class="error">
+            {% for err in form.password.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 비밀번호 확인 -->
@@ -58,66 +74,91 @@
           <label for="confirmPassword">비밀번호 확인</label>
           <div class="password-wrap">
             <input id="confirmPassword" name="confirmPassword" type="password" placeholder="비밀번호를 다시 입력하세요"
-                   required aria-describedby="confirmErr" autocomplete="new-password">
+                   required aria-describedby="confirmErr" autocomplete="new-password"
+                   {% if form.confirmPassword.errors %}aria-invalid="true"{% endif %}>
             <button class="toggle" type="button" aria-label="비밀번호 확인 표시" data-target="confirmPassword">👁</button>
           </div>
-          <div id="confirmErr" class="error"></div>
+          <div id="confirmErr" class="error">
+            {% for err in form.confirmPassword.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 이메일 -->
         <div class="form-item">
           <label for="email">이메일</label>
           <input id="email" name="email" type="email" placeholder="이메일을 입력하세요"
-                 required aria-describedby="emailErr" autocomplete="email">
-          <div id="emailErr" class="error"></div>
+                 required aria-describedby="emailErr" autocomplete="email"
+                 value="{{ form.email.value|default:'' }}"
+                 {% if form.email.errors %}aria-invalid="true"{% endif %}>
+          <div id="emailErr" class="error">
+            {% for err in form.email.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 팀 -->
         <div class="form-item">
           <label for="team">팀</label>
-          <select id="team" name="team" required aria-describedby="teamErr">
-            <option value="" selected disabled>팀을 선택하세요</option>
-            <option>프론트엔드</option><option>백엔드</option><option>AI/데이터팀</option>
-            
+          <select id="team" name="team" required aria-describedby="teamErr"
+                  {% if form.team.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.team.value %}selected{% endif %} disabled>팀을 선택하세요</option>
+            <option {% if form.team.value == "프론트엔드" %}selected{% endif %}>프론트엔드</option>
+            <option {% if form.team.value == "백엔드" %}selected{% endif %}>백엔드</option>
+            <option {% if form.team.value == "AI/데이터팀" %}selected{% endif %}>AI/데이터팀</option>
           </select>
-          <div id="teamErr" class="error"></div>
+          <div id="teamErr" class="error">
+            {% for err in form.team.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
-        
-        <!--직급-->
-         <div class="form-item">
+
+        <!-- 직급 -->
+        <div class="form-item">
           <label for="role">직급</label>
-          <select id="role" name="role" required aria-describedby="roleErr">
-            <option value="" selected disabled>직급을 선택하세요</option>
-            <option>일반</option><option>CTO</option>
-            
+          <select id="role" name="role" required aria-describedby="roleErr"
+                  {% if form.role.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.role.value %}selected{% endif %} disabled>직급을 선택하세요</option>
+            <option {% if form.role.value == "일반" %}selected{% endif %}>일반</option>
+            <option {% if form.role.value == "CTO" %}selected{% endif %}>CTO</option>
           </select>
-          <div id="roleErr" class="error"></div>
+          <div id="roleErr" class="error">
+            {% for err in form.role.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 생년월일 -->
         <div class="form-item">
           <label for="birthDate">생년월일</label>
-          <input id="birthDate" name="birthDate" type="date" required aria-describedby="birthErr" min="1900-01-01">
-          <div id="birthErr" class="error"></div>
+          <input id="birthDate" name="birthDate" type="date" required aria-describedby="birthErr" min="1900-01-01"
+                 value="{{ form.birthDate.value|default:'' }}"
+                 {% if form.birthDate.errors %}aria-invalid="true"{% endif %}>
+          <div id="birthErr" class="error">
+            {% for err in form.birthDate.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 성별 -->
         <div class="form-item">
           <label for="gender">성별</label>
-          <select id="gender" name="gender" required aria-describedby="genderErr">
-            <option value="" selected disabled>성별을 선택하세요</option>
-            <option value="male">남성</option>
-            <option value="female">여성</option>
+          <select id="gender" name="gender" required aria-describedby="genderErr"
+                  {% if form.gender.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.gender.value %}selected{% endif %} disabled>성별을 선택하세요</option>
+            <option value="male" {% if form.gender.value == "male" %}selected{% endif %}>남성</option>
+            <option value="female" {% if form.gender.value == "female" %}selected{% endif %}>여성</option>
           </select>
-          <div id="genderErr" class="error"></div>
+          <div id="genderErr" class="error">
+            {% for err in form.gender.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
 
         <!-- 전화번호 -->
         <div class="form-item full">
           <label for="phoneNumber">전화번호</label>
           <input id="phoneNumber" name="phoneNumber" type="text" inputmode="numeric"
-                 placeholder="010-1234-5678" required pattern="^010-\\d{4}-\\d{4}$" aria-describedby="phoneErr">
-          <div id="phoneErr" class="error"></div>
+                 placeholder="010-1234-5678" required pattern="^010-\d{4}-\d{4}$" aria-describedby="phoneErr"
+                 value="{{ form.phoneNumber.value|default:'' }}"
+                 {% if form.phoneNumber.errors %}aria-invalid="true"{% endif %}>
+          <div id="phoneErr" class="error">
+            {% for err in form.phoneNumber.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
         </div>
       </div>
 
@@ -125,7 +166,6 @@
     </form>
   </main>
 
-  <!-- JS 불러오기 -->
   <script src="{% static 'uauth/js/signup.js' %}"></script>
 </body>
 </html>
