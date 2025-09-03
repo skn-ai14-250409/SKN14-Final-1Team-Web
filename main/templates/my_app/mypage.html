@@ -89,12 +89,20 @@
             <div class="section-box">
                 <h4>내 API 키</h4>
 
-                <form method="post">
+                <form method="post" action="{% url 'mypage:mypage' %}" class="api-key-form">
                     {% csrf_token %}
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" name="api_key_name" placeholder="api 키 이름" required>
-                        <input type="text" name="api_key_value" placeholder="api 키 값" required>
-                        <button type="submit">등록</button>
+
+                    <div class="input-container">
+                        <div class="api-key-group">
+                            <input type="text" name="api_key_name" id="api_key_name" placeholder="API 키 이름" required>
+                            <span id="api_key_message" class="api-key-message"></span>
+                        </div>
+
+                        <div class="value-group">
+                            <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
+                        </div>
+
+                        <button type="submit" id="create_key_button" disabled>키 생성</button>
                     </div>
                 </form>
 

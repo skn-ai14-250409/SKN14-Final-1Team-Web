@@ -7,6 +7,8 @@ from main.models import Card
 from django.contrib import messages
 
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.contrib import messages
 
 # Create your views here.
 # @login_required
@@ -42,11 +44,13 @@ def mypage(request):
         key_value = request.POST.get("api_key_value")
 
         if key_name and key_value:
-            ApiKey.objects.create(
-                user=request.user, name=key_name, secret_key=key_value
-            )
-
-        return redirect('mypage:mypage')
+            if not ApiKey.objects.filter(user=request.user, name=key_name).exists():
+                ApiKey.objects.create(
+                    user=request.user,
+                    name=key_name,
+                    secret_key=key_value
+                )
+        return redirect("mypage:mypage")
 
     # [GET] 페이지 로딩
     api_keys = request.user.api_keys.all().order_by("-created_at")
@@ -121,3 +125,11 @@ def card_detail(request, card_id):
     }
 
     return render(request, "my_app/card_detail.html", context)
+
+@login_required
+def check_api_key_name(request): # API 키 이름의 중복 여부 - ajax
+    if request.method == 'GET':
+        key_name = request.GET.get('name', None)
+        is_taken = ApiKey.objects.filter(user=request.user, name=key_name).exists()
+        
+        return JsonResponse({'is_taken': is_taken})

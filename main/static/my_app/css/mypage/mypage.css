@@ -112,13 +112,7 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-.api-key-list li .api-value {
-    flex: 1;
-    margin: 0 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+
 .item-list li button {
     background-color: #ccc;
     border: none;
@@ -130,4 +124,36 @@ body {
 .item-list li .actions {
     display: flex;
     gap: 0.5rem;
+}
+
+/* apikey 추가 */
+.api-key-form .input-container {
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+}
+
+.name-group,
+.value-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.api-key-message {
+    display: block; 
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+.api-key-form input[type="text"] {
+    width: 250px; 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#create_key_button {
+    height: fit-content; 
+    padding: 8px 15px; 
 }
