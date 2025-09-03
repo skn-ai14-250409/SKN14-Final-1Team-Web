@@ -15,6 +15,7 @@ import json
 import re
 from datetime import date
 
+
 # -----------------------------
 # 유틸
 # -----------------------------
@@ -23,11 +24,15 @@ def _wants_json(request):
     xrw = request.headers.get("X-Requested-With", "")
     return "application/json" in accept or xrw == "XMLHttpRequest"
 
+
 # 서버측 검증용(선택)
-USERNAME_RE = re.compile(r'^[a-zA-Z0-9_]{4,20}$')
-PASSWORD_RE = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
-PHONE_RE    = re.compile(r'^010-\d{4}-\d{4}$')
-MIN_BIRTH   = date(1900, 1, 1)
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9_]{4,20}$")
+PASSWORD_RE = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+)
+PHONE_RE = re.compile(r"^010-\d{4}-\d{4}$")
+MIN_BIRTH = date(1900, 1, 1)
+
 
 # -----------------------------
 # 로그아웃
@@ -35,7 +40,8 @@ MIN_BIRTH   = date(1900, 1, 1)
 @login_required
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
-    return redirect('uauth:login')
+    return redirect("uauth:login")
+
 
 # -----------------------------
 # 로그인
@@ -61,7 +67,9 @@ def login_view(request):
 
     if field_errors:
         if _wants_json(request):
-            return JsonResponse({"success": False, "field_errors": field_errors}, status=400)
+            return JsonResponse(
+                {"success": False, "field_errors": field_errors}, status=400
+            )
         for _, msgs in field_errors.items():
             messages.error(request, msgs[0])
         return render(request, "uauth/login.html", {"username": username})
@@ -75,27 +83,33 @@ def login_view(request):
         return redirect("home")
 
     if _wants_json(request):
-        return JsonResponse({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}, status=401)
+        return JsonResponse(
+            {"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."},
+            status=401,
+        )
     messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
     return render(request, "uauth/login.html", {"username": username})
+
 
 # -----------------------------
 # 회원가입
 # -----------------------------
 from django import forms
 
+
 class SignUpEchoForm(forms.Form):
     # 템플릿에서 form.userId.value 같은 접근을 위해 필드 선언
-    userId         = forms.CharField(required=True)
-    name           = forms.CharField(required=True)
-    password       = forms.CharField(required=True)
-    confirmPassword= forms.CharField(required=True)
-    email          = forms.EmailField(required=True)
-    team           = forms.CharField(required=True)
-    role           = forms.CharField(required=True)
-    birthDate      = forms.DateField(required=True)
-    gender         = forms.CharField(required=True)
-    phoneNumber    = forms.CharField(required=True)
+    userId = forms.CharField(required=True)
+    name = forms.CharField(required=True)
+    password = forms.CharField(required=True)
+    confirmPassword = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    team = forms.CharField(required=True)
+    role = forms.CharField(required=True)
+    birthDate = forms.DateField(required=True)
+    gender = forms.CharField(required=True)
+    phoneNumber = forms.CharField(required=True)
+
 
 @csrf_protect
 @require_http_methods(["GET", "POST"])
@@ -107,19 +121,18 @@ def signup_view(request: HttpRequest):
     form = SignUpEchoForm(request.POST)
 
     # 값 추출
-    userId   = form.data.get("userId", "").strip()
-    name     = form.data.get("name", "").strip()
+    userId = form.data.get("userId", "").strip()
+    name = form.data.get("name", "").strip()
     password = form.data.get("password", "")
-    confirm  = form.data.get("confirmPassword", "")
-    email    = form.data.get("email", "").strip()
-    team     = form.data.get("team", "").strip()
-    role     = form.data.get("role", "").strip()
-    birth_raw= form.data.get("birthDate") or ""
+    confirm = form.data.get("confirmPassword", "")
+    email = form.data.get("email", "").strip()
+    team = form.data.get("team", "").strip()
+    role = form.data.get("role", "").strip()
+    birth_raw = form.data.get("birthDate") or ""
     birth_dt = parse_date(birth_raw)
-    gender   = form.data.get("gender", "").strip()
-    phone    = form.data.get("phoneNumber", "").strip()
+    gender = form.data.get("gender", "").strip()
+    phone = form.data.get("phoneNumber", "").strip()
 
-    
     if form.errors:
         # 폼 에러 그대로 템플릿에 출력
         return render(request, "uauth/register2.html", {"form": form})
@@ -146,6 +159,7 @@ def signup_view(request: HttpRequest):
     login(request, user)
     messages.success(request, "회원가입이 완료되었습니다.")
     return redirect("home")
+
 
 # -----------------------------
 # (옵션) JSON API - 필요 시 사용
