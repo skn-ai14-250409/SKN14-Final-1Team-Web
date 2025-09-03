@@ -34,14 +34,12 @@
 
                 <!-- ✅ 세션 리스트 -->
 	    <ul id="sessionList" class="session-list">
-        {% if request.path == '/main-chatbot/' %}
     {% for s in chat_sessions %}
             <li class="session-item">
                 <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
                 <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
             </li>
     {% endfor %}
-{% endif %}
 </ul>
             </div>
         </aside>
