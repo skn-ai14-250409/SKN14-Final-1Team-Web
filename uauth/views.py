@@ -1,73 +1,54 @@
+# uauth/views.py
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
-from django.conf import settings
-from django.contrib import messages
-
-from django.contrib.auth import login
-from django.db import transaction
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
-from django.utils.dateparse import parse_date
-
-
-from django.contrib.auth.forms import UserCreationForm
+from django.db import IntegrityError, transaction
+from .models import User
 import json
-
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
-from django.contrib import messages
-
-# from django.contrib.auth import get_user_model, login
-from django.utils.dateparse import parse_date
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
-from django.db import IntegrityError
 import re
 from datetime import date
-from .models import User
 
-from django.contrib.auth import authenticate, login
-
-
-@login_required
-def logout_view(request: HttpRequest) -> HttpResponse:
-    logout(request)
-    return redirect(getattr(settings, "LOGOUT_REDIRECT_URL", "/"))
-
-
-# login page
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_protect
-
-
+# -----------------------------
+# 유틸
+# -----------------------------
 def _wants_json(request):
     accept = request.headers.get("Accept", "")
     xrw = request.headers.get("X-Requested-With", "")
     return "application/json" in accept or xrw == "XMLHttpRequest"
 
+# 서버측 검증용(선택)
+USERNAME_RE = re.compile(r'^[a-zA-Z0-9_]{4,20}$')
+PASSWORD_RE = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+PHONE_RE    = re.compile(r'^010-\d{4}-\d{4}$')
+MIN_BIRTH   = date(1900, 1, 1)
 
+# -----------------------------
+# 로그아웃
+# -----------------------------
+@login_required
+def logout_view(request: HttpRequest) -> HttpResponse:
+    logout(request)
+    return redirect(getattr(settings, "LOGOUT_REDIRECT_URL", "/"))
+
+# -----------------------------
+# 로그인
+# -----------------------------
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.method == "GET":
         return render(request, "uauth/login.html")
 
-    # --- POST ---
     username = request.POST.get("username", "").strip()
     password = request.POST.get("password", "")
 
-    # 필드 유효성(프런트와 동일 규칙)
     field_errors = {}
     if not username:
         field_errors["username"] = ["아이디를 입력해주세요."]
@@ -80,91 +61,95 @@ def login_view(request):
 
     if field_errors:
         if _wants_json(request):
-            return JsonResponse(
-                {"success": False, "field_errors": field_errors}, status=400
-            )
+            return JsonResponse({"success": False, "field_errors": field_errors}, status=400)
         for _, msgs in field_errors.items():
             messages.error(request, msgs[0])
         return render(request, "uauth/login.html", {"username": username})
 
     user = authenticate(request, username=username, password=password)
-
     if user is not None:
         login(request, user)
         if _wants_json(request):
             return JsonResponse({"success": True, "redirect_url": reverse("home")})
         messages.success(request, f"{user.username}님, 환영합니다!")
         return redirect("home")
-    else:
-        if _wants_json(request):
-            return JsonResponse(
-                {
-                    "success": False,
-                    "message": "아이디 또는 비밀번호가 올바르지 않습니다.",
-                },
-                status=401,
-            )
-        messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
-        return render(request, "uauth/login.html", {"username": username})
 
+    if _wants_json(request):
+        return JsonResponse({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}, status=401)
+    messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
+    return render(request, "uauth/login.html", {"username": username})
 
-USERNAME_RE = re.compile(r"^[a-zA-Z0-9_]{4,20}$")
-PASSWORD_RE = re.compile(
-    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-)
-PHONE_RE = re.compile(r"^010-\d{4}-\d{4}$")
-MIN_BIRTH = date(1900, 1, 1)
+# -----------------------------
+# 회원가입
+# -----------------------------
+from django import forms
 
+class SignUpEchoForm(forms.Form):
+    # 템플릿에서 form.userId.value 같은 접근을 위해 필드 선언
+    userId         = forms.CharField(required=True)
+    name           = forms.CharField(required=True)
+    password       = forms.CharField(required=True)
+    confirmPassword= forms.CharField(required=True)
+    email          = forms.EmailField(required=True)
+    team           = forms.CharField(required=True)
+    role           = forms.CharField(required=True)
+    birthDate      = forms.DateField(required=True)
+    gender         = forms.CharField(required=True)
+    phoneNumber    = forms.CharField(required=True)
 
+@csrf_protect
 @require_http_methods(["GET", "POST"])
-def signup_view(request):
+def signup_view(request: HttpRequest):
     if request.method == "GET":
-        return render(request, "uauth/register2.html")
+        return render(request, "uauth/register2.html", {"form": SignUpEchoForm()})
 
-    # --- POST ---
-    print("✅ POST 요청 도착")
-    print("➡ request.POST:", request.POST)
+    # POST
+    form = SignUpEchoForm(request.POST)
 
-    userId = request.POST.get("userId", "").strip()
-    name = request.POST.get("name", "").strip()
-    password = request.POST.get("password", "")
-    confirm = request.POST.get("confirmPassword", "")
-    email = request.POST.get("email", "").strip()
-    team = request.POST.get("team", "").strip()
-    role = request.POST.get("role", "").strip()
-    birth_date_raw = request.POST.get("birthDate") or ""
-    birth_date = parse_date(birth_date_raw)
-    gender = request.POST.get("gender", "").strip()
-    phone = request.POST.get("phoneNumber", "").strip()
+    # 값 추출
+    userId   = form.data.get("userId", "").strip()
+    name     = form.data.get("name", "").strip()
+    password = form.data.get("password", "")
+    confirm  = form.data.get("confirmPassword", "")
+    email    = form.data.get("email", "").strip()
+    team     = form.data.get("team", "").strip()
+    role     = form.data.get("role", "").strip()
+    birth_raw= form.data.get("birthDate") or ""
+    birth_dt = parse_date(birth_raw)
+    gender   = form.data.get("gender", "").strip()
+    phone    = form.data.get("phoneNumber", "").strip()
 
-    print(userId)
-    user = User(
-        id=userId,
-        email=email,
-        name=name,
-        department=team,
-        rank=role,
-        birthday=birth_date,
-        gender=gender,
-        phone=phone,
-    )
-    user.set_password(password)
-    user.save()
+    
+    if form.errors:
+        # 폼 에러 그대로 템플릿에 출력
+        return render(request, "uauth/register2.html", {"form": form})
 
-    # (선택) 별도 Profile 모델이 정말 필요할 때만 사용하세요.
-    # from .models import Profile
-    # Profile.objects.create(...)
+    # DB 저장 (중복 아이디 방어)
+    try:
+        with transaction.atomic():
+            user = User(
+                id=userId,
+                email=email,
+                name=name,
+                department=team,
+                rank=role,
+                birthday=birth_dt,
+                gender=gender,
+                phone=phone,
+            )
+            user.set_password(password)  # 해시 저장
+            user.save()
+    except IntegrityError:
+        form.add_error("userId", "이미 사용 중인 아이디입니다.")
+        return render(request, "uauth/register2.html", {"form": form})
 
     login(request, user)
     messages.success(request, "회원가입이 완료되었습니다.")
     return redirect("home")
 
-
-# -------------------------------------------------------------------
-# (옵션) JSON API 회원가입 엔드포인트
-#  - 프론트가 fetch/axios로 JSON POST 할 때 사용
-#  - CSRF 토큰을 헤더나 쿠키로 포함하는 것을 권장
-# -------------------------------------------------------------------
+# -----------------------------
+# (옵션) JSON API - 필요 시 사용
+# -----------------------------
 @csrf_protect
 @require_http_methods(["POST"])
 def signup_api(request: HttpRequest) -> JsonResponse:
@@ -173,15 +158,5 @@ def signup_api(request: HttpRequest) -> JsonResponse:
     except Exception:
         return JsonResponse({"ok": False, "msg": "Invalid JSON"}, status=400)
 
-    form = UserCreationForm(
-        {
-            "username": data.get("username", ""),
-            "password1": data.get("password1", ""),
-            "password2": data.get("password2", ""),
-        }
-    )
-
-    if form.is_valid():
-        user = form.save()
-        return JsonResponse({"ok": True, "username": user.username}, status=201)
-    return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+    # 실사용 시 폼/검증 추가 후 저장 로직 구현
+    return JsonResponse({"ok": False, "msg": "Not implemented"}, status=400)

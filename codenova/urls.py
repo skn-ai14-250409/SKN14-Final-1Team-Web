@@ -6,8 +6,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("main.urls")),
-    path("", include("uauth.urls")),
+    path("uauth/", include("uauth.urls")),
+    path("main/", include("main.urls")),  
     path("mypage/", include("mypage.urls")),
     # ✅ catch-all 위에 둠
 ]
