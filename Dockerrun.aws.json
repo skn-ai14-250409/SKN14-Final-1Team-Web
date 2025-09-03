@@ -1,0 +1,16 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "skn14f1/codenova:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8000
+    }
+  ],
+  "Environment": [
+    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" }
+  ],
+  "Logging": "/var/log/nginx"
+}
