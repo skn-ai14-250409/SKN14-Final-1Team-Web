@@ -1,0 +1,124 @@
+{% extends 'my_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'my_app/css/mypage/mypage.css' %}">
+
+    <div class="container">
+        <section class="section-box account-section">
+            <div class="profile-header">
+                <h2>내 계정</h2>
+                <p>계정 정보를 관리하고 업데이트하세요</p>
+            </div>
+            
+            <div class="profile-section-header">
+                <div class="profile-image-container">
+                    <div class="profile-image-placeholder">👤</div>
+                </div>
+                <div id="edit-buttons">
+                    <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
+                    <button id="save-btn" form="profile-form" class="edit-button" type="submit" style="display:none;">저장</button>
+                </div>
+            </div>
+
+            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id">아이디</label>
+                    <input type="text" id="id" value="{{ user.id }}" readonly>
+                    <small>아이디는 변경할 수 없습니다</small>
+                </div>
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" readonly>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rank">직급</label>
+                        <input type="text" id="rank" name="rank" value="{{ user.rank }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">팀</label>
+                        <input type="text" id="department" name="department" value="{{ user.department }}" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthdate">생년월일</label>
+                        <input type="date" id="birthdate" name="birthdate" value="{{ user.birthday|date:'Y-m-d' }}" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">성별</label>
+                        <input type="text" id="gender" name="gender" value="{{ user.gender }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">전화번호</label>
+                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}" readonly>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="card-api-section">
+            <div class="section-box">
+                <h4>내가 저장한 카드</h4>
+                <ul class="item-list">
+                    {% for card in cards %}
+                    <li>
+                        <span>{{ card.title }}</span>
+                        <div class="actions">
+                            {% comment %} "openCardDetail('{{ card.id }}')" {% endcomment %}
+                            <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
+                            {% comment %} 링크 연결 필 {% endcomment %}
+                            <button>채팅 보러가기</button> 
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>저장된 카드가 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="section-box">
+                <h4>내 API 키</h4>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" name="api_key_name" placeholder="api 키 이름" required>
+                        <input type="text" name="api_key_value" placeholder="api 키 값" required>
+                        <button type="submit">등록</button>
+                    </div>
+                </form>
+
+                <ul class="item-list">
+                    {% for key in api_keys %}
+                    <li>
+                        <span>{{ key.name }}</span>
+                        <span class="api-value">{{ key.secret_key }}</span>
+                        <div class="actions">
+                            <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
+                            <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="key_id" value="{{ key.id }}">
+                                <button type="submit" class="delete-button">❌</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>등록된 API 키가 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <script src="{% static 'my_app/js/mypage/mypage.js' %}"></script>
+{% endblock %}

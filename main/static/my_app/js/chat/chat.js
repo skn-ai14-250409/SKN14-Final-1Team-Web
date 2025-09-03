@@ -17,42 +17,108 @@ if (newsessionBtn) {
 } else {
   console.warn('.btn-new-chat 를 찾지 못했습니다.');}
 
-// 세션 목록 로드
-async function loadSessions() {
-  const resp = await fetch('/api-chat/sessions/', { credentials: 'same-origin' });
-  const data = await resp.json();
-
-  sessionList.innerHTML = '';
-  (data.results || []).forEach(s => {
-    const li = document.createElement('li');
-    li.className = 'session-item';
-    li.innerHTML = `<button class="session-link" data-session-id="${s.id}">${s.title}</button>`;
-    sessionList.appendChild(li);
-  });
-
-  // 기본: 가장 최근 세션을 선택 상태로 표시
-  if (data.results && data.results.length > 0) {
-    selectedSessionId = data.results[0].id;
-    sessionTitle.textContent = data.results[0].title;
-    sessionList.querySelector('li').classList.add('is-active');
+// 초기 세션 선택 (Django 템플릿으로 렌더링된 첫 번째 세션 선택)
+async function initializeFirstSession() {
+  const firstSession = sessionList.querySelector('.session-link');
+  if (firstSession) {
+    selectedSessionId = firstSession.dataset.sessionId;
+    sessionTitle.textContent = firstSession.textContent.trim();
+    firstSession.parentElement.classList.add('is-active');
+    await loadChatHistory(selectedSessionId);
   }
 }
 
 // 세션 클릭 이벤트
-sessionList.addEventListener('click', (e) => {
+sessionList.addEventListener('click', async (e) => {
+  // 삭제 버튼 클릭 처리
+  if (e.target.classList.contains('delete-btn')) {
+    const sessionId = e.target.dataset.sessionId;
+    if (confirm('이 세션을 삭제하시겠습니까?')) {
+      await deleteSession(sessionId);
+    }
+    return;
+  }
+
+  // 세션 선택 처리
   const btn = e.target.closest('.session-link');
   if (!btn) return;
   selectedSessionId = btn.dataset.sessionId;
-  console.log(selectedSessionId);
+  console.log('선택된 세션 ID:', selectedSessionId);
   sessionTitle.textContent = btn.textContent.trim();
 
   // 선택 표시 업데이트
   document.querySelectorAll('#sessionList .is-active').forEach(el => el.classList.remove('is-active'));
   btn.parentElement.classList.add('is-active');
+
+  // 채팅 히스토리 로드
+  await loadChatHistory(selectedSessionId);
 });
 
-// 초기 실행
-loadSessions();
+// 세션 삭제 함수
+async function deleteSession(sessionId) {
+  try {
+    const response = await fetch(`/api-chat/delete_session/${sessionId}/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+      },
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    // 삭제된 세션을 리스트에서 제거
+    const sessionItem = document.querySelector(`[data-session-id="${sessionId}"]`).parentElement;
+    sessionItem.remove();
+
+    // 현재 선택된 세션이 삭제된 경우 채팅 내역 비우기
+    if (selectedSessionId === sessionId) {
+      selectedSessionId = null;
+      sessionTitle.textContent = '세션을 선택하세요';
+      chatLog.innerHTML = '';
+    }
+
+    console.log(`세션 ${sessionId} 삭제 완료`);
+
+  } catch (err) {
+    console.error('세션 삭제 실패:', err);
+    alert('세션 삭제에 실패했습니다.');
+  }
+}
+
+// 채팅 히스토리 로드 함수
+async function loadChatHistory(sessionId) {
+  try {
+    const response = await fetch(`/api-chat/chat_history/${sessionId}/`, {
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // 채팅창 초기화
+    chatLog.innerHTML = '';
+    
+    // 메시지 히스토리 표시
+    data.messages.forEach(msg => {
+      addMessage(msg.content, msg.role === 'user' ? 'user' : 'bot');
+    });
+
+    console.log(`세션 ${sessionId} 히스토리 로드 완료:`, data.messages.length, '개 메시지');
+
+  } catch (err) {
+    console.error('채팅 히스토리 로드 실패:', err);
+    chatLog.innerHTML = '<li class="error">채팅 히스토리를 불러올 수 없습니다.</li>';
+  }
+}
+
+// 초기 실행 (새로고침 시, 가장 첫번째 채팅세션을 선택하도록)
+initializeFirstSession();
 
 
 
@@ -72,7 +138,7 @@ async function session_create() {
     });
 
     if (!response.ok) {
-      const text = await response.text();       // ⬅️ 에러 본문 확인
+      const text = await response.text();
       console.error('HTTP', response.status, text);
       throw new Error(`HTTP ${response.status}`);
     }
@@ -80,14 +146,27 @@ async function session_create() {
     const data = await response.json();
     console.log('성공', data);
 
-    // ✅ 새 세션 리스트에 추가
-      const li = document.createElement('li');
+    // 새 세션 리스트에 추가
+    const li = document.createElement('li');
     li.className = 'session-item';
-    li.innerHTML = `<button class="session-link" data-session-id="${data.session.id}">${data.session.title}</button>`;
+    li.innerHTML = `
+      <button class="session-link" data-session-id="${data.session.id}">${data.session.title}</button>
+      <button class="delete-btn" data-session-id="${data.session.id}">×</button>
+    `;
     sessionList.prepend(li);
 
-// ✅ 현재 선택된 세션 타이틀 업데이트
-    if (sessionTitle) sessionTitle.textContent = data.title || '새 채팅';
+    // 새 세션 자동 선택
+    selectedSessionId = data.session.id;
+    sessionTitle.textContent = data.session.title;
+    
+    // 선택 표시 업데이트
+    document.querySelectorAll('#sessionList .is-active').forEach(el => el.classList.remove('is-active'));
+    li.classList.add('is-active');
+    
+    // 채팅창 초기화 (새 세션이므로 빈 상태)
+    chatLog.innerHTML = '';
+    
+    console.log('새 세션 생성 및 선택 완료:', selectedSessionId);
   } catch (err) {
     console.error('요청 실패:', err);
   }
@@ -111,6 +190,12 @@ async function sendMessage() {
   const message = chatInput.value.trim();
   if (!message) return; // 빈 입력은 무시
 
+  // 현재 선택된 세션 확인
+  if (!selectedSessionId) {
+    alert('세션을 선택해주세요.');
+    return;
+  }
+
   // 입력 메시지를 채팅창에 추가
   addMessage(message, 'user');
 
@@ -118,7 +203,7 @@ async function sendMessage() {
   chatInput.value = '';
 
   // 서버 전송 (추후 API 연동 가능)
-  console.log('사용자 질문 전송:', message);
+  console.log('사용자 질문 전송:', message, '세션 ID:', selectedSessionId);
 
   // 임시 봇 응답 + 서버 호출
   try {
@@ -131,7 +216,10 @@ async function sendMessage() {
         'X-CSRFToken': csrfToken,        // Django 표준 헤더명
       },
       credentials: 'same-origin',         // 쿠키 포함 (csrftoken 사용 시 필요)
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ 
+        message: message,
+        session_id: selectedSessionId 
+      }),
     });
 
     // 네트워크/HTTP 에러 체크

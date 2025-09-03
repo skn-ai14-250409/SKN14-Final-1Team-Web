@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>카드 자세히 보기</title>
+    <link rel="stylesheet" href="{% static 'my_app/css/mypage/card_detail.css' %}">
+</head>
+<body>
+
+    <header>{{ card.title }}</header>
+    
+    <main>
+        <div class="chat-container">
+            <ul class="chat-messages">
+                {% for message in messages %}
+                    <li class="chat-message">{{ message.content }}</li>
+                {% empty %}
+                    <li class="no-messages">저장된 메시지가 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </main>
+
+</body>
+</html>

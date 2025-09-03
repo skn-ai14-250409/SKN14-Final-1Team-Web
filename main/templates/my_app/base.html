@@ -32,13 +32,16 @@
                 <!-- ✅ 여기서 세션 안내 문구/제목 표기 -->
                 <h3 id="sessionTitle" class="session-title">세션을 선택하세요</h3>
 
-                <!-- ✅ 여기서 세션 리스트 렌더 -->
+                <!-- ✅ 세션 리스트 -->
 	    <ul id="sessionList" class="session-list">
-		    {% for s in request.user.chat_sessions.all %}
-    <li class="session-item">
-      <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
-    </li>
-  {% empty %}{% endfor %}
+        {% if request.path == '/main-chatbot/' %}
+    {% for s in chat_sessions %}
+            <li class="session-item">
+                <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
+                <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
+            </li>
+    {% endfor %}
+{% endif %}
 </ul>
             </div>
         </aside>
@@ -47,8 +50,14 @@
             <header class="top-header">
                 <div class="header-buttons">
                     <button class="btn-header">이름 / 직급 / 권한</button>
-                    <button class="btn-header">마이페이지</button>
+                    {% comment %} <a href="{% url 'mypage' %}" class="btn-header">마이페이지</a> {% endcomment %}
+                    <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
+
                     <button class="btn-header">로그아웃</button>
+                    <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-header">로그아웃</button>
+                    </form>
                 </div>
             </header>
             <main class="main-content">
