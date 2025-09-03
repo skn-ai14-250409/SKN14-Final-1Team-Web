@@ -6,9 +6,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("main.urls")),
+    path("", include("main.urls")),  
     path("", include("uauth.urls")),
-    # ✅ catch-all 위에 둠
+    
 ]
 
 # 개발 환경에서 정적/미디어 서빙

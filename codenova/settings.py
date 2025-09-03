@@ -109,6 +109,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- (선택) 로그인/로그아웃 흐름 ---
-LOGIN_URL = "uauth:login"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "uauth:login"            # 보호된 페이지 접근 시 보내줄 로그인 URL
+LOGIN_REDIRECT_URL = "main:home"     # 로그인 성공 기본 이동
+LOGOUT_REDIRECT_URL = "uauth:login"  # 로그아웃 후 이동
