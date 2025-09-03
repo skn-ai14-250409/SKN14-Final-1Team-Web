@@ -15,12 +15,12 @@
             <h1>{{ post.title }}</h1>
             <div class="post-meta">
                 <div class="author-info">
-                    <span class="author-name">{{ post.author }}</span>
-                    <span class="post-time">작성 {{ post.created_at }}</span>
-                    <span class="post-time">수정 {{ post.updated_at }}</span>
+                    <span class="author-name">{{ post.author.username }}</span>
+                    <span class="post-time">작성 {{ post.created_at|date:"Y.m.d. H:i" }}</span>
+                    <span class="post-time">수정 {{ post.updated_at|date:"Y.m.d. H:i" }}</span>
                 </div>
                 <div class="post-actions">
-                    <button class="action-btn">댓글 {{ comments|length }}</button>
+                    <button class="action-btn">댓글 {{ post.comments.count }}</button>
                     <button class="action-btn">URL 복사</button>
                 </div>
             </div>
@@ -50,24 +50,24 @@
                 <span class="heart-icon">♥</span>
                 <strong>좋아요 {{ post.likes }}</strong>
             </button>
-            <strong>댓글 {{ comments|length }}</strong>
+            <strong>댓글 {{ post.comments.count }}</strong>
         </div>
 
-        {% for comment in comments %}
-        <div class="comment-item {% if comment.is_own_comment %}is-own{% endif %}">
+        {% for comment in post.comments.all %}
+        <div class="comment-item {% if comment.author == user %}is-own{% endif %}">
             <div class="comment-author-profile">
             </div>
             <div class="comment-content-wrapper">
-                <div class="comment-author-name">{{ comment.author }}</div>
-                <div class="comment-text">{{ comment.text }}</div>
+                <div class="comment-author-name">{{ comment.author.username }}</div>
+                <div class="comment-text">{{ comment.content }}</div>
                 <div class="comment-meta">
-                    <span>{{ comment.created_at }}</span>
+                    <span>{{ comment.created_at|date:"Y.m.d. H:i" }}</span>
                     <button class="like-btn comment-like-btn">
                         <span class="heart-icon">♥</span>
                     </button>
                 </div>
             </div>
-            {% if comment.is_own_comment %}
+            {% if comment.author == user %}
             <div class="kebab-menu comment-kebab">
                 <span></span><span></span><span></span>
                 <div class="dropdown-menu">
