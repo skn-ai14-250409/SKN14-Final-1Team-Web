@@ -10,7 +10,7 @@ import requests
 import os
 from datetime import datetime, timedelta, timezone
 
-from main.models import *
+from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
 from .utils.main import run_rag, run_graph
 
@@ -19,45 +19,122 @@ from .utils.main import run_rag, run_graph
 
 
 @csrf_exempt
-# @login_required # 이후 로그인 기능 구현되면 주석 풀고 구현 필요
+@login_required
 def chat(request):
-    try:
-        data = json.loads(request.body)
-        user_message = data.get("message")
-        print(user_message)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_message = data.get("message")
+            session_id = data.get("session_id")
+            print(f"User message: {user_message}, Session ID: {session_id}")
 
-        response = run_graph(user_message)
+            # 세션 확인
+            if not session_id:
+                return JsonResponse({"error": "세션 ID가 필요합니다."}, status=400)
 
-        response_data = {"success": True, "bot_message": response}
+            try:
+                session = ChatSession.objects.get(id=session_id, user=request.user)
+            except ChatSession.DoesNotExist:
+                return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
 
-        return JsonResponse(response_data)
+            # RAG 봇 호출
+            response = run_graph(user_message)
 
-    except Exception as e:
-        return JsonResponse(
-            {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
-        )
+            # 사용자 메시지 저장
+            ChatMessage.objects.create(
+                session=session, role="user", content=user_message
+            )
+
+            # 봇 응답 저장
+            ChatMessage.objects.create(
+                session=session, role="assistant", content=response
+            )
+
+            response_data = {"success": True, "bot_message": response}
+
+            return JsonResponse(response_data)
+
+        except Exception as e:
+            return JsonResponse(
+                {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
+            )
 
 
 @csrf_exempt
 @login_required
 def get_chat_history(request, session_id):
-    pass
+    try:
+        # 세션 확인
+        session = ChatSession.objects.get(id=session_id, user=request.user)
+
+        # 해당 세션의 모든 메시지 조회
+        messages = ChatMessage.objects.filter(session=session).order_by("created_at")
+
+        # JSON 형태로 변환
+        data = [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "created_at": msg.created_at.isoformat(),
+            }
+            for msg in messages
+        ]
+
+        return JsonResponse({"messages": data})
+
+    except ChatSession.DoesNotExist:
+        return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 @csrf_exempt
 @login_required
 def delete_session(request, session_id):
-    pass
+    if request.method == "DELETE":
+        try:
+            session = ChatSession.objects.get(id=session_id, user=request.user)
+            session.delete()
+            return JsonResponse({"success": True})
+        except ChatSession.DoesNotExist:
+            return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "DELETE 요청만 허용됩니다."}, status=405)
 
 
 @csrf_exempt
-@login_required
-def chat_sessions(request):
-    pass
-
-
-@csrf_exempt
-@login_required
+# @login_required
 def create_session(request):
     """새 채팅 세션 생성"""
-    pass
+    if request.method == "POST":
+        try:
+            session = ChatSession.objects.create(
+                user=request.user, mode="api", title="새로운 대화"
+            )
+
+            return JsonResponse(
+                {
+                    "session": {
+                        "id": session.id,
+                        "session_id": session.id,
+                        "title": session.title,
+                        "created_at": session.created_at.isoformat(),
+                    }
+                }
+            )
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+
+@login_required
+def session_list(request):
+    sessions = ChatSession.objects.filter(user=request.user).order_by("-created_at")
+    data = [
+        {"id": str(s.id), "title": s.title, "created_at": s.created_at.isoformat()}
+        for s in sessions
+    ]
+    print(data)
+    return JsonResponse({"results": data})

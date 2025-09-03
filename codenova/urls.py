@@ -8,8 +8,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("uauth/", include("uauth.urls")),
     path("main/", include("main.urls")),  
-    
-    
+    path("mypage/", include("mypage.urls")),
+    # ✅ catch-all 위에 둠
 ]
 
 # 개발 환경에서 정적/미디어 서빙

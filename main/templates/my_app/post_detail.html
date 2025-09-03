@@ -4,6 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">
 {% endblock %}
+
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
@@ -45,24 +46,23 @@
     <!-- 댓글 영역 -->
     <div class="comments-section">
         <div class="comments-header">
-             <button class="like-btn post-like-btn">
+            <button class="like-btn post-like-btn">
                 <span class="heart-icon">♥</span>
-               <strong>좋아요 {{ post.likes }}</strong>
-             </button>
+                <strong>좋아요 {{ post.likes }}</strong>
+            </button>
             <strong>댓글 {{ comments|length }}</strong>
         </div>
 
         {% for comment in comments %}
         <div class="comment-item {% if comment.is_own_comment %}is-own{% endif %}">
             <div class="comment-author-profile">
-                <!-- <img src="profile.png" alt="profile"> -->
             </div>
             <div class="comment-content-wrapper">
                 <div class="comment-author-name">{{ comment.author }}</div>
                 <div class="comment-text">{{ comment.text }}</div>
                 <div class="comment-meta">
                     <span>{{ comment.created_at }}</span>
-                     <button class="like-btn comment-like-btn">
+                    <button class="like-btn comment-like-btn">
                         <span class="heart-icon">♥</span>
                     </button>
                 </div>

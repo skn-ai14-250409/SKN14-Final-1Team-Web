@@ -1,4 +1,16 @@
 from django.urls import path, include
 from . import views
 
-urlpatterns = [path("chat/", views.chat, name="chat")]
+urlpatterns = [
+    path("chat/", views.chat, name="chat"),
+    path("api-chat/sessions/", views.session_list, name="session_list"),
+    path("session_create/", views.create_session, name="session_create"),
+    path(
+        "chat_history/<int:session_id>/",
+        views.get_chat_history,
+        name="get_chat_history",
+    ),
+    path(
+        "delete_session/<int:session_id>/", views.delete_session, name="delete_session"
+    ),
+]
