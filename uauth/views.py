@@ -35,7 +35,7 @@ MIN_BIRTH   = date(1900, 1, 1)
 @login_required
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
-    return redirect(getattr(settings, "LOGOUT_REDIRECT_URL", "/"))
+    return redirect('uauth:login')
 
 # -----------------------------
 # 로그인
