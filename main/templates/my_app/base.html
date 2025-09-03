@@ -36,12 +36,10 @@
 	    <ul id="sessionList" class="session-list">
         {% if request.path == '/main-chatbot/' %}
     {% for s in chat_sessions %}
-        {% if s.mode == 'api' %}
             <li class="session-item">
                 <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
                 <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
             </li>
-        {% endif %}
     {% endfor %}
 {% endif %}
 </ul>
