@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "vulpes94/codenova:latest",
+    "Name": "${DOCKERHUB_USERNAME}/${DOCKER_IMAGENAME}:latest",
     "Update": "true"
   },
   "Ports": [
@@ -10,11 +10,12 @@
       "HostPort": 8000
     }
   ],
-  "Environment": {
-    "DATABASE_HOST": "$DATABASE_HOST",
-    "DATABASE_USER": "$DATABASE_USER",
-    "DATABASE_PASSWORD": "$DATABASE_PASSWORD"
-  },
+  "Environment": [
+    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" },
+    { "Name": "DATABASE_HOST", "Value": "${DATABASE_HOST}" },
+    { "Name": "DATABASE_USER", "Value": "${DATABASE_USER}" },
+    { "Name": "DATABASE_PASSWORD", "Value": "${DATABASE_PASSWORD}" }
+  ],
   "Volumes": [],
   "Logging": "/var/log/nginx"
 }
