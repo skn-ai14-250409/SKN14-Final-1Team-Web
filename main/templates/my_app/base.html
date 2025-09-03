@@ -52,14 +52,12 @@
                     <button class="btn-header">이름 / 직급 / 권한</button>
                     {% comment %} <a href="{% url 'mypage' %}" class="btn-header">마이페이지</a> {% endcomment %}
                     <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
-<<<<<<< HEAD
+
                     <button class="btn-header">로그아웃</button>
-=======
                     <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn-header">로그아웃</button>
                     </form>
->>>>>>> fd9f854 (re)
                 </div>
             </header>
             <main class="main-content">
