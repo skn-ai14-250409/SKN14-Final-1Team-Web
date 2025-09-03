@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "${DOCKERHUB_USERNAME}/${DOCKER_IMAGENAME}:latest",
+    "Name": "skn14f1/codenova:latest",
     "Update": "true"
   },
   "Ports": [
