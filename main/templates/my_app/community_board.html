@@ -24,16 +24,16 @@
             <!-- Best Posts -->
             {% for post in best_posts %}
             <tr>
-                <td class="col-number">{{ post.number }}</td>
+                <td class="col-number">{{ post.id }}</td>
                 <td class="col-title">
                     <a href="{% url 'post-detail' post_id=post.id %}">
                         <span class="best-post-icon">🏆</span>
                         <span class="best-post title-text">{{ post.title }}</span>
-                        <span class="comment-count">[{{ post.comment_count }}]</span>
+                        <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author }}</td>
-                <td class="col-date">{{ post.date }}</td>
+                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>
             </tr>
@@ -42,15 +42,15 @@
             <!-- Regular Posts -->
             {% for post in regular_posts %}
             <tr>
-                <td class="col-number">{{ post.number }}</td>
+                <td class="col-number">{{ post.id }}</td>
                 <td class="col-title">
                     <a href="{% url 'post-detail' post_id=post.id %}">
                         <span class="title-text">{{ post.title }}</span>
-                        <span class="comment-count">[{{ post.comment_count }}]</span>
+                        <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author }}</td>
-                <td class="col-date">{{ post.date }}</td>
+                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>
             </tr>
