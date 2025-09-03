@@ -1,13 +1,14 @@
 {% extends 'my_app/base.html' %}
 {% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">
-{% endblock %}
-
+{% block extra_css %}<link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">{% endblock %}
 {% block title %}커뮤니티 게시글{% endblock %}
 
 {% block content %}
+ <div class="community-container">
+    <div class="community-header">
+        <a href="{% url 'create-post' %}" class="btn-create-post">글쓰기</a>
+    </div>
+ </div>
 <div class="community-container">
     <table class="community-table">
         <thead>
@@ -21,7 +22,6 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Best Posts -->
             {% for post in best_posts %}
             <tr>
                 <td class="col-number">{{ post.id }}</td>
@@ -32,14 +32,13 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-author">{{ post.author }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
-                <td class="col-likes">{{ post.likes }}</td>
+                <td class="col-likes">{{ post.total_likes }}</td>
             </tr>
             {% endfor %}
 
-            <!-- Regular Posts -->
             {% for post in regular_posts %}
             <tr>
                 <td class="col-number">{{ post.id }}</td>
@@ -49,13 +48,13 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-author">{{ post.author }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
-                <td class="col-likes">{{ post.likes }}</td>
+                <td class="col-likes">{{ post.total_likes }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-{% endblock %}
+{% endblock %}```

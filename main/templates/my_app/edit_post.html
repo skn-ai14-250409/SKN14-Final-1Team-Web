@@ -1,0 +1,21 @@
+{% extends 'my_app/base.html' %}
+{% block title %}게시글 수정{% endblock %}
+
+{% block content %}
+<div style="padding: 24px; background-color: #fff; border-radius: 8px;">
+    <h2>게시글 수정하기</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label for="id_title">제목:</label>
+            {{ form.title }}
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label for="id_content">내용:</label>
+            {{ form.content }}
+        </div>
+        <button type="submit">저장하기</button>
+        <a href="{% url 'post-detail' post_id=post.id %}">취소</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'my_app/base.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">{% endblock %}
+{% block title %}댓글 수정{% endblock %}
+
+{% block content %}
+<div style="padding: 24px; background-color: #fff; border-radius: 8px;">
+    <h2>댓글 수정하기</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.content }}
+        <button type="submit">저장하기</button>
+        <a href="{% url 'post-detail' post_id=comment.post.id %}">취소</a>
+    </form>
+</div>
+{% endblock %}
