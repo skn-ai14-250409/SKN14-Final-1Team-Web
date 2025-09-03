@@ -1,18 +1,18 @@
-black
-pre-commit
+# black
+# pre-commit
 django
 gunicorn
 uvicorn
 blacknoise
 django-cors-headers
-torch
+# torch
 python-dotenv
-langchain_core
-langchain_openai
-langchain_huggingface
-langchain_community
-langgraph
-sentence-transformers
-chromadb
+# langchain_core
+# langchain_openai
+# langchain_huggingface
+# langchain_community
+# langgraph
+# sentence-transformers
+# chromadb
 requests
-gdown
+# gdown
