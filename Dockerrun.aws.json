@@ -6,16 +6,11 @@
   },
   "Ports": [
     {
-      "ContainerPort": 8000,
-      "HostPort": 8000
+      "ContainerPort": 8000
     }
   ],
   "Environment": [
-    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" },
-    { "Name": "DATABASE_HOST", "Value": "${DATABASE_HOST}" },
-    { "Name": "DATABASE_USER", "Value": "${DATABASE_USER}" },
-    { "Name": "DATABASE_PASSWORD", "Value": "${DATABASE_PASSWORD}" }
+    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" }
   ],
-  "Volumes": [],
   "Logging": "/var/log/nginx"
 }
