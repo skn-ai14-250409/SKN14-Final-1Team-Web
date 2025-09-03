@@ -15,10 +15,14 @@
                 <div class="profile-image-container">
                     <div class="profile-image-placeholder">👤</div>
                 </div>
-                <button class="edit-button">편집</button>
+                <div id="edit-buttons">
+                    <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
+                    <button id="save-btn" form="profile-form" class="edit-button" type="submit" style="display:none;">저장</button>
+                </div>
             </div>
 
-            <form>
+            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="id">아이디</label>
                     <input type="text" id="id" value="{{ user.id }}" readonly>
@@ -26,37 +30,37 @@
                 </div>
                 <div class="form-group">
                     <label for="name">이름</label>
-                    <input type="text" id="name" value="{{ user.name }}" readonly>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" readonly>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="position">직급</label>
-                        <input type="text" id="position" value="{{ user.rank }}" readonly>
+                        <label for="rank">직급</label>
+                        <input type="text" id="rank" name="rank" value="{{ user.rank }}" readonly>
                     </div>
                     <div class="form-group">
-                        <label for="birthdate">팀</label>
-                        <input type="text" id="birthdate" value="{{ user.department }}" readonly>
+                        <label for="department">팀</label>
+                        <input type="text" id="department" name="department" value="{{ user.department }}" readonly>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">이메일</label>
-                        <input type="email" id="email" value="{{ user.email }}" readonly>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="birthdate">생년월일</label>
-                        <input type="date" id="birthdate" value="{{ user.birthday|date:'Y-m-d' }}" readonly>
+                        <input type="date" id="birthdate" name="birthdate" value="{{ user.birthday|date:'Y-m-d' }}" readonly>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="gender">성별</label>
-                        <input type="text" id="gender"value="{{ user.gender }}" readonly>
+                        <input type="text" id="gender" name="gender" value="{{ user.gender }}" readonly>
                     </div>
                     <div class="form-group">
                         <label for="phone">전화번호</label>
-                        <input type="tel" id="phone" value="{{ user.phone }}" readonly>
+                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}" readonly>
                     </div>
                 </div>
             </form>
