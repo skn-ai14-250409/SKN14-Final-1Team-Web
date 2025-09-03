@@ -10,9 +10,7 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
-
 from .models import User
-
 import json
 import re
 from datetime import date
