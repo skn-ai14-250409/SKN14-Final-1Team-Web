@@ -18,3 +18,8 @@
   background-color: #f3f4f6;
   text-align: left;
 }
+
+.session-item.is-active {
+  background-color: #7f9ec1;  /* 파란색 배경 */
+  color: white;
+}

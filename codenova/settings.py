@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "main",
     "uauth",
     "apichat",
+    "mypage",
 ]
 
 AUTH_USER_MODEL = "uauth.User"
@@ -108,7 +109,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# --- (선택) 로그인/로그아웃 흐름 ---
-LOGIN_URL = "uauth:login"
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/uauth/login/"
+LOGIN_REDIRECT_URL = "/main/home/"
+LOGOUT_REDIRECT_URL = "/uauth/login/"
+APPEND_SLASH = True
