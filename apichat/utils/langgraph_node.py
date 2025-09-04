@@ -53,7 +53,7 @@ def search_tool(query: str):
 
 
 # (4) 기본 답변 생성 노드
-def basic_langgraph_node(state: ChatState) -> Dict[str, Any]:
+def langgraph_node(state: ChatState) -> Dict[str, Any]:
     """질문에 대한 기본 답변 생성"""
     queries = state["queries"]
     print(f"생성된 질문 리스트 {queries}")

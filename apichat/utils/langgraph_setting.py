@@ -8,7 +8,7 @@ from .langgraph_node import (
     ChatState,
     extract_queries,
     split_queries,
-    basic_langgraph_node,
+    langgraph_node,
 )
 
 
@@ -19,12 +19,36 @@ retriever = retriever_setting()
 # basic_langgraph_node는 langgraph_node.py에서 import
 
 
+class ChatState_basic(TypedDict, total=False):
+    question: str  # 유저 질문
+    answer: str  # 모델 답변
+
+
+def basic_node(state: ChatState):
+    """질문에 대한 기본 답변 생성"""
+    question = state["question"]
+
+    docs = retriever.invoke(question)
+
+    # 검색된 결과를 바탕으로 답변 생성
+    answer = basic_chain.invoke(
+        {
+            "question": question,
+            "context": docs,
+        }
+    ).strip()
+
+    state["answer"] = answer
+
+    return state  # 답변을 반환
+
+
 def graph_setting():
     # LangGraph 정의
-    graph = StateGraph(ChatState)
+    graph = StateGraph(ChatState_basic)
 
     # 노드 등록
-    graph.add_node("basic", basic_langgraph_node)  # 기본 답변 노드
+    graph.add_node("basic", basic_node)  # 기본 답변 노드
 
     # 시작 노드 정의
     graph.set_entry_point("basic")
@@ -44,7 +68,7 @@ def graph_setting_edit():
     # 노드 등록
     graph.add_node("extract_queries", extract_queries)  # 질문 통합 + 쿼리 추출 노드
     graph.add_node("split_queries", split_queries)  # 질문 분리 툴
-    graph.add_node("basic", basic_langgraph_node)  # 기본 답변 노드
+    graph.add_node("basic", langgraph_node)  # 기본 답변 노드
 
     # 시작 노드 정의
     graph.set_entry_point("extract_queries")
