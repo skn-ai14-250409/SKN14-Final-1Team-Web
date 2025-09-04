@@ -1,7 +1,7 @@
 # uauth/views.py
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_backends
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -14,6 +14,13 @@ from .models import User
 import json
 import re
 from datetime import date
+from .models import User
+from .models import User, ApprovalLog, Status
+
+# 변경 (★ Status 추가)
+from .models import User, Status
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+
 
 # -----------------------------
 # 유틸
@@ -23,11 +30,15 @@ def _wants_json(request):
     xrw = request.headers.get("X-Requested-With", "")
     return "application/json" in accept or xrw == "XMLHttpRequest"
 
+
 # 서버측 검증용(선택)
-USERNAME_RE = re.compile(r'^[a-zA-Z0-9_]{4,20}$')
-PASSWORD_RE = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
-PHONE_RE    = re.compile(r'^010-\d{4}-\d{4}$')
-MIN_BIRTH   = date(1900, 1, 1)
+USERNAME_RE = re.compile(r"^[a-zA-Z0-9_]{4,20}$")
+PASSWORD_RE = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+)
+PHONE_RE = re.compile(r"^010-\d{4}-\d{4}$")
+MIN_BIRTH = date(1900, 1, 1)
+
 
 # -----------------------------
 # 로그아웃
@@ -35,20 +46,24 @@ MIN_BIRTH   = date(1900, 1, 1)
 @login_required
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
-    return redirect('uauth:login')
+    return redirect("uauth:login")
+
 
 # -----------------------------
 # 로그인
 # -----------------------------
+@ensure_csrf_cookie
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.method == "GET":
         return render(request, "uauth/login.html")
 
+    # --- POST ---
     username = request.POST.get("username", "").strip()
     password = request.POST.get("password", "")
 
+    # 필드 유효성(프런트와 동일 규칙)
     field_errors = {}
     if not username:
         field_errors["username"] = ["아이디를 입력해주세요."]
@@ -61,41 +76,78 @@ def login_view(request):
 
     if field_errors:
         if _wants_json(request):
-            return JsonResponse({"success": False, "field_errors": field_errors}, status=400)
+            return JsonResponse(
+                {"success": False, "field_errors": field_errors}, status=400
+            )
         for _, msgs in field_errors.items():
             messages.error(request, msgs[0])
         return render(request, "uauth/login.html", {"username": username})
 
     user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        if _wants_json(request):
-            return JsonResponse({"success": True, "redirect_url": reverse("home")})
-        messages.success(request, f"{user.username}님, 환영합니다!")
-        return redirect("home")
 
+    if user is None:
+        msg = "아이디 또는 비밀번호가 올바르지 않습니다."
+        if _wants_json(request):
+            return JsonResponse({"success": False, "message": msg}, status=400)
+        return render(request, "uauth/login.html", {"username": username, "error": msg})
+
+    # 최신 승인 상태 계산
+    latest_log = ApprovalLog.objects.filter(user=user).order_by("-created_at").first()
+    current_status = latest_log.action if latest_log else user.status
+
+    # JSON 응답
     if _wants_json(request):
-        return JsonResponse({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}, status=401)
-    messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
-    return render(request, "uauth/login.html", {"username": username})
+        if current_status == Status.PENDING:
+            return JsonResponse(
+                {
+                    "success": True,
+                    "state": "pending",
+                    "redirect_url": reverse("uauth:pending"),
+                }
+            )
+        if current_status == Status.REJECTED:
+            return JsonResponse(
+                {
+                    "success": True,
+                    "state": "reject",
+                    "redirect_url": reverse("uauth:reject"),
+                }
+            )
+        # APPROVED -> 세션 생성
+        login(request, user)  # <- user.backend 수동 지정 불필요
+        return JsonResponse(
+            {"success": True, "state": "approved", "redirect_url": reverse("home")}
+        )
+
+    # HTML 응답
+    if current_status == Status.PENDING:
+        return render(request, "uauth/pending.html")
+    if current_status == Status.REJECTED:
+        return render(request, "uauth/reject.html")
+
+    login(request, user)  # <- user.backend 수동 지정 불필요
+    return redirect("home")
+
 
 # -----------------------------
 # 회원가입
 # -----------------------------
 from django import forms
 
+
 class SignUpEchoForm(forms.Form):
     # 템플릿에서 form.userId.value 같은 접근을 위해 필드 선언
-    userId         = forms.CharField(required=True)
-    name           = forms.CharField(required=True)
-    password       = forms.CharField(required=True)
-    confirmPassword= forms.CharField(required=True)
-    email          = forms.EmailField(required=True)
-    team           = forms.CharField(required=True)
-    role           = forms.CharField(required=True)
-    birthDate      = forms.DateField(required=True)
-    gender         = forms.CharField(required=True)
-    phoneNumber    = forms.CharField(required=True)
+    userId = forms.CharField(required=True)
+    name = forms.CharField(required=True)
+    password = forms.CharField(required=True)
+    confirmPassword = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    team = forms.CharField(required=True)
+    role = forms.CharField(required=True)
+    birthDate = forms.DateField(required=True)
+    gender = forms.CharField(required=True)
+    phoneNumber = forms.CharField(required=True)
+
 
 @csrf_protect
 @require_http_methods(["GET", "POST"])
@@ -107,19 +159,18 @@ def signup_view(request: HttpRequest):
     form = SignUpEchoForm(request.POST)
 
     # 값 추출
-    userId   = form.data.get("userId", "").strip()
-    name     = form.data.get("name", "").strip()
+    userId = form.data.get("userId", "").strip()
+    name = form.data.get("name", "").strip()
     password = form.data.get("password", "")
-    confirm  = form.data.get("confirmPassword", "")
-    email    = form.data.get("email", "").strip()
-    team     = form.data.get("team", "").strip()
-    role     = form.data.get("role", "").strip()
-    birth_raw= form.data.get("birthDate") or ""
+    confirm = form.data.get("confirmPassword", "")
+    email = form.data.get("email", "").strip()
+    team = form.data.get("team", "").strip()
+    role = form.data.get("role", "").strip()
+    birth_raw = form.data.get("birthDate") or ""
     birth_dt = parse_date(birth_raw)
-    gender   = form.data.get("gender", "").strip()
-    phone    = form.data.get("phoneNumber", "").strip()
+    gender = form.data.get("gender", "").strip()
+    phone = form.data.get("phoneNumber", "").strip()
 
-    
     if form.errors:
         # 폼 에러 그대로 템플릿에 출력
         return render(request, "uauth/register2.html", {"form": form})
@@ -136,16 +187,23 @@ def signup_view(request: HttpRequest):
                 birthday=birth_dt,
                 gender=gender,
                 phone=phone,
+                status=Status.PENDING,
+                is_active=1,
             )
             user.set_password(password)  # 해시 저장
+            # user.is_active = False
             user.save()
+            ApprovalLog.objects.get_or_create(
+                user=user,
+                action=Status.PENDING,
+            )
+
     except IntegrityError:
         form.add_error("userId", "이미 사용 중인 아이디입니다.")
         return render(request, "uauth/register2.html", {"form": form})
 
-    login(request, user)
-    messages.success(request, "회원가입이 완료되었습니다.")
-    return redirect("home")
+    return redirect("uauth:login")
+
 
 # -----------------------------
 # (옵션) JSON API - 필요 시 사용
@@ -160,3 +218,28 @@ def signup_api(request: HttpRequest) -> JsonResponse:
 
     # 실사용 시 폼/검증 추가 후 저장 로직 구현
     return JsonResponse({"ok": False, "msg": "Not implemented"}, status=400)
+
+
+# --- pending페이지---
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import ApprovalLog, Status
+
+
+def pending_view(request):
+    # 내 최신 상태를 확인해서 승인/거부되었으면 바로 분기
+    latest_log = (
+        ApprovalLog.objects.filter(user=request.user).order_by("-created_at").first()
+    )
+    if latest_log:
+        if latest_log.action == Status.APPROVED:
+            return redirect("main:home")
+        if latest_log.action == Status.REJECTED:
+            return redirect("uauth:reject")
+    # 여전히 PENDING이면 대기 페이지 보여줌
+    return render(request, "uauth/pending.html")
+
+
+def reject_view(request):
+    return render(request, "uauth/reject.html")

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>승인 거부</title>
+    <link rel="stylesheet" href="uauth/css/reject.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <h1 class="title">승인 거부</h1>
+            <p class="subtitle">죄송합니다. 계정 승인이 거부되었습니다</p>
+            
+            <div class="status-section">
+                <div class="status-box rejected">
+                    <div class="status-icon">❌</div>
+                    <div class="status-content">
+                        <h3 class="status-title">승인이 거부되었습니다</h3>
+                        <p class="status-description">
+                            관리자 검토 결과 계정 승인이 거부되었습니다.<br>
+                            자세한 사유는 아래를 확인해 주세요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reason-section">
+                <h4 class="reason-title">거부 사유</h4>
+                <div class="reason-box">
+                    <ul class="reason-list">
+                        <li>제출된 서류가 불완전합니다</li>
+                        <li>신청 조건을 충족하지 못했습니다</li>
+                        <li>추가 확인이 필요합니다</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-item">
+                    <span class="info-label">신청일시</span>
+                    <span class="info-value">{{ user.date_joined|date:"Y년 m월 d일 H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">처리일시</span>
+                    <span class="info-value">{{ approval_log.created_at|date:"Y년 m월 d일 H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">상태</span>
+                    <span class="info-value status-rejected">거부됨</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="login-btn" onclick="location.href='login.html'">
+                    로그인 페이지로 이동하기
+                </button>
+            </div>
+
+            <div class="help-section">
+                <p class="help-text">문의사항이 있으신가요? <a href="#" class="help-link">고객센터</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

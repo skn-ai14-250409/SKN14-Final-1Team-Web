@@ -1,7 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
-from django.db import models
+from django.db import models, transaction
+
+# from django.contrib.auth import get_user_model
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+
+# User = get_user_model()
 
 
 class Status(models.TextChoices):
