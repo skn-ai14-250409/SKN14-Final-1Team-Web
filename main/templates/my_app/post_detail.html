@@ -49,32 +49,32 @@
         </div>
 
         {% for comment in post.comments.all %}
-        <div class="comment-item">
-            <div class="comment-content-wrapper">
-                <div class="comment-author-name">{{ comment.author.username }}</div>
-                <div class="comment-text">{{ comment.content }}</div>
-                <div class="comment-meta">
-                    <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
-                    <button class="like-btn comment-like-btn" data-comment-id="{{ comment.id }}">
-                        <span class="heart-icon">♥</span>
-                        <span class="comment-likes-count">{{ comment.total_likes }}</span>
-                    </button>
-                </div>
-            </div>
-            {% if request.user == comment.author or request.user.is_superuser %}
-            <div class="kebab-menu comment-kebab">
-                <span></span><span></span><span></span>
-                <div class="dropdown-menu">
-                    <a href="{% url 'edit-comment' comment_id=comment.id %}">수정하기</a>
-                    <form action="{% url 'delete-comment' comment_id=comment.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="dropdown-button">삭제하기</button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
+            <div class="comment-item {% if request.user == comment.author %}is-own{% endif %}">
+             <div class="comment-content-wrapper">
+              <div class="comment-author-name">{{ comment.author.username }}</div>
+              <div class="comment-text">{{ comment.content }}</div>
+              <div class="comment-meta">
+                <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                <button class="like-btn comment-like-btn" data-comment-id="{{ comment.id }}">
+                   <span class="heart-icon">♥</span>
+                   <span class="comment-likes-count">{{ comment.total_likes }}</span>
+              </button>
+         </div>
+     </div>
+    {% if request.user == comment.author or request.user.is_superuser %}
+    <div class="kebab-menu comment-kebab">
+        <span></span><span></span><span></span>
+        <div class="dropdown-menu">
+            <a href="{% url 'edit-comment' comment_id=comment.id %}">수정하기</a>
+            <form action="{% url 'delete-comment' comment_id=comment.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-button">삭제하기</button>
+            </form>
         </div>
-        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
     </div>
 </div>
 
