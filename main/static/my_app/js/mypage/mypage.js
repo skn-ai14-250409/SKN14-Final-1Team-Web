@@ -111,3 +111,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// API 키 삭제: 폼 submit을 가로채서 AJAX로 처리 (삭제 후 alert 띄우고 li 제거)
+document.addEventListener('submit', async function (e) {
+  const form = e.target; // 실제 제출된 폼
+
+  if (!form.matches('form[action*="api_key_delete"]')) return;
+
+  e.preventDefault(); // 기본 제출 막기
+
+  if (!confirm('이 API 키를 삭제할까요?')) return;
+
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+      body: new FormData(form),
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    // 성공: 해당 API 키 <li> 제거 + 알림
+    const li = form.closest('li');
+    alert('삭제 완료!');
+    window.location.replace(REFRESH_URL);
+  } catch (err) {
+    console.error(err);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
+});
+
+
+// ---- CSRF helper ----
+function getCookie(name) {
+  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : '';
+}
+const CSRF = getCookie('csrftoken');
+
+// 리다이렉트 대상 URL (템플릿에서 주입, 없으면 현재 경로)
+const REFRESH_URL =
+  (document.getElementById('mypageCtx')?.dataset.refreshUrl) ||
+  window.location.pathname;
+
+// 카드 삭제
+async function deleteCard(cardId) {
+  if (!confirm('이 카드를 삭제할까요?')) return;
+  try {
+    const res = await fetch(`/api-chat/cards/${cardId}/delete/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+      credentials: 'same-origin'
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status}: ${txt.slice(0,200)}`);
+    }
+
+    // 바로 리다이렉트 (서버 렌더링으로 empty 상태 표시 보장)
+    alert('삭제 완료!');
+    window.location.replace(REFRESH_URL);
+  } catch (err) {
+    console.error(err);
+    alert('삭제 중 오류가 발생했습니다..');
+  }
+}
