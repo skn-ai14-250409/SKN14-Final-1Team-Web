@@ -14,4 +14,8 @@ urlpatterns = [
         name="api_key_delete",
     ),  # 카드 삭제
     path("mypage/mypage_edit", views.mypage_edit, name="mypage_edit"),  # 정보 수정
+    path(
+        "check_api_key_name/", views.check_api_key_name, name="check_api_key_name"
+    ),  # apikey 중복 검사
+    path("api-key/create/", views.create_api_key, name="create_api_key"),  # apikey 생성
 ]

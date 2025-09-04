@@ -28,6 +28,7 @@
                     <input type="text" id="id" value="{{ user.id }}" readonly>
                     <small>아이디는 변경할 수 없습니다</small>
                 </div>
+                
                 <div class="form-group">
                     <label for="name">이름</label>
                     <input type="text" id="name" name="name" value="{{ user.name }}" readonly>
@@ -36,33 +37,49 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="rank">직급</label>
-                        <input type="text" id="rank" name="rank" value="{{ user.rank }}" readonly>
+                        <input type="text" id="rank" name="rank" value="{{ user.get_rank_display }}" readonly>
+                        <small>직급은 변경할 수 없습니다</small>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="department">팀</label>
-                        <input type="text" id="department" name="department" value="{{ user.department }}" readonly>
+                        <label for="department-text">팀</label>
+                        <input type="text" id="department-text" value="{{ user.get_department_display }}" readonly>
+                        <select id="department-select" name="department" style="display:none;">
+                            {% for value, label in departments %}
+                                <option value="{{ value }}" {% if user.department == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">이메일</label>
                         <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
                     </div>
                     <div class="form-group">
-                        <label for="birthdate">생년월일</label>
-                        <input type="date" id="birthdate" name="birthdate" value="{{ user.birthday|date:'Y-m-d' }}" readonly>
+                        <label for="birthday">생년월일</label>
+                        <input type="date" id="birthday" name="birthday" value="{{ user.birthday|date:'Y-m-d' }}" readonly>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="gender">성별</label>
-                        <input type="text" id="gender" name="gender" value="{{ user.gender }}" readonly>
+                        <label for="gender-text">성별</label>
+                        <input type="text" id="gender-text" value="{{ user.get_gender_display }}" readonly>
+                        
+                        <select id="gender-select" name="gender" style="display:none;">
+                            {% for value, label in genders %}
+                                <option value="{{ value }}" {% if user.gender == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="phone">전화번호</label>
                         <input type="tel" id="phone" name="phone" value="{{ user.phone }}" readonly>
                     </div>
                 </div>
+                
             </form>
         </section>
 
@@ -89,12 +106,20 @@
             <div class="section-box">
                 <h4>내 API 키</h4>
 
-                <form method="post">
+                <form method="post" action="{% url 'mypage:create_api_key' %}" class="api-key-form">
                     {% csrf_token %}
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" name="api_key_name" placeholder="api 키 이름" required>
-                        <input type="text" name="api_key_value" placeholder="api 키 값" required>
-                        <button type="submit">등록</button>
+
+                    <div class="input-container">
+                        <div class="api-key-group">
+                            <input type="text" name="api_key_name" id="api_key_name" placeholder="API 키 이름" required>
+                            <span id="api_key_message" class="api-key-message"></span>
+                        </div>
+
+                        <div class="value-group">
+                            <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
+                        </div>
+
+                        <button type="submit" id="create_key_button" disabled>키 생성</button>
                     </div>
                 </form>
 

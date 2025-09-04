@@ -1,12 +1,12 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from uauth.models import ApiKey, User
+from uauth.models import ApiKey, User, Department, Rank, Gender
 from django.core.exceptions import ObjectDoesNotExist
 from main.models import Card
 from django.contrib import messages
 
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 # Create your views here.
 # @login_required
@@ -36,18 +36,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def mypage(request):
-    # [POST] API 키 저장
-    if request.method == "POST":
-        key_name = request.POST.get("api_key_name")
-        key_value = request.POST.get("api_key_value")
-
-        if key_name and key_value:
-            ApiKey.objects.create(
-                user=request.user, name=key_name, secret_key=key_value
-            )
-
-        return redirect("mypage:mypage")
-
     # [GET] 페이지 로딩
     api_keys = request.user.api_keys.all().order_by("-created_at")
     my_cards = request.user.cards.all().order_by("-created_at")
@@ -56,8 +44,26 @@ def mypage(request):
         "user": request.user,
         "api_keys": api_keys,
         "cards": my_cards,
+        "departments": Department.choices,
+        "ranks": Rank.choices,
+        "genders": Gender.choices,
     }
     return render(request, "my_app/mypage.html", context)
+
+
+@login_required
+def create_api_key(request):
+    # [POST] API 키 저장
+    if request.method == "POST":
+        key_name = request.POST.get("api_key_name")
+        key_value = request.POST.get("api_key_value")
+
+        if key_name and key_value:
+            if not ApiKey.objects.filter(user=request.user, name=key_name).exists():
+                ApiKey.objects.create(
+                    user=request.user, name=key_name, secret_key=key_value
+                )
+    return redirect("mypage:mypage")
 
 
 @csrf_exempt
@@ -124,3 +130,12 @@ def card_detail(request, card_id):
     }
 
     return render(request, "my_app/card_detail.html", context)
+
+
+@login_required
+def check_api_key_name(request):  # API 키 이름의 중복 여부 - ajax
+    if request.method == "GET":
+        key_name = request.GET.get("name", None)
+        is_taken = ApiKey.objects.filter(user=request.user, name=key_name).exists()
+
+        return JsonResponse({"is_taken": is_taken})

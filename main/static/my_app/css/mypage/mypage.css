@@ -36,6 +36,12 @@ body {
 .account-section {
     flex: 1.5; 
 }
+
+.account-section.editing {
+    background-color: #faf7ea;
+    flex: 1.5; 
+}
+
 .card-api-section {
     flex: 2; 
     display: flex;
@@ -84,12 +90,27 @@ body {
     font-weight: bold;
     color: #555;
 }
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.form-group select,
+.form-group input[type="date"] {
+  height: 44px;   
+  line-height: 1.2;
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
 }
 .form-row {
     display: flex;
@@ -112,13 +133,7 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-.api-key-list li .api-value {
-    flex: 1;
-    margin: 0 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+
 .item-list li button {
     background-color: #ccc;
     border: none;
@@ -130,4 +145,36 @@ body {
 .item-list li .actions {
     display: flex;
     gap: 0.5rem;
+}
+
+/* apikey 추가 */
+.api-key-form .input-container {
+    align-items: flex-start;
+    display: flex;
+    gap: 10px;
+}
+
+.name-group,
+.value-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.api-key-message {
+    display: block; 
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+.api-key-form input[type="text"] {
+    width: 250px; 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#create_key_button {
+    height: fit-content; 
+    padding: 8px 15px; 
 }

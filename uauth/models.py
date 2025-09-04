@@ -10,6 +10,22 @@ class Status(models.TextChoices):
     REJECTED = "rejected", "Rejected"
 
 
+class Rank(models.TextChoices):
+    GENERAL = "general", "일반"
+    CTO = "cto", "CTO"
+
+
+class Department(models.TextChoices):
+    FRONTEND = "frontend", "프론트엔드팀"
+    BACKEND = "backend", "백엔드팀"
+    AI_DATA = "ai_data", "AI/데이터팀"
+
+
+class Gender(models.TextChoices):
+    FEMALE = "female", "여성"
+    MALE = "male", "남성"
+
+
 # 관리자
 class UserManager(BaseUserManager):
     def create_user(self, id, email, password=None, **extra_fields):
@@ -50,10 +66,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255)
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=30)
-    gender = models.CharField(max_length=20)
+    gender = models.CharField(max_length=20, choices=Gender.choices)
     birthday = models.DateField()
-    rank = models.CharField(max_length=50)
-    department = models.CharField(max_length=100, null=True, blank=True)
+    rank = models.CharField(max_length=50, choices=Rank.choices)
+    department = models.CharField(
+        max_length=20,
+        choices=Department.choices,
+        null=True,
+        blank=True,
+    )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
@@ -69,7 +90,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # 로그인 ID 필드 = id
     USERNAME_FIELD = "id"
-    # 입력 필드 확인 필 (UI 참고함)
     REQUIRED_FIELDS = ["email", "name", "phone", "gender", "birthday", "rank"]
 
     objects = UserManager()
