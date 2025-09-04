@@ -19,12 +19,16 @@ def main_chatbot_view(request):
     return render(request, "my_app/main_chatbot.html", {"chat_sessions": chat_sessions})
 
 
+@login_required
 def internal_docs_view(request):
-    return render(request, "my_app/internal_docs.html")
+    chat_sessions = request.user.chat_sessions.filter(mode="internal")
+
+    return render(
+        request, "my_app/internal_docs.html", {"chat_sessions": chat_sessions}
+    )
 
 
 def community_board_view(request):
-    # select_related('author')를 추가하여 User 모델을 함께 조회합니다.
     all_posts = (
         Post.objects.select_related("author")
         .annotate(num_likes=Count("likers"))
@@ -43,9 +47,9 @@ def community_board_view(request):
 
 @login_required
 def post_detail_view(request, post_id):
-    # prefetch_related를 사용하여 댓글과 댓글 작성자 정보를 함께 가져옵니다.
     post = get_object_or_404(
-        Post.objects.prefetch_related("comments__author"), id=post_id
+        Post.objects.select_related("author").prefetch_related("comments__author"),
+        id=post_id,
     )
     comment_form = CommentForm()
 

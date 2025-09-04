@@ -5,143 +5,141 @@
 
 {% block content %}
 <div class="post-detail-container">
-    <div class="post-content-area">
-        <h1>{{ post.title }}</h1>
-        <div class="post-meta">
-            <div class="author-info">
-                <span class="author-name">{{ post.author.username }}</span>
-                <span class="post-time">작성 {{ post.created_at|date:"Y.m.d H:i" }}</span>
-                <span class="post-time">수정 {{ post.updated_at|date:"Y.m.d H:i" }}</span>
+   <div class="post-content-area">
+       <h1>{{ post.title }}</h1>
+       <div class="post-meta">
+           <div class="author-info">
+               <span class="author-name">{{ post.author.name }}</span>
+               <span class="post-time">작성 {{ post.created_at|date:"Y.m.d H:i" }}</span>
+               <span class="post-time">수정 {{ post.updated_at|date:"Y.m.d H:i" }}</span>
+           </div>
+           {% if request.user == post.author or request.user.is_superuser %}
+           <div class="kebab-menu">
+              <span></span><span></span><span></span>
+              <div class="dropdown-menu">
+                  <a href="{% url 'edit-post' post_id=post.id %}">수정하기</a>
+                  <form action="{% url 'delete-post' post_id=post.id %}" method="post" style="display:inline;">
+                     {% csrf_token %}
+                     <button type="submit" class="dropdown-button">삭제하기</button>
+                  </form>
             </div>
-            {% if request.user == post.author or request.user.is_superuser %}
-            <div class="kebab-menu">
+           </div>
+           {% endif %}
+       </div>
+       <div class="post-body">{{ post.content|linebreaksbr }}</div>
+   </div>
+
+   <div class="comments-section">
+       <div class="comments-header">
+           <button class="like-btn post-like-btn" data-post-id="{{ post.id }}">
+               <span class="heart-icon">♥</span>
+               <strong id="post-likes-count">좋아요 {{ post.total_likes }}</strong>
+           </button>
+           <strong>댓글 {{ post.comments.count }}</strong>
+       </div>
+
+       <div class="comment-form-container">
+           <form action="{% url 'create-comment' post_id=post.id %}" method="post">
+               {% csrf_token %}
+               {{ comment_form }}
+               <div class="comment-form-actions"><button type="submit" class="submit-comment-btn">등록</button></div>
+           </form>
+       </div>
+
+       {% for comment in post.comments.all %}
+       <div class="comment-item {% if request.user == comment.author %}is-own{% endif %}">
+           <div class="comment-content-wrapper">
+               <div class="comment-author-name">{{ comment.author.name }}</div>
+               <div class="comment-text">{{ comment.content }}</div>
+               <div class="comment-meta">
+                   <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                   <button class="like-btn comment-like-btn" data-comment-id="{{ comment.id }}">
+                       <span class="heart-icon">♥</span>
+                       <span class="comment-likes-count">{{ comment.total_likes }}</span>
+                   </button>
+               </div>
+           </div>
+           {% if request.user == comment.author or request.user.is_superuser %}
+           <div class="kebab-menu comment-kebab">
                <span></span><span></span><span></span>
                <div class="dropdown-menu">
-                 {# 수정하기 링크를 수정합니다. #}
-                   <a href="{% url 'edit-post' post_id=post.id %}">수정하기</a>
-                 {# 삭제하기 폼의 action을 수정합니다. #}
-                   <form action="{% url 'delete-post' post_id=post.id %}" method="post" style="display:inline;">
-                      {% csrf_token %}
-                      <button type="submit" class="dropdown-button">삭제하기</button>
+                   <a href="{% url 'edit-comment' comment_id=comment.id %}">수정하기</a>
+                   <form action="{% url 'delete-comment' comment_id=comment.id %}" method="post">
+                       {% csrf_token %}
+                       <button type="submit" class="dropdown-button">삭제하기</button>
                    </form>
-             </div>
-            </div>
-            {% endif %}
-        </div>
-        <div class="post-body">{{ post.content|linebreaksbr }}</div>
-    </div>
-
-    <div class="comments-section">
-        <div class="comments-header">
-            <button class="like-btn post-like-btn" data-post-id="{{ post.id }}">
-                <span class="heart-icon">♥</span>
-                <strong id="post-likes-count">좋아요 {{ post.total_likes }}</strong>
-            </button>
-            <strong>댓글 {{ post.comments.count }}</strong>
-        </div>
-
-        <div class="comment-form-container">
-            <form action="{% url 'create-comment' post_id=post.id %}" method="post">
-                {% csrf_token %}
-                {{ comment_form }}
-                <div class="comment-form-actions"><button type="submit" class="submit-comment-btn">등록</button></div>
-            </form>
-        </div>
-
-        {% for comment in post.comments.all %}
-            <div class="comment-item {% if request.user == comment.author %}is-own{% endif %}">
-             <div class="comment-content-wrapper">
-              <div class="comment-author-name">{{ comment.author.username }}</div>
-              <div class="comment-text">{{ comment.content }}</div>
-              <div class="comment-meta">
-                <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
-                <button class="like-btn comment-like-btn" data-comment-id="{{ comment.id }}">
-                   <span class="heart-icon">♥</span>
-                   <span class="comment-likes-count">{{ comment.total_likes }}</span>
-              </button>
-         </div>
-     </div>
-    {% if request.user == comment.author or request.user.is_superuser %}
-    <div class="kebab-menu comment-kebab">
-        <span></span><span></span><span></span>
-        <div class="dropdown-menu">
-            <a href="{% url 'edit-comment' comment_id=comment.id %}">수정하기</a>
-            <form action="{% url 'delete-comment' comment_id=comment.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="dropdown-button">삭제하기</button>
-            </form>
-        </div>
-    </div>
-    {% endif %}
-</div>
-{% endfor %}
-    </div>
+               </div>
+           </div>
+           {% endif %}
+       </div>
+       {% endfor %}
+   </div>
 </div>
 
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
+   function getCSRFToken() {
+       return document.querySelector('[name=csrfmiddlewaretoken]').value;
+   }
 
-    const postLikeBtn = document.querySelector('.post-like-btn');
-    if (postLikeBtn) {
-        postLikeBtn.addEventListener('click', function () {
-            const postId = this.dataset.postId;
-            fetch(`/main/community/post/${postId}/like/`, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCSRFToken() },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.new_likes !== undefined) {
-                    document.getElementById('post-likes-count').textContent = `좋아요 ${data.new_likes}`;
-                }
-            });
-        });
-    }
+   const postLikeBtn = document.querySelector('.post-like-btn');
+   if (postLikeBtn) {
+       postLikeBtn.addEventListener('click', function () {
+           const postId = this.dataset.postId;
+           fetch(`/main/community/post/${postId}/like/`, {
+               method: 'POST',
+               headers: { 'X-CSRFToken': getCSRFToken() },
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.new_likes !== undefined) {
+                   document.getElementById('post-likes-count').textContent = `좋아요 ${data.new_likes}`;
+               }
+           });
+       });
+   }
 
-    const commentLikeBtns = document.querySelectorAll('.comment-like-btn');
-    commentLikeBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const commentId = this.dataset.commentId;
-            const countSpan = this.querySelector('.comment-likes-count');
-            fetch(`/main/community/comment/${commentId}/like/`, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCSRFToken() },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.new_likes !== undefined) {
-                    countSpan.textContent = data.new_likes;
-                }
-            });
-        });
-    });
+   const commentLikeBtns = document.querySelectorAll('.comment-like-btn');
+   commentLikeBtns.forEach(btn => {
+       btn.addEventListener('click', function () {
+           const commentId = this.dataset.commentId;
+           const countSpan = this.querySelector('.comment-likes-count');
+           fetch(`/main/community/comment/${commentId}/like/`, {
+               method: 'POST',
+               headers: { 'X-CSRFToken': getCSRFToken() },
+           })
+           .then(response => response.json())
+           .then(data => {
+               if (data.new_likes !== undefined) {
+                   countSpan.textContent = data.new_likes;
+               }
+           });
+       });
+   });
 
-    const kebabMenus = document.querySelectorAll('.kebab-menu');
-    kebabMenus.forEach(menu => {
-        menu.addEventListener('click', function (event) {
-            event.stopPropagation();
-            const dropdown = this.querySelector('.dropdown-menu');
-            const isVisible = dropdown.style.display === 'block';
-            closeAllDropdowns();
-            if (!isVisible) {
-                dropdown.style.display = 'block';
-            }
-        });
-    });
+   const kebabMenus = document.querySelectorAll('.kebab-menu');
+   kebabMenus.forEach(menu => {
+       menu.addEventListener('click', function (event) {
+           event.stopPropagation();
+           const dropdown = this.querySelector('.dropdown-menu');
+           const isVisible = dropdown.style.display === 'block';
+           closeAllDropdowns();
+           if (!isVisible) {
+               dropdown.style.display = 'block';
+           }
+       });
+   });
 
-    function closeAllDropdowns() {
-        document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
-            dropdown.style.display = 'none';
-        });
-    }
+   function closeAllDropdowns() {
+       document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+           dropdown.style.display = 'none';
+       });
+   }
 
-    window.addEventListener('click', function () {
-        closeAllDropdowns();
-    });
+   window.addEventListener('click', function () {
+       closeAllDropdowns();
+   });
 });
 </script>
 {% endblock %}
