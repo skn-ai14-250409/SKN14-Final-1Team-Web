@@ -73,7 +73,6 @@ def mypage_edit(request):
         print("POST 데이터:", request.POST)
         try:
             name = request.POST.get("name")
-            rank = request.POST.get("rank")
             department = request.POST.get("department")
             email = request.POST.get("email")
             gender = request.POST.get("gender")
@@ -82,8 +81,6 @@ def mypage_edit(request):
 
             if name:
                 request.user.name = name
-            if rank:
-                request.user.rank = rank
             if department:
                 request.user.department = department
             if email:
@@ -96,7 +93,6 @@ def mypage_edit(request):
                 request.user.birthday = birthday
 
             request.user.save()
-            messages.success(request, "프로필 정보가 성공적으로 수정되었습니다.")
 
         except Exception as e:
             messages.error(request, f"프로필 수정 중 오류가 발생했습니다: {e}")

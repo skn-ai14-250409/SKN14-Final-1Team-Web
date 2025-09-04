@@ -19,7 +19,6 @@ COPY . .
 
 # collect static files during build
 RUN python manage.py collectstatic --noinput
-RUN python -c "from apichat.utils.vector_db import create_chroma_db; create_chroma_db()"
 
 # start gunicorn with custom config
 CMD ["sh", "-c", "python manage.py migrate && gunicorn -c gunicorn.conf.py"]
