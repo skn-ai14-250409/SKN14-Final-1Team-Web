@@ -8,27 +8,30 @@ import json
 import uuid
 import requests
 import os
-import re, textwrap # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
+import re, textwrap  # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
 from datetime import datetime, timedelta, timezone
 
 from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
-from .utils.main import run_rag, run_graph
+from .utils.main import run_graph
 
 
 # 제목 요약 #
 PRODUCTS = r"(Google Sheets|Sheets|Gmail|Drive|Calendar|Maps|Docs|Slides)"
-KEYWORDS  = r"(batchUpdate|insert|list|update|auth|quota|range|scope|error|permission)"
+KEYWORDS = r"(batchUpdate|insert|list|update|auth|quota|range|scope|error|permission)"
+
 
 def _extract_meta(text: str):
     def _m(p):
         m = re.search(p, text, re.IGNORECASE)
         return m.group(0) if m else None
+
     product = _m(PRODUCTS)
     api = _m(r"\b\w+\s?API\b") or (f"{product} API" if product else None)
     error = _m(r"\b(4\d{2}|5\d{2}|invalid[A-Za-z]+|PERMISSION_DENIED|NOT_FOUND)\b")
     keyword = _m(KEYWORDS)
     return {"product": product, "api": api, "error": error, "keyword": keyword}
+
 
 def _rule_title_fallback(text: str) -> str:
     """
@@ -39,9 +42,11 @@ def _rule_title_fallback(text: str) -> str:
     s = re.sub(r"[^\w\sㄱ-ㅎ가-힣A-Za-z0-9]", "", s)
     return (s[:24]).strip() or "새 대화"
 
+
 def _sanitize_title(s: str) -> str:
     s = re.sub(r"[^\w\s\-\:\.\,\[\]\(\)ㄱ-ㅎ가-힣A-Za-z0-9/]", "", s)
     return s.strip()[:60] or "General"
+
 
 def _initial_title_with_llm(first_question: str) -> str:
     """
@@ -52,22 +57,31 @@ def _initial_title_with_llm(first_question: str) -> str:
     if not api_key:
         return _rule_title_fallback(first_question)
 
-    prompt = textwrap.dedent(f"""
+    prompt = textwrap.dedent(
+        f"""
       다음 문장을 바탕으로 한국어로 **아주 짧은 대화 제목**을 만들어라.
       - 12~24자, 이모지/따옴표/마침표 금지
       - 접두사/접미사/괄호/콜론 금지 (예: "API:", "- 요약" 금지)
       - 핵심 명사 위주로 간결하게
       문장: {first_question}
-    """).strip()
+    """
+    ).strip()
 
     try:
         import requests
+
         url = "https://api.openai.com/v1/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
         body = {
             "model": "gpt-4o-nano",
             "messages": [
-                {"role": "system", "content": "Return only the title text. No punctuation at the end."},
+                {
+                    "role": "system",
+                    "content": "Return only the title text. No punctuation at the end.",
+                },
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.2,
@@ -80,6 +94,7 @@ def _initial_title_with_llm(first_question: str) -> str:
     except Exception:
         return _rule_title_fallback(first_question)
 
+
 def _refine_title_with_llm(draft_title: str, transcript: str) -> str:
     """
     최근 2~4개 Q/A 문맥으로 최종 제목 리라이트
@@ -90,9 +105,14 @@ def _refine_title_with_llm(draft_title: str, transcript: str) -> str:
         return draft_title
     try:
         import requests
+
         url = "https://api.openai.com/v1/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-        prompt = textwrap.dedent(f"""
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        prompt = textwrap.dedent(
+            f"""
           최근 Q/A 맥락을 반영하여 **아주 짧은 한국어 제목**을 다시 만들어라.
           - 12~24자, 이모지/따옴표/마침표 금지
           - 접두사/콜론/괄호 금지
@@ -100,11 +120,15 @@ def _refine_title_with_llm(draft_title: str, transcript: str) -> str:
           draft_title: {draft_title}
           context:
           {transcript}
-        """).strip()
+        """
+        ).strip()
         body = {
             "model": "gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": "Return only the title text. No punctuation at the end."},
+                {
+                    "role": "system",
+                    "content": "Return only the title text. No punctuation at the end.",
+                },
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.2,
@@ -116,6 +140,7 @@ def _refine_title_with_llm(draft_title: str, transcript: str) -> str:
         return _sanitize_title(title) or draft_title
     except Exception:
         return draft_title
+
 
 def _update_session_title_inline(session, all_messages):
     """
@@ -132,11 +157,15 @@ def _update_session_title_inline(session, all_messages):
     user_msgs = [m for m in all_messages if m.role == "user"]
     if len(user_msgs) >= 2:
         tail = all_messages[-4:]  # 최근 2세트(user+assistant)
-        transcript = "\n".join(["Q: "+m.content if m.role=="user" else "A: "+m.content for m in tail])
+        transcript = "\n".join(
+            ["Q: " + m.content if m.role == "user" else "A: " + m.content for m in tail]
+        )
         final_title = _refine_title_with_llm(session.title, transcript)
         if final_title and final_title != session.title:
             session.title = final_title
             session.save(update_fields=["title"])
+
+
 # 제목 요약 #
 
 
@@ -173,11 +202,15 @@ def chat(request):
             )
 
             # 제목 갱신
-            all_msgs = list(ChatMessage.objects.filter(session=session).order_by("created_at"))
+            all_msgs = list(
+                ChatMessage.objects.filter(session=session).order_by("created_at")
+            )
             _update_session_title_inline(session, all_msgs)
 
             # 갱신된 제목을 응답에 포함
-            return JsonResponse({"success": True, "bot_message": response, "title": session.title})
+            return JsonResponse(
+                {"success": True, "bot_message": response, "title": session.title}
+            )
 
         except Exception as e:
             return JsonResponse(
@@ -265,12 +298,14 @@ def session_list(request):
     print(data)
     return JsonResponse({"results": data})
 
+
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from main.models import Card, CardMessage, ChatSession, ChatMessage
 import json
+
 
 @csrf_exempt
 @login_required
@@ -293,7 +328,11 @@ def save_card(request):
     session = get_object_or_404(ChatSession, id=session_id, user=request.user)
 
     # 2) 메시지 유효성(모두 이 세션 소속?)
-    msgs = list(ChatMessage.objects.filter(session=session, id__in=message_ids).order_by("created_at"))
+    msgs = list(
+        ChatMessage.objects.filter(session=session, id__in=message_ids).order_by(
+            "created_at"
+        )
+    )
     if len(msgs) != len(message_ids):
         return JsonResponse({"error": "메시지 목록이 유효하지 않습니다."}, status=400)
 
@@ -314,33 +353,41 @@ def save_card(request):
 @login_required
 def my_cards(request):
     rows = Card.objects.filter(user=request.user).order_by("-created_at")
-    results = [{
-        "id": c.id,
-        "title": c.title,
-        "created_at": c.created_at.isoformat(),
-        "session_id": c.session_id,
-        "count": c.card_messages.count(),
-    } for c in rows]
+    results = [
+        {
+            "id": c.id,
+            "title": c.title,
+            "created_at": c.created_at.isoformat(),
+            "session_id": c.session_id,
+            "count": c.card_messages.count(),
+        }
+        for c in rows
+    ]
     return JsonResponse({"results": results})
 
 
 @login_required
 def card_detail(request, card_id):
     card = get_object_or_404(Card, id=card_id, user=request.user)
-    items = [{
-        "message_id": cm.message.id,
-        "role": cm.message.role,
-        "content": cm.message.content,
-        "created_at": cm.message.created_at.isoformat(),
-        "position": cm.position
-    } for cm in card.card_messages.select_related("message").all()]
-    return JsonResponse({
-        "id": card.id,
-        "title": card.title,
-        "created_at": card.created_at.isoformat(),
-        "session_id": card.session_id,
-        "items": items,
-    })
+    items = [
+        {
+            "message_id": cm.message.id,
+            "role": cm.message.role,
+            "content": cm.message.content,
+            "created_at": cm.message.created_at.isoformat(),
+            "position": cm.position,
+        }
+        for cm in card.card_messages.select_related("message").all()
+    ]
+    return JsonResponse(
+        {
+            "id": card.id,
+            "title": card.title,
+            "created_at": card.created_at.isoformat(),
+            "session_id": card.session_id,
+            "items": items,
+        }
+    )
 
 
 @csrf_exempt

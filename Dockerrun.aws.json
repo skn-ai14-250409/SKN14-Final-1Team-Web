@@ -6,12 +6,11 @@
   },
   "Ports": [
     {
-      "ContainerPort": 8000,
-      "HostPort": 8000
+      "ContainerPort": 8000
     }
   ],
-  "Environment": {
-    "OPENAI_API_KEY": "$OPENAI_API_KEY"
-  },
+  "Environment": [
+    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" }
+  ],
   "Logging": "/var/log/nginx"
 }

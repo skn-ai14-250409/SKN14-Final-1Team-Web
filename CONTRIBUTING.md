@@ -32,13 +32,13 @@ python manage.py runserver 0.0.0.0:8000
 # 도커 실행방법
 
 ```bash
-$ docker build -t codenova-web . 
-$ docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
+docker build -t codenova-web . 
+docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 ```
 
 # 도커 허브이미지 실행방법
 
 ```bash
-$ docker pull skn14f1/codenova
-$ docker run -d --name codenova --env-file .env -p 8000:8000 skn14f1/codenova
+docker pull skn14f1/codenova
+docker run -d --name codenova --env-file .env -p 8000:8000 skn14f1/codenova
 ```
