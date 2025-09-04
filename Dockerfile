@@ -19,12 +19,8 @@ COPY . .
 
 # collect static files during build
 RUN python manage.py collectstatic --noinput
-# RUN python -c "from apichat.utils.vector_db import create_chroma_db; create_chroma_db()"
-# RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')"
-
-CMD ["sh", "-c", "python manage.py migrate && gunicorn -c gunicorn.conf.py"]
-EXPOSE 8000
+RUN python -c "from apichat.utils.vector_db import create_chroma_db; create_chroma_db()"
 
 # start gunicorn with custom config
 CMD ["sh", "-c", "python manage.py migrate && gunicorn -c gunicorn.conf.py"]
-# ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py"]
+EXPOSE 8000
