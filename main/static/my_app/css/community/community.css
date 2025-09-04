@@ -64,3 +64,87 @@
 .like-btn:hover .heart-icon { color: #e53e3e; transform: scale(1.1); }
 .post-like-btn { margin-right: 16px; font-size: 0.9rem; }
 .post-like-btn strong { font-weight: bold; }
+
+/* Comment Form */
+.comment-form-container {
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+.comment-textarea {
+    width: 100%;
+    border: none;
+    resize: none;
+    padding: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+.comment-textarea:focus {
+    outline: none;
+}
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+.submit-comment-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 6px 16px;
+    cursor: pointer;
+}
+
+/* Comment Likes Count */
+.comment-likes-count {
+    margin-left: -2px; /* 하트와 숫자 간격 조정 */
+}
+
+.dropdown-button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: inherit;
+    color: #333;
+}
+.dropdown-button:hover {
+    background-color: #f5f5f5;
+}
+
+/* Community Header & Create Button */
+.community-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+.btn-create-post {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border: none;
+}
+.btn-create-post:hover {
+    background-color: #0056b3;
+}
+
+/* Create Post Form Style */
+#id_title, #id_content {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#id_content {
+    height: 200px;
+    resize: vertical;
+}
