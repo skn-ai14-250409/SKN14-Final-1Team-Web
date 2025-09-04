@@ -34,16 +34,12 @@
 
                 <!-- ✅ 세션 리스트 -->
 	    <ul id="sessionList" class="session-list">
-        {% if request.path == '/main-chatbot/' %}
     {% for s in chat_sessions %}
-        {% if s.mode == 'api' %}
             <li class="session-item">
                 <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
                 <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
             </li>
-        {% endif %}
     {% endfor %}
-{% endif %}
 </ul>
             </div>
         </aside>
@@ -54,7 +50,12 @@
                     <button class="btn-header">이름 / 직급 / 권한</button>
                     {% comment %} <a href="{% url 'mypage' %}" class="btn-header">마이페이지</a> {% endcomment %}
                     <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
+
                     <button class="btn-header">로그아웃</button>
+                    <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-header">로그아웃</button>
+                    </form>
                 </div>
             </header>
             <main class="main-content">
