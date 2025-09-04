@@ -10,7 +10,9 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
-    likers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_posts', blank=True)
+    likers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="liked_posts", blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -19,19 +21,23 @@ class Post(models.Model):
     def total_likes(self):
         return self.likers.count()
 
+
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    likers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_comments', blank=True)
+    likers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="liked_comments", blank=True
+    )
 
     def __str__(self):
-        return f'{self.author} : {self.content[:20]}'
+        return f"{self.author} : {self.content[:20]}"
 
     @property
     def total_likes(self):
         return self.likers.count()
+
 
 class ChatMode(models.TextChoices):
     API = "api", "API"
@@ -124,4 +130,3 @@ class CardMessage(models.Model):
 
     def __str__(self):
         return f"{self.card.title} #{self.position}"
-

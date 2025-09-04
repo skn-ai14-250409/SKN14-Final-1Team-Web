@@ -11,9 +11,25 @@ urlpatterns = [
     path("community/post/<int:post_id>/", views.post_detail_view, name="post-detail"),
     path("community/post/<int:post_id>/edit/", views.edit_post, name="edit-post"),
     path("community/post/<int:post_id>/delete/", views.delete_post, name="delete-post"),
-    path("community/post/<int:post_id>/comment/", views.create_comment, name="create-comment"),
+    path(
+        "community/post/<int:post_id>/comment/",
+        views.create_comment,
+        name="create-comment",
+    ),
     path("community/post/<int:post_id>/like/", views.like_post, name="like-post"),
-    path("community/comment/<int:comment_id>/like/", views.like_comment, name="like-comment"),
-    path("community/comment/<int:comment_id>/edit/", views.edit_comment, name="edit-comment"),
-    path("community/comment/<int:comment_id>/delete/", views.delete_comment, name="delete-comment"),
+    path(
+        "community/comment/<int:comment_id>/like/",
+        views.like_comment,
+        name="like-comment",
+    ),
+    path(
+        "community/comment/<int:comment_id>/edit/",
+        views.edit_comment,
+        name="edit-comment",
+    ),
+    path(
+        "community/comment/<int:comment_id>/delete/",
+        views.delete_comment,
+        name="delete-comment",
+    ),
 ]
