@@ -63,7 +63,7 @@ sessionList.addEventListener("click", async (e) => {
 // 세션 삭제 함수
 async function deleteSession(sessionId) {
   try {
-    const response = await fetch(`/api-chat/delete_session/${sessionId}/`, {
+    const response = await fetch(`/internal-chat/delete_session/${sessionId}/`, {
       method: "DELETE",
       headers: {
         "X-CSRFToken": getCSRFToken(),
@@ -98,7 +98,7 @@ async function deleteSession(sessionId) {
 // 채팅 히스토리 로드 함수
 async function loadChatHistory(sessionId) {
   try {
-    const response = await fetch(`/api-chat/chat_history/${sessionId}/`, {
+    const response = await fetch(`/internal-chat/chat_history/${sessionId}/`, {
       credentials: "same-origin",
     });
 
@@ -139,7 +139,7 @@ async function session_create() {
   try {
     const csrfToken = getCSRFToken();
 
-    const response = await fetch("/api-chat/session_create/", {
+    const response = await fetch("/internal-chat/session_create/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -237,7 +237,7 @@ async function sendMessage() {
   try {
     const csrfToken = getCSRFToken();
 
-    const response = await fetch("/api-chat/chat/", {
+    const response = await fetch("/internal-chat/chat/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
