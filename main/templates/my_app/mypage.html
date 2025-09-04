@@ -86,15 +86,16 @@
         <section class="card-api-section">
             <div class="section-box">
                 <h4>내가 저장한 카드</h4>
-                <ul class="item-list">
+                <ul class="item-list" id="cardsList">
                     {% for card in cards %}
-                    <li>
+                    <li data-card-id="{{ card.id }}">
                         <span>{{ card.title }}</span>
                         <div class="actions">
                             {% comment %} "openCardDetail('{{ card.id }}')" {% endcomment %}
                             <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
                             {% comment %} 링크 연결 필 {% endcomment %}
-                            <button>채팅 보러가기</button> 
+                            <button>채팅 보러가기</button>
+                            <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button> 
                         </div>
                     </li>
                     {% empty %}
@@ -144,6 +145,9 @@
             </div>
         </section>
     </div>
+
+    <!-- 리다이렉트 타겟 URL 주입 -->
+    <div id="mypageCtx" data-refresh-url="{% url 'mypage:mypage' %}"></div>
 
     <script src="{% static 'my_app/js/mypage/mypage.js' %}"></script>
 {% endblock %}
