@@ -17,23 +17,52 @@ async function copyToClipboard(textToCopy) {
 function toggleEditMode() {
     const editBtn = document.getElementById('edit-btn');
     const saveBtn = document.getElementById('save-btn');
-    const editableInputs = document.querySelectorAll('#profile-form input:not(#id)');
+    const editableInputs = document.querySelectorAll('#profile-form input:not(#id):not(#rank)');
+    const editableSelects = document.querySelectorAll('#profile-form select');
 
+    const accountSection = document.querySelector('.account-section'); // 색상 변화
+
+    
     // 현재 상태가 '편집' 모드인지 확인
     const isEditMode = editBtn.style.display !== 'none';
 
     if (isEditMode) {
         editBtn.style.display = 'none';
         saveBtn.style.display = 'block';
+
         editableInputs.forEach(input => {
             input.removeAttribute('readonly');
         });
+        
+        editableSelects.forEach(select => {
+            select.removeAttribute('disabled');
+        });
+
+        document.getElementById('department-text').style.display = 'none';
+        document.getElementById('department-select').style.display = 'inline';
+        document.getElementById('gender-text').style.display = 'none';
+        document.getElementById('gender-select').style.display = 'inline';
+
+        accountSection.classList.add('editing');
+
     } else {
         editBtn.style.display = 'block';
         saveBtn.style.display = 'none';
+
         editableInputs.forEach(input => {
             input.setAttribute('readonly', true);
         });
+
+        editableSelects.forEach(select => {
+            select.setAttribute('disabled', true);
+        });
+
+        document.getElementById('department-text').style.display = 'inline';
+        document.getElementById('department-select').style.display = 'none';
+        document.getElementById('gender-text').style.display = 'inline';
+        document.getElementById('gender-select').style.display = 'none';
+
+        accountSection.classList.remove('editing');
     }
 }
 

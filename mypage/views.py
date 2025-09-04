@@ -1,14 +1,12 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from uauth.models import ApiKey, User
+from uauth.models import ApiKey, User, Department, Rank, Gender
 from django.core.exceptions import ObjectDoesNotExist
 from main.models import Card
 from django.contrib import messages
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from django.contrib import messages
 
 # Create your views here.
 # @login_required
@@ -38,6 +36,22 @@ from django.contrib import messages
 
 @login_required
 def mypage(request):
+    # [GET] 페이지 로딩
+    api_keys = request.user.api_keys.all().order_by("-created_at")
+    my_cards = request.user.cards.all().order_by("-created_at")
+
+    context = {
+        "user": request.user,
+        "api_keys": api_keys,
+        "cards": my_cards,
+        "departments": Department.choices,
+        "ranks": Rank.choices,
+        "genders": Gender.choices,
+    }
+    return render(request, "my_app/mypage.html", context)
+
+@login_required
+def create_api_key(request):
     # [POST] API 키 저장
     if request.method == "POST":
         key_name = request.POST.get("api_key_name")
@@ -50,18 +64,7 @@ def mypage(request):
                     name=key_name,
                     secret_key=key_value
                 )
-        return redirect("mypage:mypage")
-
-    # [GET] 페이지 로딩
-    api_keys = request.user.api_keys.all().order_by("-created_at")
-    my_cards = request.user.cards.all().order_by("-created_at")
-
-    context = {
-        "user": request.user,
-        "api_keys": api_keys,
-        "cards": my_cards,
-    }
-    return render(request, "my_app/mypage.html", context)
+    return redirect("mypage:mypage")
 
 @csrf_exempt
 @login_required

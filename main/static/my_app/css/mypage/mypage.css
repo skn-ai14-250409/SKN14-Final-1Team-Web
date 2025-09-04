@@ -36,6 +36,12 @@ body {
 .account-section {
     flex: 1.5; 
 }
+
+.account-section.editing {
+    background-color: #faf7ea;
+    flex: 1.5; 
+}
+
 .card-api-section {
     flex: 2; 
     display: flex;
@@ -84,12 +90,27 @@ body {
     font-weight: bold;
     color: #555;
 }
-.form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.form-group select,
+.form-group input[type="date"] {
+  height: 44px;   
+  line-height: 1.2;
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
 }
 .form-row {
     display: flex;
