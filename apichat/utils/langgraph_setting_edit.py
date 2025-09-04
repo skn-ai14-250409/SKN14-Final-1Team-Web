@@ -19,7 +19,7 @@ def graph_setting_edit():
     # 노드 등록
     graph.add_node("extract_queries", extract_queries)  # 질문 통합 + 쿼리 추출 노드
     graph.add_node("split_queries", split_queries)  # 질문 분리 툴
-    graph.add_node("basic", basic_langgraph_node)  # 기본 답변 노드
+    graph.add_node("basic", langgraph_node)  # 기본 답변 노드
 
     # 시작 노드 정의
     graph.set_entry_point("extract_queries")

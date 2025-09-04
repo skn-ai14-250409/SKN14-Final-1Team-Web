@@ -24,7 +24,7 @@ class ChatState_basic(TypedDict, total=False):
     answer: str  # 모델 답변
 
 
-def basic_node(state: ChatState):
+def basic_node(state: ChatState_basic):
     """질문에 대한 기본 답변 생성"""
     question = state["question"]
 
