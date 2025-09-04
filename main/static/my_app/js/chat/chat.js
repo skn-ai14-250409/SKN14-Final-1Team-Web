@@ -252,7 +252,16 @@ async function sendMessage() {
     // 성공 여부에 따라 처리 (서버 스키마에 맞게 조정)
     if (data.success) {
       // 실제 응답 텍스트 키가 있으면 그걸 사용 (예: data.reply)
-      addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'bot');
+      addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'assistant');
+
+      if (data.title) {
+        if(sessionTitle) sessionTitle.textContent = data.title;
+
+        const btn = document.querySelector(
+            `#sessionList .session-link[data-session-id="${selectedSessionId}"]`
+        );
+        if (btn) btn.textContent = data.title;
+      }
     }
   } catch (err) {
     console.error('요청 실패:', err);
