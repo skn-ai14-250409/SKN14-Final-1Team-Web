@@ -83,8 +83,38 @@
           </div>
         </div>
 
-        <!-- 이메일 -->
+        <!-- 직급 -->
         <div class="form-item">
+          <label for="role">직급</label>
+          <select id="role" name="role" required aria-describedby="roleErr"
+                  {% if form.role.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.role.value %}selected{% endif %} disabled>직급을 선택하세요</option>
+            {% for code, label in ranks %}
+              <option value="{{ code }}" {% if form.role.value == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <div id="roleErr" class="error">
+            {% for err in form.role.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <!-- 팀 -->
+        <div class="form-item">
+          <label for="team">팀</label>
+          <select id="team" name="team" required aria-describedby="teamErr"
+                  {% if form.team.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.team.value %}selected{% endif %} disabled>팀을 선택하세요</option>
+            {% for code, label in departments %}
+              <option value="{{ code }}" {% if form.team.value == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <div id="teamErr" class="error">
+            {% for err in form.team.errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <!-- 이메일 -->
+        <div class="form-item full">
           <label for="email">이메일</label>
           <input id="email" name="email" type="email" placeholder="이메일을 입력하세요"
                  required aria-describedby="emailErr" autocomplete="email"
@@ -95,32 +125,18 @@
           </div>
         </div>
 
-        <!-- 팀 -->
+        <!-- 성별 -->
         <div class="form-item">
-          <label for="team">팀</label>
-          <select id="team" name="team" required aria-describedby="teamErr"
-                  {% if form.team.errors %}aria-invalid="true"{% endif %}>
-            <option value="" {% if not form.team.value %}selected{% endif %} disabled>팀을 선택하세요</option>
-            <option {% if form.team.value == "프론트엔드" %}selected{% endif %}>프론트엔드</option>
-            <option {% if form.team.value == "백엔드" %}selected{% endif %}>백엔드</option>
-            <option {% if form.team.value == "AI/데이터팀" %}selected{% endif %}>AI/데이터팀</option>
+          <label for="gender">성별</label>
+          <select id="gender" name="gender" required aria-describedby="genderErr"
+                  {% if form.gender.errors %}aria-invalid="true"{% endif %}>
+            <option value="" {% if not form.gender.value %}selected{% endif %} disabled>성별을 선택하세요</option>
+            {% for code, label in genders %}
+              <option value="{{ code }}" {% if form.gender.value == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
           </select>
-          <div id="teamErr" class="error">
-            {% for err in form.team.errors %}<p>{{ err }}</p>{% endfor %}
-          </div>
-        </div>
-
-        <!-- 직급 -->
-        <div class="form-item">
-          <label for="role">직급</label>
-          <select id="role" name="role" required aria-describedby="roleErr"
-                  {% if form.role.errors %}aria-invalid="true"{% endif %}>
-            <option value="" {% if not form.role.value %}selected{% endif %} disabled>직급을 선택하세요</option>
-            <option {% if form.role.value == "일반" %}selected{% endif %}>일반</option>
-            <option {% if form.role.value == "CTO" %}selected{% endif %}>CTO</option>
-          </select>
-          <div id="roleErr" class="error">
-            {% for err in form.role.errors %}<p>{{ err }}</p>{% endfor %}
+          <div id="genderErr" class="error">
+            {% for err in form.gender.errors %}<p>{{ err }}</p>{% endfor %}
           </div>
         </div>
 
@@ -132,20 +148,6 @@
                  {% if form.birthDate.errors %}aria-invalid="true"{% endif %}>
           <div id="birthErr" class="error">
             {% for err in form.birthDate.errors %}<p>{{ err }}</p>{% endfor %}
-          </div>
-        </div>
-
-        <!-- 성별 -->
-        <div class="form-item">
-          <label for="gender">성별</label>
-          <select id="gender" name="gender" required aria-describedby="genderErr"
-                  {% if form.gender.errors %}aria-invalid="true"{% endif %}>
-            <option value="" {% if not form.gender.value %}selected{% endif %} disabled>성별을 선택하세요</option>
-            <option value="male" {% if form.gender.value == "male" %}selected{% endif %}>남성</option>
-            <option value="female" {% if form.gender.value == "female" %}selected{% endif %}>여성</option>
-          </select>
-          <div id="genderErr" class="error">
-            {% for err in form.gender.errors %}<p>{{ err }}</p>{% endfor %}
           </div>
         </div>
 

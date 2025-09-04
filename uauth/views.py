@@ -15,6 +15,7 @@ import json
 import re
 from datetime import date
 
+from .models import User, Rank, Department, Gender
 
 # -----------------------------
 # 유틸
@@ -104,21 +105,32 @@ class SignUpEchoForm(forms.Form):
     password = forms.CharField(required=True)
     confirmPassword = forms.CharField(required=True)
     email = forms.EmailField(required=True)
-    team = forms.CharField(required=True)
+    team = forms.CharField(required=False)
     role = forms.CharField(required=True)
     birthDate = forms.DateField(required=True)
     gender = forms.CharField(required=True)
     phoneNumber = forms.CharField(required=True)
 
 
+def signup_context(form=None):
+    return {
+        "form": form or SignUpEchoForm(),
+        "departments": Department.choices,
+        "ranks": Rank.choices,
+        "genders": Gender.choices,
+    }
+
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def signup_view(request: HttpRequest):
+    # GET
     if request.method == "GET":
-        return render(request, "uauth/register2.html", {"form": SignUpEchoForm()})
+        return render(request, "uauth/register2.html", signup_context())
 
     # POST
     form = SignUpEchoForm(request.POST)
+    if form.errors:
+        return render(request, "uauth/register2.html", signup_context(form))
 
     # 값 추출
     userId = form.data.get("userId", "").strip()
@@ -133,9 +145,9 @@ def signup_view(request: HttpRequest):
     gender = form.data.get("gender", "").strip()
     phone = form.data.get("phoneNumber", "").strip()
 
-    if form.errors:
-        # 폼 에러 그대로 템플릿에 출력
-        return render(request, "uauth/register2.html", {"form": form})
+    # if form.errors:
+    #     # 폼 에러 그대로 템플릿에 출력
+    #     return render(request, "uauth/register2.html", {"form": form})
 
     # DB 저장 (중복 아이디 방어)
     try:
@@ -154,7 +166,7 @@ def signup_view(request: HttpRequest):
             user.save()
     except IntegrityError:
         form.add_error("userId", "이미 사용 중인 아이디입니다.")
-        return render(request, "uauth/register2.html", {"form": form})
+        return render(request, "uauth/register2.html", signup_context(form))
 
     login(request, user)
     messages.success(request, "회원가입이 완료되었습니다.")
