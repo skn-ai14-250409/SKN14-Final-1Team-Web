@@ -3,23 +3,28 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+
 class Status(models.TextChoices):
     PENDING = "pending", "Pending"
     APPROVED = "approved", "Approved"
     REJECTED = "rejected", "Rejected"
 
+
 class Rank(models.TextChoices):
     GENERAL = "general", "일반"
     CTO = "cto", "CTO"
+
 
 class Department(models.TextChoices):
     FRONTEND = "frontend", "프론트엔드팀"
     BACKEND = "backend", "백엔드팀"
     AI_DATA = "ai_data", "AI/데이터팀"
 
+
 class Gender(models.TextChoices):
     FEMALE = "female", "여성"
     MALE = "male", "남성"
+
 
 # 관리자
 class UserManager(BaseUserManager):

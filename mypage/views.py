@@ -50,6 +50,7 @@ def mypage(request):
     }
     return render(request, "my_app/mypage.html", context)
 
+
 @login_required
 def create_api_key(request):
     # [POST] API 키 저장
@@ -60,25 +61,24 @@ def create_api_key(request):
         if key_name and key_value:
             if not ApiKey.objects.filter(user=request.user, name=key_name).exists():
                 ApiKey.objects.create(
-                    user=request.user,
-                    name=key_name,
-                    secret_key=key_value
+                    user=request.user, name=key_name, secret_key=key_value
                 )
     return redirect("mypage:mypage")
+
 
 @csrf_exempt
 @login_required
 def mypage_edit(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         print("POST 데이터:", request.POST)
         try:
-            name = request.POST.get('name')
-            rank = request.POST.get('rank')
-            department = request.POST.get('department')
-            email = request.POST.get('email')
-            gender = request.POST.get('gender')
-            phone = request.POST.get('phone')
-            birthday = request.POST.get('birthday')
+            name = request.POST.get("name")
+            rank = request.POST.get("rank")
+            department = request.POST.get("department")
+            email = request.POST.get("email")
+            gender = request.POST.get("gender")
+            phone = request.POST.get("phone")
+            birthday = request.POST.get("birthday")
 
             if name:
                 request.user.name = name
@@ -96,22 +96,24 @@ def mypage_edit(request):
                 request.user.birthday = birthday
 
             request.user.save()
-            messages.success(request, '프로필 정보가 성공적으로 수정되었습니다.')
+            messages.success(request, "프로필 정보가 성공적으로 수정되었습니다.")
 
         except Exception as e:
-            messages.error(request, f'프로필 수정 중 오류가 발생했습니다: {e}')
-        
-        return redirect('mypage:mypage')
+            messages.error(request, f"프로필 수정 중 오류가 발생했습니다: {e}")
+
+        return redirect("mypage:mypage")
+
 
 @login_required
 def api_key_delete(request, key_id):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             api_key = ApiKey.objects.get(pk=key_id, user=request.user)
             api_key.delete()
         except ObjectDoesNotExist:
             pass
-    return redirect('mypage:mypage')
+    return redirect("mypage:mypage")
+
 
 @login_required
 def card_detail(request, card_id):
@@ -129,10 +131,11 @@ def card_detail(request, card_id):
 
     return render(request, "my_app/card_detail.html", context)
 
+
 @login_required
-def check_api_key_name(request): # API 키 이름의 중복 여부 - ajax
-    if request.method == 'GET':
-        key_name = request.GET.get('name', None)
+def check_api_key_name(request):  # API 키 이름의 중복 여부 - ajax
+    if request.method == "GET":
+        key_name = request.GET.get("name", None)
         is_taken = ApiKey.objects.filter(user=request.user, name=key_name).exists()
-        
-        return JsonResponse({'is_taken': is_taken})
+
+        return JsonResponse({"is_taken": is_taken})
