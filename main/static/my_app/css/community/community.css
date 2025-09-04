@@ -1,22 +1,22 @@
 /* Community Board Page */
 .community-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    color: #333;
+   width: 100%;
+   table-layout: fixed;
+   border-collapse: collapse;
+   font-size: 0.9rem;
+   color: #333;
 }
 .community-table th, .community-table td {
-    padding: 13px 8px;
-    border-bottom: 1px solid #f0f0f0;
-    text-align: center;
-    vertical-align: middle;
+   padding: 13px 8px;
+   border-bottom: 1px solid #f0f0f0;
+   text-align: center;
+   vertical-align: middle;
 }
 .community-table th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-    color: #555;
-    border-top: 1px solid #e0e0e0;
+   background-color: #f8f9fa;
+   font-weight: 500;
+   color: #555;
+   border-top: 1px solid #e0e0e0;
 }
 .community-table tbody tr:hover { background-color: #f5f5f5; }
 .col-number { width: 8%; }
@@ -39,12 +39,14 @@
 .author-info .post-time { margin-left: 12px; color: #888; }
 .action-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
 .post-kebab-menu-container { display: flex; justify-content: flex-end; padding: 8px 0; }
+.post-body { padding: 32px 8px; min-height: 200px; font-size: 1rem; line-height: 1.7; }
+
+/* Kebab Menu */
 .kebab-menu { position: relative; cursor: pointer; padding: 4px; }
 .kebab-menu span { display: block; width: 4px; height: 4px; background-color: #888; border-radius: 50%; margin: 3px 0; }
-.dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background-color: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+.dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background-color: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; min-width: 100px; }
 .dropdown-menu a { display: block; padding: 8px 16px; white-space: nowrap; text-decoration: none; color: #333; }
 .dropdown-menu a:hover { background-color: #f5f5f5; }
-.post-body { padding: 32px 8px; min-height: 200px; font-size: 1rem; line-height: 1.7; }
 
 /* Comments Section */
 .comments-section { margin-top: 24px; border-top: 1px solid #eee; padding-top: 24px; }
@@ -55,8 +57,8 @@
 .comment-author-name { font-weight: bold; font-size: 0.9rem; }
 .comment-text { margin: 4px 0; }
 .comment-meta { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 12px; }
-.comment-kebab { opacity: 0; transition: opacity 0.2s; }
-.comment-item.is-own:hover .comment-kebab { opacity: 1; }
+.comment-kebab { opacity: 0; transition: opacity 0.2s; position: absolute; right: 0; top: 16px; }
+.comment-item:hover .comment-kebab { opacity: 1; }
 
 /* Like Heart Buttons */
 .like-btn { background: none; border: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center; color: inherit; }
@@ -64,3 +66,87 @@
 .like-btn:hover .heart-icon { color: #e53e3e; transform: scale(1.1); }
 .post-like-btn { margin-right: 16px; font-size: 0.9rem; }
 .post-like-btn strong { font-weight: bold; }
+
+/* Comment Form */
+.comment-form-container {
+   padding: 16px;
+   border: 1px solid #e0e0e0;
+   border-radius: 8px;
+   margin-top: 16px;
+   margin-bottom: 24px;
+}
+.comment-textarea {
+   width: 100%;
+   border: none;
+   resize: none;
+   padding: 8px;
+   font-size: 0.95rem;
+   box-sizing: border-box;
+}
+.comment-textarea:focus {
+   outline: none;
+}
+.comment-form-actions {
+   display: flex;
+   justify-content: flex-end;
+   margin-top: 8px;
+}
+.submit-comment-btn {
+   background-color: #f0f0f0;
+   border: 1px solid #ddd;
+   color: #555;
+   padding: 6px 16px;
+   cursor: pointer;
+}
+
+/* Comment Likes Count */
+.comment-likes-count {
+   margin-left: -2px;
+}
+
+.dropdown-button {
+   background: none;
+   border: none;
+   padding: 8px 16px;
+   width: 100%;
+   text-align: left;
+   cursor: pointer;
+   font-size: inherit;
+   color: #333;
+}
+.dropdown-button:hover {
+   background-color: #f5f5f5;
+}
+
+/* Community Header & Create Button */
+.community-header {
+   display: flex;
+   justify-content: flex-end;
+   margin-bottom: 16px;
+}
+.btn-create-post {
+   background-color: #007bff;
+   color: white;
+   padding: 8px 16px;
+   border-radius: 5px;
+   text-decoration: none;
+   font-size: 0.9rem;
+   border: none;
+}
+.btn-create-post:hover {
+   background-color: #0056b3;
+}
+
+/* Create Post Form Style */
+#id_title, #id_content {
+   width: 100%;
+   padding: 8px;
+   margin-top: 4px;
+   box-sizing: border-box;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+}
+#id_content {
+   height: 200px;
+   resize: vertical;
+}
