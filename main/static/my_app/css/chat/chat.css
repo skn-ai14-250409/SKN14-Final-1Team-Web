@@ -9,12 +9,12 @@
   border-radius: 8px;
   max-width: 70%;
 }
-.chat-log li.user {
+.chat-log .msg--user {
   background-color: #e0f2fe;
   align-self: flex-end;
   text-align: right;
 }
-.chat-log li.bot {
+.chat-log .msg--assistant {
   background-color: #f3f4f6;
   text-align: left;
 }
@@ -22,4 +22,12 @@
 .session-item.is-active {
   background-color: #7f9ec1;  /* 파란색 배경 */
   color: white;
+}
+
+.msg { position: relative; }
+.msg--selecting { cursor: pointer; }
+.msg--chosen .bubble { outline: 2px solid #4f46e5; }
+.select-mark {
+  position: absolute; left: -18px; top: 6px;
+  font-weight: 700; color: #4f46e5;
 }

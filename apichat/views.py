@@ -198,6 +198,7 @@ def get_chat_history(request, session_id):
         # JSON 형태로 변환
         data = [
             {
+                "id": msg.id,
                 "role": msg.role,
                 "content": msg.content,
                 "created_at": msg.created_at.isoformat(),
@@ -263,3 +264,89 @@ def session_list(request):
     ]
     print(data)
     return JsonResponse({"results": data})
+
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from main.models import Card, CardMessage, ChatSession, ChatMessage
+import json
+
+@csrf_exempt
+@login_required
+@require_POST
+def save_card(request):
+    """
+    payload:
+    {
+      "session_id": 123,                // 현재 대화 세션
+      "title": "원하는 카드 제목",         // 없으면 session.title
+      "message_ids": [11,15,22, ...]    // 선택한 말풍선 id들(순서대로)
+    }
+    """
+    data = json.loads(request.body or "{}")
+    session_id = data.get("session_id")
+    message_ids = data.get("message_ids") or []
+    title = (data.get("title") or "").strip()
+
+    # 1) 소유권/세션 확인
+    session = get_object_or_404(ChatSession, id=session_id, user=request.user)
+
+    # 2) 메시지 유효성(모두 이 세션 소속?)
+    msgs = list(ChatMessage.objects.filter(session=session, id__in=message_ids).order_by("created_at"))
+    if len(msgs) != len(message_ids):
+        return JsonResponse({"error": "메시지 목록이 유효하지 않습니다."}, status=400)
+
+    with transaction.atomic():
+        card = Card.objects.create(
+            user=request.user,
+            session=session,
+            title=title or (session.title or "제목 없음"),
+        )
+        # 선택한 순서를 position 으로 저장
+        pos_map = {mid: i for i, mid in enumerate(message_ids)}
+        for m in msgs:
+            CardMessage.objects.create(card=card, message=m, position=pos_map[m.id])
+
+    return JsonResponse({"ok": True, "card_id": card.id, "title": card.title})
+
+
+@login_required
+def my_cards(request):
+    rows = Card.objects.filter(user=request.user).order_by("-created_at")
+    results = [{
+        "id": c.id,
+        "title": c.title,
+        "created_at": c.created_at.isoformat(),
+        "session_id": c.session_id,
+        "count": c.card_messages.count(),
+    } for c in rows]
+    return JsonResponse({"results": results})
+
+
+@login_required
+def card_detail(request, card_id):
+    card = get_object_or_404(Card, id=card_id, user=request.user)
+    items = [{
+        "message_id": cm.message.id,
+        "role": cm.message.role,
+        "content": cm.message.content,
+        "created_at": cm.message.created_at.isoformat(),
+        "position": cm.position
+    } for cm in card.card_messages.select_related("message").all()]
+    return JsonResponse({
+        "id": card.id,
+        "title": card.title,
+        "created_at": card.created_at.isoformat(),
+        "session_id": card.session_id,
+        "items": items,
+    })
+
+
+@csrf_exempt
+@login_required
+@require_POST
+def delete_card(request, card_id):
+    card = get_object_or_404(Card, id=card_id, user=request.user)
+    card.delete()
+    return JsonResponse({"ok": True})

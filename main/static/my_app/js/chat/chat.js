@@ -19,6 +19,10 @@ if (newsessionBtn) {
 
 // 초기 세션 선택 (Django 템플릿으로 렌더링된 첫 번째 세션 선택)
 async function initializeFirstSession() {
+    if (!sessionList) { 
+    console.warn('#sessionList 가 없어 초기 선택을 건너뜀'); 
+    return;
+    }
   const firstSession = sessionList.querySelector('.session-link');
   if (firstSession) {
     selectedSessionId = firstSession.dataset.sessionId;
@@ -29,15 +33,16 @@ async function initializeFirstSession() {
 }
 
 // 세션 클릭 이벤트
-sessionList.addEventListener('click', async (e) => {
-  // 삭제 버튼 클릭 처리
-  if (e.target.classList.contains('delete-btn')) {
-    const sessionId = e.target.dataset.sessionId;
-    if (confirm('이 세션을 삭제하시겠습니까?')) {
-      await deleteSession(sessionId);
+if (sessionList) {
+  sessionList.addEventListener('click', async (e) => {
+    // 삭제 버튼 클릭 처리
+    if (e.target.classList.contains('delete-btn')) {
+      const sessionId = e.target.dataset.sessionId;
+      if (confirm('이 세션을 삭제하시겠습니까?')) {
+        await deleteSession(sessionId);
+      }
+      return;
     }
-    return;
-  }
 
   // 세션 선택 처리
   const btn = e.target.closest('.session-link');
@@ -53,6 +58,9 @@ sessionList.addEventListener('click', async (e) => {
   // 채팅 히스토리 로드
   await loadChatHistory(selectedSessionId);
 });
+} else {
+    console.warn('#sessionList 요소가 없어 세션 클릭 바인딩을 건너뜀');
+}
 
 // 세션 삭제 함수
 async function deleteSession(sessionId) {
@@ -106,7 +114,7 @@ async function loadChatHistory(sessionId) {
     
     // 메시지 히스토리 표시
     data.messages.forEach(msg => {
-      addMessage(msg.content, msg.role === 'user' ? 'user' : 'bot');
+  addMessage(msg.content, msg.role === 'user' ? 'user' : 'assistant', msg.id); // id 전달
     });
 
     console.log(`세션 ${sessionId} 히스토리 로드 완료:`, data.messages.length, '개 메시지');
@@ -153,7 +161,12 @@ async function session_create() {
       <button class="session-link" data-session-id="${data.session.id}">${data.session.title}</button>
       <button class="delete-btn" data-session-id="${data.session.id}">×</button>
     `;
-    sessionList.prepend(li);
+    // sessionList가 있을 때만 prepend 호출
+    if (sessionList) { 
+      sessionList.prepend(li); 
+    } else {
+      console.warn('#sessionList 없음: 새 세션 UI 추가를 건너뜀');
+    }
 
     // 새 세션 자동 선택
     selectedSessionId = data.session.id;
@@ -174,15 +187,21 @@ async function session_create() {
 
 
 
-
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, (m) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]
+  ));
+}
 
 // 메시지를 채팅창에 추가하는 함수
-function addMessage(text, role = 'user') {
+function addMessage(text, role = 'user', id = null) {
   const li = document.createElement('li');
-  li.textContent = text;
-  li.className = role;
+  li.className = `msg msg--${role}`;   // 선택 모드가 찾는 클래스
+  if (id != null) li.dataset.mid = id; // 데이터 id 부여
+  li.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
   chatLog.appendChild(li);
-  chatLog.scrollTop = chatLog.scrollHeight; // 자동 스크롤
+  chatLog.scrollTop = chatLog.scrollHeight;
 }
 
 // 메시지 전송 공통 함수
@@ -273,3 +292,130 @@ function getCSRFToken() {
 
   console.warn('CSRF 토큰을 찾을 수 없습니다.');
   return '';}
+
+
+// ---------- 선택 모드 상태 ----------
+let selecting = false;
+let selectedIds = []; // 순서대로
+
+const $chatLog   = document.getElementById('chatLog');
+const $btnSelect = document.getElementById('btnCardSelect');
+const $btnSave   = document.getElementById('btnCardSave');
+const $selCount  = document.getElementById('selCount');
+// const sessionId  = document.getElementById('ctx')?.dataset.sessionId; // 템플릿에서 주입
+
+// CSRF
+function getCookie(name) {
+  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : '';
+}
+const CSRF = getCookie('csrftoken');
+
+// 카드 버튼/카운터 요소 존재 여부 가드 + 초기 상태 보정
+if ($btnSave) $btnSave.disabled = true;
+if (!$btnSelect || !$btnSave || !$selCount) {
+  console.warn('카드 버튼 또는 카운터 요소를 찾지 못했습니다. 선택 기능을 건너뜁니다.');
+} else {
+
+// -------- 선택 모드 ON/OFF --------
+$btnSelect.addEventListener('click', () => {
+  selecting = !selecting;
+  selectedIds = [];
+  updateSelectUI();
+
+  // 버튼 라벨/상태
+  $btnSelect.textContent = selecting ? '선택 취소' : '카드만들기';
+  $btnSave.disabled = !selecting;
+  $selCount.style.display = selecting ? 'inline' : 'none';
+  $selCount.textContent = '0개 선택';
+});
+
+// -------- 메시지 클릭으로 선택/해제 --------
+$chatLog.addEventListener('click', (e) => {
+  if (!selecting) return;
+  const li = e.target.closest('li.msg');
+  if (!li) return;
+
+  const mid = li.dataset.mid;
+  if (!mid) return;
+
+  // 토글
+  const idx = selectedIds.indexOf(mid);
+  if (idx === -1) selectedIds.push(mid);
+  else selectedIds.splice(idx, 1);
+
+  updateSelectUI();
+});
+
+// -------- 선택 UI 갱신 --------
+function updateSelectUI() {
+  // 스타일/체크박스 표시
+  [...$chatLog.querySelectorAll('li.msg')].forEach(li => {
+    const mid = li.dataset.mid;
+    const chosen = selectedIds.includes(mid);
+
+    if (selecting) {
+      li.classList.toggle('msg--selecting', true);
+      li.classList.toggle('msg--chosen', chosen);
+
+      // 체크 오버레이 (없으면 생성)
+      let mark = li.querySelector('.select-mark');
+      if (!mark) {
+        mark = document.createElement('span');
+        mark.className = 'select-mark';
+        mark.textContent = '✓';
+        li.appendChild(mark);
+      }
+      mark.style.display = 'inline';
+      mark.style.opacity = chosen ? '1' : '0.25';
+    } else {
+      li.classList.remove('msg--selecting','msg--chosen');
+      const mark = li.querySelector('.select-mark');
+      if (mark) mark.remove();
+    }
+  });
+
+  $selCount.textContent = `${selectedIds.length}개 선택`;
+}
+
+// -------- 카드 저장 --------
+$btnSave.addEventListener('click', async () => {
+  if (!selecting) return;
+  if (!selectedSessionId) { alert('세션 ID가 없습니다.'); return; }
+  if (selectedIds.length === 0) { alert('선택된 메시지가 없습니다.'); return; }
+
+  // 제목 입력 받기. 비우면 서버가 session.title 사용
+  const title = prompt('카드 제목(비우면 세션 제목 사용)') || '';
+
+  try {
+    const res = await fetch('/api-chat/cards/save/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': CSRF
+      },
+      body: JSON.stringify({
+        session_id: Number(selectedSessionId),
+        title,
+        message_ids: selectedIds.map(Number) // INT PK라면 숫자 변환
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || '저장 실패');
+
+    alert('카드 저장 완료!');
+  } catch (err) {
+    console.error(err);
+    alert(`저장 중 오류: ${err.message}`);
+  } finally {
+    // 선택 모드 종료
+    selecting = false;
+    selectedIds = [];
+    updateSelectUI();
+    $btnSelect.textContent = '카드만들기';
+    $btnSave.disabled = true;
+    $selCount.style.display = 'none';
+  }
+});
+}
