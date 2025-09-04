@@ -7,7 +7,6 @@ from langchain_core.runnables import RunnableSequence, RunnableLambda, RunnableP
 from langchain_openai import ChatOpenAI
 import json
 
-
 load_dotenv()
 
 
@@ -41,13 +40,17 @@ def query_setting():
     query_prompt = PromptTemplate.from_template(
         """
        유저의 채팅 히스토리와 현재 질문이 주어집니다. 
-       
+
+
        **중요**: 이전 대화 맥락을 반드시 고려해서 질문을 생성하세요.
        - 현재 질문이 이전 대화와 연관되어 있다면, 이전 맥락을 포함한 통합된 질문을 만들어주세요.
-       - 예: 이전에 "People API 연락처 조회"에 대해 이야기했다면, "그럼 프로필 수정은?"이라는 질문은 "People API에서 프로필 수정 방법"으로 통합해주세요.
-       - 이미 답변이 나온 질문은 포함하지 마세요.
-       - 질문은 1개가 될 수도 있고 여러개가 될 수도 있습니다.
        
+       - 예: 바로 전에 "People API 연락처 조회"에 대해 이야기하고 나서, "그럼 프로필 수정은?"이라는 질문이 나오면 "People API에서 프로필 수정 방법"으로 통합해주세요.
+       - 주의사항: 이전에 "People API 연락첯 조회"에 대해 이야기하고 나서, "Firebase"와 같이 다른 api에 대한 대화 내용이 나온 후 "프로필 수정은?"이라는 질문이 나오면 마지막 대화 맥락에 맞춰서, "Firebase에서 프로필 수정 방법"과 같이 통합해야 합니다.
+       
+       - 이전 대화에서 이미 답변이 나온 질문은 생성하지 마세요.
+       - 질문은 1개가 될 수도 있고 여러개가 될 수도 있습니다.
+
        대화 히스토리: {rewritten}
        
        JSON 반환 형태:

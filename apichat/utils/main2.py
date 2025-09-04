@@ -1,3 +1,4 @@
+from .langgraph_setting_edit import graph_setting_edit
 from .langgraph_setting import graph_setting_edit
 
 graph = graph_setting_edit()
