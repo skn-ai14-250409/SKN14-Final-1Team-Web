@@ -90,7 +90,7 @@ def mypage_edit(request):
             if phone:
                 request.user.phone = phone
             if birthday:
-                request.user.birthday = birthday
+                request.user.birthday = birthday 
 
             request.user.save()
 
