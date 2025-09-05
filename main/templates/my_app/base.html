@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CodeNova{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'my_app/css/style.css' %}">
-    <!-- 선택: JS에서 meta로 CSRF를 읽고 싶으면 추가 -->
     <meta name="csrf-token" content="{{ csrf_token }}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -23,34 +22,31 @@
                     <li><a href="{% url 'main:community-board' %}">커뮤니티 게시글</a></li>
                 </ul>
             </nav>
+            {% if request.resolver_match.url_name == 'main-chatbot' or request.resolver_match.url_name == 'internal-docs' %}
             <div class="chat-history">
                 <div class="chat-history__header">
                     <p>채팅 메시지 영역</p>
                     <button class="btn-new-chat" type="button">새 채팅</button>
                 </div>
 
-                <!-- ✅ 여기서 세션 안내 문구/제목 표기 -->
                 <h3 id="sessionTitle" class="session-title">세션을 선택하세요</h3>
 
-                <!-- ✅ 세션 리스트 -->
-	    <ul id="sessionList" class="session-list">
-        {% if request.path == '/main-chatbot/' %}
-    {% for s in chat_sessions %}
-            <li class="session-item">
-                <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
-                <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
-            </li>
-    {% endfor %}
-{% endif %}
-</ul>
+                <ul id="sessionList" class="session-list">
+                {% for s in chat_sessions %}
+                    <li class="session-item">
+                        <button class="session-link" data-session-id="{{ s.id }}">{{ s.title }}</button>
+                        <button class="delete-btn" data-session-id="{{ s.id }}">×</button>
+                    </li>
+                {% endfor %}
+                </ul>
             </div>
+            {% endif %}
         </aside>
 
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="header-buttons">
-                    <button class="btn-header">이름 / 직급 / 권한</button>
-                    {% comment %} <a href="{% url 'mypage' %}" class="btn-header">마이페이지</a> {% endcomment %}
+                    <span class="btn-header">이름 / 직급</span>
                     <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
                     <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}

@@ -139,6 +139,32 @@
     phoneNumber:   document.getElementById('phoneNumber')
   };
 
+  // cto -> 팀선택x
+  (function setupRoleTeamDependency(){
+    const roleEl = fields.role;
+    const teamEl = fields.team;
+    if (!roleEl || !teamEl) return;
+
+    function applyRoleGuard() {
+      const v = (roleEl.value || '').toLowerCase();
+      if (v === 'cto') {
+        teamEl.value = '';
+        teamEl.setAttribute('disabled', '');
+        teamEl.removeAttribute('required');
+        teamEl.setAttribute('aria-disabled', 'true');
+        setError('team', ''); 
+      } else {
+        teamEl.removeAttribute('disabled');
+        teamEl.setAttribute('required', '');
+        teamEl.removeAttribute('aria-disabled');
+      }
+    }
+
+    roleEl.addEventListener('change', applyRoleGuard);
+    roleEl.addEventListener('input', applyRoleGuard); 
+    applyRoleGuard(); 
+  })();
+
   function errBoxFor(name) {
     return document.getElementById(name + 'Err');
   }
