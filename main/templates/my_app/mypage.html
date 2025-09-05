@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}">
+            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}" data-rank="{{ user.rank }}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id">아이디</label>
@@ -44,11 +44,12 @@
                     <div class="form-group">
                         <label for="department-text">팀</label>
                         <input type="text" id="department-text" value="{{ user.get_department_display }}" readonly>
-                        <select id="department-select" name="department" style="display:none;">
-                            {% for value, label in departments %}
-                                <option value="{{ value }}" {% if user.department == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
+                        <select id="department-select" name="department" style="display:none;" {% if user.rank == 'cto' %}disabled{% endif %}>
+                        {% for value, label in departments %}
+                            <option value="{{ value }}" {% if user.department == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
                         </select>
+                    </select>
                     </div>
                 </div>
                 

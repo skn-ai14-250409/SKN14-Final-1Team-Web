@@ -90,58 +90,6 @@ body {
     line-height: 1.5;
 }
 
-/* 거절 사유 섹션 */
-.reason-section {
-    margin-bottom: 30px;
-}
-
-.reason-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 12px;
-}
-
-.reason-box {
-    background: #fef7f7;
-    border: 1px solid #fca5a5;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.reason-text {
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* 거절 사유 섹션 */
-.reason-section {
-    margin-bottom: 30px;
-}
-
-.reason-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 12px;
-}
-
-.reason-box {
-    background: #fef7f7;
-    border: 1px solid #fca5a5;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.reason-text {
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin: 0;
-}
-
 /* 정보 섹션 */
 .info-section {
     background: #fafafa;
