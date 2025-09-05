@@ -74,7 +74,7 @@ def create_comment(request, post_id):
         comment.post = post
         comment.author = request.user
         comment.save()
-    return redirect("post-detail", post_id=post.id)
+    return redirect("main:post-detail", post_id=post.id)
 
 
 @login_required
@@ -106,7 +106,7 @@ def delete_comment(request, comment_id):
     if request.user == comment.author or request.user.is_superuser:
         post_id = comment.post.id
         comment.delete()
-        return redirect("post-detail", post_id=post_id)
+        return redirect("main:post-detail", post_id=post_id)
     return HttpResponseForbidden()
 
 
@@ -119,7 +119,7 @@ def edit_comment(request, comment_id):
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
-            return redirect("post-detail", post_id=comment.post.id)
+            return redirect("main:post-detail", post_id=comment.post.id)
     else:
         form = CommentForm(instance=comment)
     return render(
@@ -135,7 +135,7 @@ def create_post(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect("post-detail", post_id=post.id)
+            return redirect("main:post-detail", post_id=post.id)
     else:
         form = PostForm()
     return render(request, "my_app/create_post.html", {"form": form})
@@ -150,7 +150,7 @@ def edit_post(request, post_id):
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect("post-detail", post_id=post.id)
+            return redirect("main:post-detail", post_id=post.id)
     else:
         form = PostForm(instance=post)
     return render(request, "my_app/edit_post.html", {"form": form, "post": post})
@@ -162,5 +162,5 @@ def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user == post.author or request.user.is_superuser:
         post.delete()
-        return redirect("community-board")
+        return redirect("main:community-board")
     return HttpResponseForbidden()

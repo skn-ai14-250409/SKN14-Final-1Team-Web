@@ -15,7 +15,7 @@
                 <p class="login-subtitle">계정에 로그인하여 계속하세요</p>
             </div>
             
-            <form id="loginForm" class="login-form" action="{% url 'uauth:login' %}" novalidatemethod="post">
+            <form id="loginForm" class="login-form" action="{% url 'uauth:login' %}" novalidate method="post">
                 {% csrf_token %}
 
                 {% if messages %}

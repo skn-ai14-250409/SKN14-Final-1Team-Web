@@ -1,6 +1,8 @@
 from django.urls import path, include
 from . import views
 
+app_name = "main"
+
 urlpatterns = [
     path("home/", views.home_view, name="home"),
     path("main-chatbot/", views.main_chatbot_view, name="main-chatbot"),
