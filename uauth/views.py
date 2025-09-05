@@ -85,19 +85,23 @@ def login_view(request):
 
     user = authenticate(request, username=username, password=password)
 
+    # ▼▼▼ 여기부터 교체 ▼▼▼
     if user is None:
+        # 아이디/비밀번호 오류
         msg = "아이디 또는 비밀번호가 올바르지 않습니다."
         if _wants_json(request):
             return JsonResponse({"success": False, "message": msg}, status=400)
         return render(request, "uauth/login.html", {"username": username, "error": msg})
 
-    # 최신 승인 상태 계산
+    # 인증 성공: 세션 로그인 후 승인 상태에 따라 라우팅
+    login(request, user)
+
+    # 최신 승인 상태(로그가 있으면 로그, 없으면 유저.status)
     latest_log = ApprovalLog.objects.filter(user=user).order_by("-created_at").first()
     current_status = latest_log.action if latest_log else user.status
 
-    # JSON 응답
-    if _wants_json(request):
-        if current_status == Status.PENDING:
+    if current_status == Status.PENDING:
+        if _wants_json(request):
             return JsonResponse(
                 {
                     "success": True,
@@ -105,28 +109,26 @@ def login_view(request):
                     "redirect_url": reverse("uauth:pending"),
                 }
             )
-        if current_status == Status.REJECTED:
+        return redirect("uauth:pending")
+
+    if current_status == Status.REJECTED:
+        if _wants_json(request):
             return JsonResponse(
                 {
                     "success": True,
-                    "state": "reject",
+                    "state": "rejected",
                     "redirect_url": reverse("uauth:reject"),
                 }
             )
-        # APPROVED -> 세션 생성
-        login(request, user)  # <- user.backend 수동 지정 불필요
+        return redirect("uauth:reject")
+
+    # APPROVED (기본)
+    if _wants_json(request):
         return JsonResponse(
-            {"success": True, "state": "approved", "redirect_url": reverse("home")}
+            {"success": True, "state": "approved", "redirect_url": reverse("main:home")}
         )
-
-    # HTML 응답
-    if current_status == Status.PENDING:
-        return render(request, "uauth/pending.html")
-    if current_status == Status.REJECTED:
-        return render(request, "uauth/reject.html")
-
-    login(request, user)  # <- user.backend 수동 지정 불필요
-    return redirect("home")
+    return redirect("main:home")
+    # ▲▲▲ 여기까지 교체 ▲▲▲
 
 
 # -----------------------------
@@ -188,7 +190,7 @@ def signup_view(request: HttpRequest):
                 gender=gender,
                 phone=phone,
                 status=Status.PENDING,
-                is_active=1,
+                is_active=True,
             )
             user.set_password(password)  # 해시 저장
             # user.is_active = False
@@ -222,24 +224,35 @@ def signup_api(request: HttpRequest) -> JsonResponse:
 
 # --- pending페이지---
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import ApprovalLog, Status
 
-
+@login_required
 def pending_view(request):
     # 내 최신 상태를 확인해서 승인/거부되었으면 바로 분기
     latest_log = (
         ApprovalLog.objects.filter(user=request.user).order_by("-created_at").first()
     )
-    if latest_log:
-        if latest_log.action == Status.APPROVED:
-            return redirect("main:home")
-        if latest_log.action == Status.REJECTED:
-            return redirect("uauth:reject")
-    # 여전히 PENDING이면 대기 페이지 보여줌
+    current_status = latest_log.action if latest_log else request.user.status
+
+    if current_status == Status.APPROVED:
+        return redirect("main:home")
+    if current_status == Status.REJECTED:
+        return redirect("uauth:reject")
+
+    # 여전히 PENDING이면 대기 페이지
     return render(request, "uauth/pending.html")
 
 
+@login_required
 def reject_view(request):
+    latest_log = (
+        ApprovalLog.objects.filter(user=request.user).order_by("-created_at").first()
+    )
+    current_status = latest_log.action if latest_log else request.user.status
+
+    if current_status == Status.APPROVED:
+        return redirect("main:home")
+    if current_status == Status.PENDING:
+        return redirect("uauth:pending")
+
+    # REJECTED만 실제 페이지 표시
     return render(request, "uauth/reject.html")

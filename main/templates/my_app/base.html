@@ -14,13 +14,13 @@
     <div class="main-layout">
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <a href="{% url 'home' %}">CodeNova</a>
+                <a href="{% url 'main:home' %}">CodeNova</a>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="{% url 'main-chatbot' %}">메인 챗봇</a></li>
-                    <li><a href="{% url 'internal-docs' %}">사내 내부 문서 챗봇</a></li>
-                    <li><a href="{% url 'community-board' %}">커뮤니티 게시글</a></li>
+                    <li><a href="{% url 'main:main-chatbot' %}">메인 챗봇</a></li>
+                    <li><a href="{% url 'main:internal-docs' %}">사내 내부 문서 챗봇</a></li>
+                    <li><a href="{% url 'main:community-board' %}">커뮤니티 게시글</a></li>
                 </ul>
             </nav>
             <div class="chat-history">

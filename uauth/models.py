@@ -124,3 +124,19 @@ class ApiKey(models.Model):
 
     def __str__(self):
         return f"{self.user}, {self.name}"
+
+
+@receiver(post_save, sender=ApprovalLog)
+def sync_user_active_on_approval(sender, instance, created, **kwargs):
+    user = instance.user
+
+    # ✅ is_active는 더 이상 변경하지 않음 (로그인 가능 유지)
+    if instance.action == Status.APPROVED and user.status != Status.APPROVED:
+        user.status = Status.APPROVED
+        user.save(update_fields=["status"])
+    elif instance.action == Status.REJECTED and user.status != Status.REJECTED:
+        user.status = Status.REJECTED
+        user.save(update_fields=["status"])
+    elif instance.action == Status.PENDING and user.status != Status.PENDING:
+        user.status = Status.PENDING
+        user.save(update_fields=["status"])
