@@ -18,23 +18,10 @@ def main_chatbot_view(request):
     chat_sessions = request.user.chat_sessions.filter(mode="api")
 
     return render(request, "my_app/main_chatbot.html", {"chat_sessions": chat_sessions})
-<<<<<<< feature/117-signup
-
-=======
->>>>>>> develop
 
 
 @login_required
 def internal_docs_view(request):
-<<<<<<< feature/117-signup
-    return render(request, "my_app/internal_docs.html")
-
-
-def community_board_view(request):
-    # 좋아요(likes)가 5개 이상인 글을 베스트 게시글로, 나머지를 일반 게시글로 가정합니다.
-    best_posts = Post.objects.filter(likes__gte=5).order_by("-created_at")[:5]
-    regular_posts = Post.objects.filter(likes__lt=5).order_by("-created_at")[:4]
-=======
     chat_sessions = request.user.chat_sessions.filter(mode="internal")
 
     return render(
@@ -51,7 +38,6 @@ def community_board_view(request):
 
     best_posts = [p for p in all_posts if p.num_likes >= 5][:5]
     regular_posts = [p for p in all_posts if p.num_likes < 5][:4]
->>>>>>> develop
 
     context = {
         "best_posts": best_posts,
@@ -74,11 +60,7 @@ def post_detail_view(request, post_id):
 
     context = {
         "post": post,
-<<<<<<< feature/117-signup
-        "user_is_author": True,
-    }
-    return render(request, "my_app/post_detail.html", context)
-=======
+
         "comment_form": comment_form,
     }
     return render(request, "my_app/post_detail.html", context)
@@ -184,4 +166,5 @@ def delete_post(request, post_id):
         post.delete()
         return redirect("community-board")
     return HttpResponseForbidden()
->>>>>>> develop
+
+
