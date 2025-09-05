@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                showSuccessMessage('로그인 성공! 페이지를 이동합니다...');
+                
                 setTimeout(() => window.location.href = data.redirect_url || '/dashboard/', 1000);
             } else {
                 if (data.field_errors) {

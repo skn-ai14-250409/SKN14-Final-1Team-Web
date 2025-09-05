@@ -17,7 +17,10 @@ from datetime import date
 from .models import User
 from .models import User, ApprovalLog, Status
 
-# 변경 (★ Status 추가)
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import ApprovalLog
+from .models import Status 
 from .models import User, Status
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
@@ -261,6 +264,23 @@ def reject_view(request):
         return redirect("main:home")
     if current_status == Status.PENDING:
         return redirect("uauth:pending")
+    
+      # 1) action 값 대소문자/라벨 오차까지 허용
+    approval_log = (
+        ApprovalLog.objects
+        .filter(user=request.user, action__iexact="rejected")
+        .order_by("-created_at")
+        .first()
+    )
 
-    # REJECTED만 실제 페이지 표시
-    return render(request, "uauth/reject.html")
+    # 2) 거부 로그가 없을 경우 대비(상태는 Rejected인데 로그가 없을 수 있음)
+    if not approval_log:
+        approval_log = (
+            ApprovalLog.objects
+            .filter(user=request.user)
+            .order_by("-created_at")
+            .first()
+        )
+
+    # ✅ 템플릿에 넘겨야 화면에 보임
+    return render(request, "uauth/reject.html", {"approval_log": approval_log})

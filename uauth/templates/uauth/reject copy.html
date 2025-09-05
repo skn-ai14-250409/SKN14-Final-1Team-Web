@@ -26,15 +26,6 @@
                 </div>
             </div>
 
-            {% if approval_log.reason %}
-            <div class="reason-section">
-                <h4 class="reason-title">거부 사유</h4>
-                <div class="reason-box">
-                    <p class="reason-text">{{ approval_log.reason }}</p>
-                </div>
-            </div>
-            {% endif %}
-
             <div class="info-section">
                 <div class="info-item">
                     <span class="info-label">상태</span>
@@ -42,7 +33,7 @@
                 </div>
             </div>
 
-           <div class="action-buttons">
+            <div class="action-buttons">
                 <button class="login-btn" onclick="location.href='{% url 'uauth:login' %}'">
                     로그인 페이지로 이동하기
                 </button>
