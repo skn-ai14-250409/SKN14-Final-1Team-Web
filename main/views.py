@@ -36,7 +36,7 @@ def community_board_view(request):
     )
 
     best_posts = [p for p in all_posts if p.num_likes >= 5][:5]
-    regular_posts = [p for p in all_posts if p.num_likes < 5][:4]
+    regular_posts = [p for p in all_posts if p.num_likes < 5]
 
     context = {
         "best_posts": best_posts,
