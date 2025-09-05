@@ -21,5 +21,5 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # start gunicorn with custom config
-CMD ["sh", "-c", "python manage.py migrate && gunicorn -c gunicorn.conf.py"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py create_superuser && gunicorn -c 
 EXPOSE 8000
