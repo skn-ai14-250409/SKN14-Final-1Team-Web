@@ -17,8 +17,8 @@
            <div class="kebab-menu">
               <span></span><span></span><span></span>
               <div class="dropdown-menu">
-                  <a href="{% url 'edit-post' post_id=post.id %}">수정하기</a>
-                  <form action="{% url 'delete-post' post_id=post.id %}" method="post" style="display:inline;">
+                  <a href="{% url 'main:edit-post' post_id=post.id %}">수정하기</a>
+                  <form action="{% url 'main:delete-post' post_id=post.id %}" method="post" style="display:inline;">
                      {% csrf_token %}
                      <button type="submit" class="dropdown-button">삭제하기</button>
                   </form>
@@ -39,7 +39,7 @@
        </div>
 
        <div class="comment-form-container">
-           <form action="{% url 'create-comment' post_id=post.id %}" method="post">
+           <form action="{% url 'main:create-comment' post_id=post.id %}" method="post">
                {% csrf_token %}
                {{ comment_form }}
                <div class="comment-form-actions"><button type="submit" class="submit-comment-btn">등록</button></div>
@@ -63,8 +63,8 @@
            <div class="kebab-menu comment-kebab">
                <span></span><span></span><span></span>
                <div class="dropdown-menu">
-                   <a href="{% url 'edit-comment' comment_id=comment.id %}">수정하기</a>
-                   <form action="{% url 'delete-comment' comment_id=comment.id %}" method="post">
+                   <a href="{% url 'main:edit-comment' comment_id=comment.id %}">수정하기</a>
+                   <form action="{% url 'main:delete-comment' comment_id=comment.id %}" method="post">
                        {% csrf_token %}
                        <button type="submit" class="dropdown-button">삭제하기</button>
                    </form>

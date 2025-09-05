@@ -1,7 +1,8 @@
 from typing import TypedDict, List, Dict, Any
 from langgraph.graph import StateGraph, START, END
 
-from .rag import basic_chain_setting, query_setting
+from .rag2 import basic_chain_setting
+from .rag import query_setting
 from .retriever import retriever_setting
 
 basic_chain = basic_chain_setting()
@@ -54,6 +55,7 @@ def search_tool(query: str):
 
 # (4) 기본 답변 생성 노드
 def langgraph_node(state: ChatState) -> Dict[str, Any]:
+    history = state.get("messages", [])
     """질문에 대한 기본 답변 생성"""
     queries = state["queries"]
     print(f"생성된 질문 리스트 {queries}")
@@ -69,6 +71,7 @@ def langgraph_node(state: ChatState) -> Dict[str, Any]:
     answer = basic_chain.invoke(
         {
             "question": state["question"],
+            "history": history,
             "context": "\n".join([str(res) for res in search_results]),
         }
     ).strip()
