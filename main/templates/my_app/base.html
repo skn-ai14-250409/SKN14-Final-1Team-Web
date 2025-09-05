@@ -46,7 +46,11 @@
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="header-buttons">
-                    <span class="btn-header">이름 / 직급</span>
+                    <span class="btn-header">
+                        {{ request.user.name }} / {{ request.user.get_rank_display }}
+                        {% if request.user.department %}
+                        / {{ request.user.get_department_display }}
+                        {% endif %}                        
                     <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
                     <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
