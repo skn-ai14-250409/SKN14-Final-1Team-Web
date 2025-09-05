@@ -10,7 +10,7 @@
         {% csrf_token %}
         {{ form.content }}
         <button type="submit">저장하기</button>
-        <a href="{% url 'post-detail' post_id=comment.post.id %}">취소</a>
+        <a href="{% url 'main:post-detail' post_id=comment.post.id %}">취소</a>
     </form>
 </div>
 {% endblock %}
