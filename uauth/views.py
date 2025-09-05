@@ -180,8 +180,13 @@ def signup_view(request: HttpRequest):
     password = form.data.get("password", "")
     confirm = form.data.get("confirmPassword", "")
     email = form.data.get("email", "").strip()
-    team = form.data.get("team", "").strip()
     role = form.data.get("role", "").strip()
+
+    team_raw = request.POST.get("team")
+    team = team_raw.strip() if team_raw else None
+    if role.lower() == "cto":
+        team = None
+
     birth_raw = form.data.get("birthDate") or ""
     birth_dt = parse_date(birth_raw)
     gender = form.data.get("gender", "").strip()
