@@ -110,7 +110,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_URL = "/uauth/login/"
-LOGIN_REDIRECT_URL = "/main/home/"
-LOGOUT_REDIRECT_URL = "/uauth/login/"
-APPEND_SLASH = True
+
+from django.urls import reverse_lazy
+
+LOGIN_URL = reverse_lazy("uauth:login")  # 루트('/')로 resolve됨 (현 구조에서)
+LOGIN_REDIRECT_URL = reverse_lazy("main:home")  # 실제 라우트 이름에 맞게
+LOGOUT_REDIRECT_URL = reverse_lazy("uauth:login")
+
+
+

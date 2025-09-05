@@ -1,7 +1,7 @@
 # uauth/views.py
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_backends
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -14,6 +14,13 @@ from .models import User
 import json
 import re
 from datetime import date
+from .models import User
+from .models import User, ApprovalLog, Status
+
+# 변경 (★ Status 추가)
+from .models import User, Status
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+
 
 from .models import User, Rank, Department, Gender
 
@@ -47,15 +54,18 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 # -----------------------------
 # 로그인
 # -----------------------------
+@ensure_csrf_cookie
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.method == "GET":
         return render(request, "uauth/login.html")
 
+    # --- POST ---
     username = request.POST.get("username", "").strip()
     password = request.POST.get("password", "")
 
+    # 필드 유효성(프런트와 동일 규칙)
     field_errors = {}
     if not username:
         field_errors["username"] = ["아이디를 입력해주세요."]
@@ -76,21 +86,51 @@ def login_view(request):
         return render(request, "uauth/login.html", {"username": username})
 
     user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        if _wants_json(request):
-            return JsonResponse({"success": True, "redirect_url": reverse("home")})
-        messages.success(request, f"{user.username}님, 환영합니다!")
-        return redirect("home")
 
+    # ▼▼▼ 여기부터 교체 ▼▼▼
+    if user is None:
+        # 아이디/비밀번호 오류
+        msg = "아이디 또는 비밀번호가 올바르지 않습니다."
+        if _wants_json(request):
+            return JsonResponse({"success": False, "message": msg}, status=400)
+        return render(request, "uauth/login.html", {"username": username, "error": msg})
+
+    # 인증 성공: 세션 로그인 후 승인 상태에 따라 라우팅
+    login(request, user)
+
+    # 최신 승인 상태(로그가 있으면 로그, 없으면 유저.status)
+    latest_log = ApprovalLog.objects.filter(user=user).order_by("-created_at").first()
+    current_status = latest_log.action if latest_log else user.status
+
+    if current_status == Status.PENDING:
+        if _wants_json(request):
+            return JsonResponse(
+                {
+                    "success": True,
+                    "state": "pending",
+                    "redirect_url": reverse("uauth:pending"),
+                }
+            )
+        return redirect("uauth:pending")
+
+    if current_status == Status.REJECTED:
+        if _wants_json(request):
+            return JsonResponse(
+                {
+                    "success": True,
+                    "state": "rejected",
+                    "redirect_url": reverse("uauth:reject"),
+                }
+            )
+        return redirect("uauth:reject")
+
+    # APPROVED (기본)
     if _wants_json(request):
         return JsonResponse(
-            {"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."},
-            status=401,
+            {"success": True, "state": "approved", "redirect_url": reverse("main:home")}
         )
-    messages.error(request, "아이디 또는 비밀번호가 올바르지 않습니다.")
-    return render(request, "uauth/login.html", {"username": username})
-
+    return redirect("main:home")
+    # ▲▲▲ 여기까지 교체 ▲▲▲
 
 # -----------------------------
 # 회원가입
@@ -110,7 +150,6 @@ class SignUpEchoForm(forms.Form):
     birthDate = forms.DateField(required=True)
     gender = forms.CharField(required=True)
     phoneNumber = forms.CharField(required=True)
-
 
 def signup_context(form=None):
     return {
@@ -145,10 +184,6 @@ def signup_view(request: HttpRequest):
     gender = form.data.get("gender", "").strip()
     phone = form.data.get("phoneNumber", "").strip()
 
-    # if form.errors:
-    #     # 폼 에러 그대로 템플릿에 출력
-    #     return render(request, "uauth/register2.html", {"form": form})
-
     # DB 저장 (중복 아이디 방어)
     try:
         with transaction.atomic():
@@ -161,16 +196,23 @@ def signup_view(request: HttpRequest):
                 birthday=birth_dt,
                 gender=gender,
                 phone=phone,
+                status=Status.PENDING,
+                is_active=True,
             )
             user.set_password(password)  # 해시 저장
+            # user.is_active = False
             user.save()
+            ApprovalLog.objects.get_or_create(
+                user=user,
+                action=Status.PENDING,
+            )
+
     except IntegrityError:
         form.add_error("userId", "이미 사용 중인 아이디입니다.")
         return render(request, "uauth/register2.html", signup_context(form))
 
-    login(request, user)
-    messages.success(request, "회원가입이 완료되었습니다.")
-    return redirect("home")
+    return redirect("uauth:login")
+
 
 
 # -----------------------------
@@ -186,3 +228,39 @@ def signup_api(request: HttpRequest) -> JsonResponse:
 
     # 실사용 시 폼/검증 추가 후 저장 로직 구현
     return JsonResponse({"ok": False, "msg": "Not implemented"}, status=400)
+
+
+# --- pending페이지---
+
+
+@login_required
+def pending_view(request):
+    # 내 최신 상태를 확인해서 승인/거부되었으면 바로 분기
+    latest_log = (
+        ApprovalLog.objects.filter(user=request.user).order_by("-created_at").first()
+    )
+    current_status = latest_log.action if latest_log else request.user.status
+
+    if current_status == Status.APPROVED:
+        return redirect("main:home")
+    if current_status == Status.REJECTED:
+        return redirect("uauth:reject")
+
+    # 여전히 PENDING이면 대기 페이지
+    return render(request, "uauth/pending.html")
+
+
+@login_required
+def reject_view(request):
+    latest_log = (
+        ApprovalLog.objects.filter(user=request.user).order_by("-created_at").first()
+    )
+    current_status = latest_log.action if latest_log else request.user.status
+
+    if current_status == Status.APPROVED:
+        return redirect("main:home")
+    if current_status == Status.PENDING:
+        return redirect("uauth:pending")
+
+    # REJECTED만 실제 페이지 표시
+    return render(request, "uauth/reject.html")
