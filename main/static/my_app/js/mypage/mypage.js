@@ -15,72 +15,55 @@ async function copyToClipboard(textToCopy) {
 
 // 정보 수정
 function toggleEditMode() {
-  const editBtn = document.getElementById('edit-btn');
-  const saveBtn = document.getElementById('save-btn');
+    const editBtn = document.getElementById('edit-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const editableInputs = document.querySelectorAll('#profile-form input:not(#id):not(#rank)');
+    const editableSelects = document.querySelectorAll('#profile-form select');
 
-  const formEl = document.getElementById('profile-form');
-  const rankCode = formEl?.dataset.rank;         // 'cto' / 'general' …
-  const isCTO = rankCode === 'cto';
+    const accountSection = document.querySelector('.account-section'); // 색상 변화
 
-  const editableInputs = document.querySelectorAll('#profile-form input:not(#id):not(#rank)');
-  const editableSelects = document.querySelectorAll('#profile-form select');
+    
+    // 현재 상태가 '편집' 모드인지 확인
+    const isEditMode = editBtn.style.display !== 'none';
 
-  const deptText = document.getElementById('department-text');
-  const deptSelect = document.getElementById('department-select');
-  const genderText = document.getElementById('gender-text');
-  const genderSelect = document.getElementById('gender-select');
+    if (isEditMode) {
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'block';
 
-  const accountSection = document.querySelector('.account-section');
+        editableInputs.forEach(input => {
+            input.removeAttribute('readonly');
+        });
+        
+        editableSelects.forEach(select => {
+            select.removeAttribute('disabled');
+        });
 
-  const isEditMode = editBtn.style.display !== 'none';
+        document.getElementById('department-text').style.display = 'none';
+        document.getElementById('department-select').style.display = 'inline';
+        document.getElementById('gender-text').style.display = 'none';
+        document.getElementById('gender-select').style.display = 'inline';
 
-  if (isEditMode) {
-    editBtn.style.display = 'none';
-    saveBtn.style.display = 'block';
+        accountSection.classList.add('editing');
 
-    editableInputs.forEach(input => {
-      if (isCTO && input.id === 'department-text') {
-        input.setAttribute('readonly', true); 
-      } else {
-        input.removeAttribute('readonly');
-      }
-    });
-
-    editableSelects.forEach(select => {
-      if (isCTO && select.id === 'department-select') {
-        select.setAttribute('disabled', true);
-      } else {
-        select.removeAttribute('disabled');
-      }
-    });
-
-    if (isCTO) {
-      deptText.style.display = 'inline';
-      deptSelect.style.display = 'none';
     } else {
-      deptText.style.display = 'none';
-      deptSelect.style.display = 'inline';
+        editBtn.style.display = 'block';
+        saveBtn.style.display = 'none';
+
+        editableInputs.forEach(input => {
+            input.setAttribute('readonly', true);
+        });
+
+        editableSelects.forEach(select => {
+            select.setAttribute('disabled', true);
+        });
+
+        document.getElementById('department-text').style.display = 'inline';
+        document.getElementById('department-select').style.display = 'none';
+        document.getElementById('gender-text').style.display = 'inline';
+        document.getElementById('gender-select').style.display = 'none';
+
+        accountSection.classList.remove('editing');
     }
-
-    genderText.style.display = 'none';
-    genderSelect.style.display = 'inline';
-
-    accountSection.classList.add('editing');
-
-  } else {
-    editBtn.style.display = 'block';
-    saveBtn.style.display = 'none';
-
-    editableInputs.forEach(i => i.setAttribute('readonly', true));
-    editableSelects.forEach(s => s.setAttribute('disabled', true));
-
-    deptText.style.display = 'inline';
-    deptSelect.style.display = 'none';
-    genderText.style.display = 'inline';
-    genderSelect.style.display = 'none';
-
-    accountSection.classList.remove('editing');
-  }
 }
 
 // 이미 있는 apikey 체크
