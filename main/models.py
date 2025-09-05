@@ -17,9 +17,11 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+
     @property
     def total_likes(self):
         return self.likers.count()
+
 
 
 class Comment(models.Model):
@@ -34,9 +36,11 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.author} : {self.content[:20]}"
 
+
     @property
     def total_likes(self):
         return self.likers.count()
+
 
 
 class ChatMode(models.TextChoices):

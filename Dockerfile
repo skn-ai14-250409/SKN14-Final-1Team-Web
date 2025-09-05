@@ -1,25 +1,25 @@
-# Python 3.12 이미지를 기반으로 사용
-FROM python:3.12-slim
-
-# 환경 변수 설정
-# .pyc 파일 생성 방지
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Python 출력 버퍼링 방지
-ENV PYTHONUNBUFFERED=1
-
-# 작업 디렉토리 생성 및 설정
+# build dependencies
+FROM python:3.12-slim AS builder
 WORKDIR /app
 
-# 의존성 파일 복사 및 설치
+ENV PATH=/root/.local/bin:$PATH
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 
-# 프로젝트 파일을 image 내부 WORKDIR로 복사
+# runtime image
+FROM python:3.12-slim
+WORKDIR /app
+
+# copy only installed packages from builder
+ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /root/.local /root/.local
+
+# copy project files
 COPY . .
 
+# collect static files during build
 RUN python manage.py collectstatic --noinput
-RUN python -c "from apichat.utils.vector_db import create_chroma_db; create_chroma_db()"
 
-CMD ["gunicorn", "-c", "gunicorn.conf.py"]
+# start gunicorn with custom config
+CMD ["sh", "-c", "python manage.py migrate && python manage.py create_superuser && gunicorn -c gunicorn.conf.py"]
 EXPOSE 8000

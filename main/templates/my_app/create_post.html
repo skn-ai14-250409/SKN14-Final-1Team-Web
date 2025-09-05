@@ -4,7 +4,7 @@
 {% block content %}
 <div style="padding: 24px; background-color: #fff; border-radius: 8px;">
     <h2>새 글 작성하기</h2>
-    <form method="post">
+    <form method="post" action="{% url 'main:create-post' %}">
         {% csrf_token %}
         <div style="margin-bottom: 1rem;">
             <label for="id_title">제목:</label>

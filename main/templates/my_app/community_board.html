@@ -6,7 +6,7 @@
 {% block content %}
  <div class="community-container">
     <div class="community-header">
-        <a href="{% url 'create-post' %}" class="btn-create-post">글쓰기</a>
+        <a href="{% url 'main:create-post' %}" class="btn-create-post">글 쓰기</a>
     </div>
  </div>
 <div class="community-container">
@@ -23,37 +23,37 @@
         </thead>
         <tbody>
             {% for post in best_posts %}
-            <tr>
-                <td class="col-number">{{ post.id }}</td>
-                <td class="col-title">
-                    <a href="{% url 'post-detail' post_id=post.id %}">
-                        <span class="best-post-icon">🏆</span>
-                        <span class="best-post title-text">{{ post.title }}</span>
-                        <span class="comment-count">[{{ post.comments.count }}]</span>
-                    </a>
-                </td>
-                <td class="col-author">{{ post.author }}</td>
-                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
-                <td class="col-views">{{ post.views }}</td>
-                <td class="col-likes">{{ post.total_likes }}</td>
-            </tr>
-            {% endfor %}
+             <tr>
+              <td class="col-number">{{ post.id }}</td>
+              <td class="col-title">
+                 <a href="{% url 'main:post-detail' post_id=post.id %}">
+                  <span class="best-post-icon">🏆</span>
+                  <span class="best-post title-text">{{ post.title }}</span>
+                  <span class="comment-count">[{{ post.comments.count }}]</span>
+            </a>
+        </td>
+    <td class="col-author">{{ post.author.name }}</td>
+    <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
+    <td class="col-views">{{ post.views }}</td>
+    <td class="col-likes">{{ post.total_likes }}</td>
+</tr>
+{% endfor %}
 
-            {% for post in regular_posts %}
-            <tr>
-                <td class="col-number">{{ post.id }}</td>
-                <td class="col-title">
-                    <a href="{% url 'post-detail' post_id=post.id %}">
-                        <span class="title-text">{{ post.title }}</span>
-                        <span class="comment-count">[{{ post.comments.count }}]</span>
-                    </a>
-                </td>
-                <td class="col-author">{{ post.author }}</td>
-                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
-                <td class="col-views">{{ post.views }}</td>
-                <td class="col-likes">{{ post.total_likes }}</td>
-            </tr>
-            {% endfor %}
+{% for post in regular_posts %}
+<tr>
+    <td class="col-number">{{ post.id }}</td>
+    <td class="col-title">
+        <a href="{% url 'main:post-detail' post_id=post.id %}">
+            <span class="title-text">{{ post.title }}</span>
+            <span class="comment-count">[{{ post.comments.count }}]</span>
+        </a>
+    </td>
+    <td class="col-author">{{ post.author.name }}</td>
+    <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
+    <td class="col-views">{{ post.views }}</td>
+    <td class="col-likes">{{ post.total_likes }}</td>
+</tr>
+{% endfor %}
         </tbody>
     </table>
 </div>

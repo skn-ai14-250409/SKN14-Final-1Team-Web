@@ -1,20 +1,16 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "vulpes94/codenova:latest",
+    "Name": "skn14f1/codenova:latest",
     "Update": "true"
   },
   "Ports": [
     {
-      "ContainerPort": 8000,
-      "HostPort": 8000
+      "ContainerPort": 8000
     }
   ],
-  "Environment": {
-    "DATABASE_HOST": "$DATABASE_HOST",
-    "DATABASE_USER": "$DATABASE_USER",
-    "DATABASE_PASSWORD": "$DATABASE_PASSWORD"
-  },
-  "Volumes": [],
+  "Environment": [
+    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" }
+  ],
   "Logging": "/var/log/nginx"
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>승인 거부</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'uauth/css/reject.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <h1 class="title">승인 거부</h1>
+            <p class="subtitle">죄송합니다. 계정 승인이 거부되었습니다</p>
+            
+            <div class="status-section">
+                <div class="status-box rejected">
+                    <div class="status-icon">❌</div>
+                    <div class="status-content">
+                        <h3 class="status-title">승인이 거부되었습니다</h3>
+                        <p class="status-description">
+                            관리자 검토 결과 계정 승인이 거부되었습니다.<br>
+                            다시 신청하시거나 문의해 주세요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if approval_log.reason %}
+            <div class="reason-section">
+                <h4 class="reason-title">거부 사유</h4>
+                <div class="reason-box">
+                    <p class="reason-text">{{ approval_log.reason }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="info-section">
+                <div class="info-item">
+                    <span class="info-label">상태</span>
+                    <span class="info-value status-rejected">거부됨</span>
+                </div>
+            </div>
+
+           <div class="action-buttons">
+                <button class="login-btn" onclick="location.href='{% url 'uauth:login' %}'">
+                    로그인 페이지로 이동하기
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

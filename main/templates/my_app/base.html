@@ -13,13 +13,13 @@
     <div class="main-layout">
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <a href="{% url 'home' %}">CodeNova</a>
+                <a href="{% url 'main:home' %}">CodeNova</a>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="{% url 'main-chatbot' %}">메인 챗봇</a></li>
-                    <li><a href="{% url 'internal-docs' %}">사내 내부 문서 챗봇</a></li>
-                    <li><a href="{% url 'community-board' %}">커뮤니티 게시글</a></li>
+                    <li><a href="{% url 'main:main-chatbot' %}">메인 챗봇</a></li>
+                    <li><a href="{% url 'main:internal-docs' %}">사내 내부 문서 챗봇</a></li>
+                    <li><a href="{% url 'main:community-board' %}">커뮤니티 게시글</a></li>
                 </ul>
             </nav>
             {% if request.resolver_match.url_name == 'main-chatbot' or request.resolver_match.url_name == 'internal-docs' %}
@@ -46,9 +46,12 @@
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="header-buttons">
-                    <button class="btn-header">이름 / 직급 / 권한</button>
+                    <span class="btn-header">
+                        {{ request.user.name }} / {{ request.user.get_rank_display }}
+                        {% if request.user.department %}
+                        / {{ request.user.get_department_display }}
+                        {% endif %}                        
                     <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
-                    <button class="btn-header">로그아웃</button>
                     <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn-header">로그아웃</button>
