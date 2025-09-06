@@ -61,7 +61,8 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def login_view(request):
-    if request.user.is_authenticated:
+    user = request.user
+    if user.is_authenticated and user.status == "approved":
         return redirect("main:home")
     if request.method == "GET":
         return render(request, "uauth/login.html")
