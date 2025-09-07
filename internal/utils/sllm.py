@@ -1,9 +1,15 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-url = "http://sllm.code-nova.dev:8001/api/v1/chat"
-headers = {
-    "Content-Type": "application/json"
-}
+load_dotenv()
+
+SLLM_API_URL = os.getenv("SLLM_API_URL")
+
+
+url = SLLM_API_URL + "/api/v1/chat"
+headers = {"Content-Type": "application/json"}
+
 
 def run_sllm(question):
     data = {
@@ -14,4 +20,4 @@ def run_sllm(question):
 
     response = requests.post(url, headers=headers, json=data)
 
-    return response.json()['response']
+    return response.json()["response"]
