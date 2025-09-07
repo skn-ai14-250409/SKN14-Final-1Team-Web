@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
 from .utils.main import run_rag, run_graph
+from .utils.main2 import run_langraph
 
 
 # 제목 요약 #
@@ -233,8 +234,25 @@ def chat(request):
             except ChatSession.DoesNotExist:
                 return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
 
+            db_chat_history = []
+            messages = ChatMessage.objects.filter(session=session).order_by('-created_at')[:6]
+            # 시간순으로 다시 정렬 (오래된 것부터)
+            messages = reversed(messages)
+            # print(messages)
+
+            for msg in messages:
+                if msg.role == 'user':
+                    db_chat_history.append({"role": "user", "content": msg.content})
+                else:
+                    db_chat_history.append({"role": "assistant", "content": msg.content})
+
+            # 현재 사용자 메시지를 대화 기록에 추가 (RAG 처리용)
+            db_chat_history.append({"role": "user", "content": user_message})
+
+            # print(db_chat_history)
+
             # RAG 봇 호출
-            response = run_graph(user_message)
+            response = run_langraph(user_message, session_id, db_chat_history)
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
