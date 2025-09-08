@@ -3,6 +3,10 @@ const sessionList = document.getElementById('sessionList');
 const sessionTitle = document.getElementById('sessionTitle');
 
 let selectedSessionId = null; // 현재 선택된 세션 id
+let selectedImage = null; // 선택된 이미지 데이터
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
 
 
 // 요소 선택
@@ -195,11 +199,17 @@ function escapeHtml(str) {
 }
 
 // 메시지를 채팅창에 추가하는 함수
-function addMessage(text, role = 'user', id = null) {
+function addMessage(text, role = 'user', id = null, imageData = null) {
   const li = document.createElement('li');
   li.className = `msg msg--${role}`;   // 선택 모드가 찾는 클래스
   if (id != null) li.dataset.mid = id; // 데이터 id 부여
-  li.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+  
+  let content = `<div class="bubble">${escapeHtml(text)}</div>`;
+  if (imageData) {
+    content += `<div class="image-preview"><img src="${imageData}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 8px;"></div>`;
+  }
+  
+  li.innerHTML = content;
   chatLog.appendChild(li);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
@@ -207,7 +217,9 @@ function addMessage(text, role = 'user', id = null) {
 // 메시지 전송 공통 함수
 async function sendMessage() {
   const message = chatInput.value.trim();
-  if (!message) return; // 빈 입력은 무시
+  
+  // 메시지나 이미지 중 하나는 있어야 함
+  if (!message && !selectedImage) return;
 
   // 현재 선택된 세션 확인
   if (!selectedSessionId) {
@@ -215,8 +227,8 @@ async function sendMessage() {
     return;
   }
 
-  // 입력 메시지를 채팅창에 추가
-  addMessage(message, 'user');
+  // 입력 메시지를 채팅창에 추가 (이미지와 함께)
+  addMessage(message || '[이미지]', 'user', null, selectedImage);
 
   // 입력창 비우기
   chatInput.value = '';
@@ -237,7 +249,8 @@ async function sendMessage() {
       credentials: 'same-origin',         // 쿠키 포함 (csrftoken 사용 시 필요)
       body: JSON.stringify({ 
         message: message,
-        session_id: selectedSessionId 
+        session_id: selectedSessionId,
+        image: selectedImage
       }),
     });
 
@@ -267,12 +280,146 @@ async function sendMessage() {
     console.error('요청 실패:', err);
     addMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'bot');
   } finally {
-    // 필요 시 로딩 인디케이터 끄기 등 후처리
+    // 이미지 전송 후 초기화
+    removeImage();
   }
 }
 
 // 보내기 버튼 클릭 이벤트
 sendBtn.addEventListener('click', sendMessage);
+
+// 음성 녹음 버튼 이벤트
+document.getElementById('voiceBtn').addEventListener('click', function() {
+    if (!isRecording) {
+        startRecording();
+    } else {
+        stopRecording();
+    }
+});
+
+// 이미지 업로드 버튼 이벤트
+document.getElementById('uploadBtn').addEventListener('click', function() {
+    document.getElementById('imageInput').click();
+});
+
+// 이미지 파일 선택 이벤트
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedImage = e.target.result;
+            console.log('이미지 선택됨:', file.name);
+            showImagePreview(selectedImage);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// 이미지 미리보기 표시 함수
+function showImagePreview(imageData) {
+    // 기존 미리보기 제거
+    const existingPreview = document.getElementById('imagePreview');
+    if (existingPreview) {
+        existingPreview.remove();
+    }
+    
+    // 새 미리보기 생성
+    const preview = document.createElement('div');
+    preview.id = 'imagePreview';
+    preview.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        max-width: 200px;
+    `;
+    
+    preview.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 12px; color: #666;">선택된 이미지</span>
+            <button onclick="removeImage()" style="background: none; border: none; color: #999; cursor: pointer; font-size: 16px;">×</button>
+        </div>
+        <img src="${imageData}" style="max-width: 180px; max-height: 120px; border-radius: 4px;">
+    `;
+    
+    document.body.appendChild(preview);
+}
+
+// 이미지 제거 함수
+function removeImage() {
+    selectedImage = null;
+    document.getElementById('imageInput').value = '';
+    const preview = document.getElementById('imagePreview');
+    if (preview) {
+        preview.remove();
+    }
+}
+
+// 음성 녹음 시작
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                sendAudioToServer(audioBlob);
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            document.getElementById('voiceBtn').textContent = '⏹️';
+        })
+        .catch(error => {
+            console.error('마이크 접근 오류:', error);
+        });
+}
+
+// 음성 녹음 중지
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        document.getElementById('voiceBtn').textContent = '🎤';
+    }
+}
+
+// 서버로 음성 데이터 전송
+async function sendAudioToServer(audioBlob) {
+    try {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'audio.wav');
+        formData.append('session_id', selectedSessionId);
+        
+        const response = await fetch('/api-chat/transcribe/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            addMessage(data.transcribed_text, 'user');
+            addMessage(data.bot_response, 'bot');
+        }
+    } catch (error) {
+        console.error('음성 전송 에러:', error);
+    }
+}
 
 // 엔터 키 이벤트 (Shift+Enter는 줄바꿈 유지)
 chatInput.addEventListener('keydown', (event) => {

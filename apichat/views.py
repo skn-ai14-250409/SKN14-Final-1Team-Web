@@ -8,13 +8,14 @@ import json
 import uuid
 import requests
 import os
-import re, textwrap # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
+import re, textwrap  # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
 from datetime import datetime, timedelta, timezone
 
 from main.models import ChatMessage, ChatSession, ChatMode
 from uauth.models import *
 from .utils.main import run_rag, run_graph
-from .utils.main2 import run_langraph
+from .utils.main3 import run_langraph
+from .utils.whisper import call_whisper_api
 
 
 # 제목 요약 #
@@ -33,6 +34,7 @@ OPENAI_TITLE_MODEL = os.getenv("OPENAI_TITLE_MODEL", "gpt-4o-mini")
 #     keyword = _m(KEYWORDS)
 #     return {"product": product, "api": api, "error": error, "keyword": keyword}
 
+
 def rule_title_fallback(text: str) -> str:
     """
     LLM 미사용/실패 시 간단 요약 폴백
@@ -42,6 +44,7 @@ def rule_title_fallback(text: str) -> str:
     s = re.sub(r"[^\w\sㄱ-ㅎ가-힣A-Za-z0-9]", "", s)
     return (s[:24]).strip() or "새 대화"
 
+
 def sanitize_title(s: str) -> str:
     """
     이모지/제어문자 제거 + 길이 제한
@@ -49,8 +52,10 @@ def sanitize_title(s: str) -> str:
     s = re.sub(r"[^\w\s\-\:\.\,\[\]\(\)ㄱ-ㅎ가-힣A-Za-z0-9/]", "", s)
     return s.strip()[:60] or "General"
 
+
 # ---------- 에코 가드 ---------- #
 from difflib import SequenceMatcher
+
 
 def norm(s: str) -> str:
     if not s:
@@ -59,11 +64,14 @@ def norm(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return re.sub(r"[^\wㄱ-ㅎ가-힣]", "", s)
 
+
 def tokens(s: str) -> list[str]:
     return re.findall(r"[A-Za-z0-9가-힣]+", s.lower())
 
-def is_echo_like(title: str, source: str,
-                  *, hard_ratio: float = 0.9, token_ratio: float = 0.8) -> bool:  # NEW
+
+def is_echo_like(
+    title: str, source: str, *, hard_ratio: float = 0.9, token_ratio: float = 0.8
+) -> bool:  # NEW
     """질문 원문을 거의 그대로 베낀 제목인지 판정"""
     t, s = norm(title), norm(source)
     if not t or not s:
@@ -77,7 +85,10 @@ def is_echo_like(title: str, source: str,
     if A and B and len(A & B) / len(A | B) >= token_ratio:
         return True
     return False
+
+
 # --------------------------------------- #
+
 
 def initial_title_with_llm(first_question: str) -> str:
     """
@@ -88,7 +99,8 @@ def initial_title_with_llm(first_question: str) -> str:
     if not api_key:
         return rule_title_fallback(first_question)
 
-    prompt = textwrap.dedent(f"""
+    prompt = textwrap.dedent(
+        f"""
       다음 문장을 바탕으로 한국어로 **짧고 간결한 대화 제목**을 하나만 만들어라.
       절대 원문 문장을 그대로 복사하지 말고, 핵심 주제를 명사 중심으로 추출하라.
 
@@ -110,17 +122,25 @@ def initial_title_with_llm(first_question: str) -> str:
         출력: OpenAI 쿼터 초과 대응
                              
       사용자 첫 질문: {first_question}
-    """).strip()
+    """
+    ).strip()
 
     try:
         print("[title] initial via LLM")
         import requests
+
         url = "https://api.openai.com/v1/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
         body = {
             "model": OPENAI_TITLE_MODEL,
             "messages": [
-                {"role": "system", "content": "Return only the title text. No punctuation at the end."},
+                {
+                    "role": "system",
+                    "content": "Return only the title text. No punctuation at the end.",
+                },
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.2,
@@ -140,6 +160,7 @@ def initial_title_with_llm(first_question: str) -> str:
         print("[title] fallback used:", e)
         return rule_title_fallback(first_question)
 
+
 def refine_title_with_llm(draft_title: str, transcript: str) -> str:
     """
     최근 2~4개 Q/A 문맥으로 최종 제목 리라이트
@@ -150,9 +171,14 @@ def refine_title_with_llm(draft_title: str, transcript: str) -> str:
         return draft_title
     try:
         import requests
+
         url = "https://api.openai.com/v1/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-        prompt = textwrap.dedent(f"""
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        prompt = textwrap.dedent(
+            f"""
           아래 대화 맥락과 기존 제목을 참고하여 **짧고 간결한 한국어 대화 제목**을 최종 확정하라.
           - 글자 수: 12자 이상, 24자 이하
           - 반드시 명사/주제어 위주 (불필요한 수식어 제거)
@@ -164,11 +190,15 @@ def refine_title_with_llm(draft_title: str, transcript: str) -> str:
           기존 제목(draft_title): {draft_title}
           최근 대화(context):
           {transcript}
-        """).strip()
+        """
+        ).strip()
         body = {
             "model": OPENAI_TITLE_MODEL,
             "messages": [
-                {"role": "system", "content": "Return only the title text. No punctuation at the end."},
+                {
+                    "role": "system",
+                    "content": "Return only the title text. No punctuation at the end.",
+                },
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.2,
@@ -179,11 +209,13 @@ def refine_title_with_llm(draft_title: str, transcript: str) -> str:
         raw = r.json()["choices"][0]["message"]["content"]
         title = sanitize_title(raw)
 
-        user_lines = [ln[3:].strip() for ln in transcript.splitlines() if ln.startswith("Q:")]
+        user_lines = [
+            ln[3:].strip() for ln in transcript.splitlines() if ln.startswith("Q:")
+        ]
         for q in user_lines:
             if is_echo_like(title, q):
                 return draft_title
-            
+
             if is_echo_like(title, draft_title, hard_ratio=0.95, token_ratio=0.9):
                 return draft_title
             if len(tokens(title)) < 2:
@@ -191,6 +223,7 @@ def refine_title_with_llm(draft_title: str, transcript: str) -> str:
         return title or draft_title
     except Exception:
         return draft_title
+
 
 def update_session_title_inline(session, all_messages):
     """
@@ -207,11 +240,15 @@ def update_session_title_inline(session, all_messages):
     user_msgs = [m for m in all_messages if m.role == "user"]
     if len(user_msgs) == 3:
         tail = all_messages[-4:]  # 최근 2세트(user+assistant)만 반영
-        transcript = "\n".join(["Q: " + m.content if m.role == "user" else "A: " + m.content for m in tail])
+        transcript = "\n".join(
+            ["Q: " + m.content if m.role == "user" else "A: " + m.content for m in tail]
+        )
         final_title = refine_title_with_llm(session.title, transcript)
         if final_title and final_title != session.title:
             session.title = final_title
             session.save(update_fields=["title"])
+
+
 # 제목 요약 #
 
 
@@ -223,7 +260,10 @@ def chat(request):
             data = json.loads(request.body)
             user_message = data.get("message")
             session_id = data.get("session_id")
-            print(f"User message: {user_message}, Session ID: {session_id}")
+            image_data = data.get("image")
+            print(
+                f"User message: {user_message}, Session ID: {session_id}, Image: {bool(image_data)}"
+            )
 
             # 세션 확인
             if not session_id:
@@ -235,24 +275,37 @@ def chat(request):
                 return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
 
             db_chat_history = []
-            messages = ChatMessage.objects.filter(session=session).order_by('-created_at')[:6]
+            messages = ChatMessage.objects.filter(session=session).order_by(
+                "-created_at"
+            )[:6]
             # 시간순으로 다시 정렬 (오래된 것부터)
             messages = reversed(messages)
             # print(messages)
 
             for msg in messages:
-                if msg.role == 'user':
+                if msg.role == "user":
                     db_chat_history.append({"role": "user", "content": msg.content})
                 else:
-                    db_chat_history.append({"role": "assistant", "content": msg.content})
+                    db_chat_history.append(
+                        {"role": "assistant", "content": msg.content}
+                    )
 
             # 현재 사용자 메시지를 대화 기록에 추가 (RAG 처리용)
             db_chat_history.append({"role": "user", "content": user_message})
 
             # print(db_chat_history)
+            print(f"이미지 데이터 길이: {len(image_data) if image_data else 0}")
 
             # RAG 봇 호출
-            response = run_langraph(user_message, session_id, db_chat_history)
+            try:
+                response = run_langraph(
+                    user_message, session_id, image_data, db_chat_history
+                )
+            except Exception as e:
+                if "Rate limit" in str(e) or "429" in str(e):
+                    response = "죄송합니다. 현재 API 사용량이 한도를 초과했습니다. 잠시 후 다시 시도해 주세요."
+                else:
+                    response = f"응답 생성 중 오류가 발생했습니다: {str(e)}"
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
@@ -265,16 +318,81 @@ def chat(request):
             )
 
             # 제목 갱신
-            all_msgs = list(ChatMessage.objects.filter(session=session).order_by("created_at"))
+            all_msgs = list(
+                ChatMessage.objects.filter(session=session).order_by("created_at")
+            )
             update_session_title_inline(session, all_msgs)
 
             # 갱신된 제목을 응답에 포함
-            return JsonResponse({"success": True, "bot_message": response, "title": session.title})
+            return JsonResponse(
+                {"success": True, "bot_message": response, "title": session.title}
+            )
 
         except Exception as e:
             return JsonResponse(
                 {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
             )
+
+
+@csrf_exempt
+@login_required
+def transcribe_audio(request):
+    if request.method == "POST":
+        try:
+            audio_file = request.FILES.get("audio")
+            session_id = request.POST.get("session_id")
+
+            session = ChatSession.objects.get(id=session_id, user=request.user)
+
+            # Whisper API 호출
+            transcribed_text = call_whisper_api(audio_file)
+
+            # 채팅 히스토리 가져오기
+            db_chat_history = []
+            messages = ChatMessage.objects.filter(session=session).order_by(
+                "-created_at"
+            )[:6]
+            messages = reversed(messages)
+
+            for msg in messages:
+                if msg.role == "user":
+                    db_chat_history.append({"role": "user", "content": msg.content})
+                else:
+                    db_chat_history.append(
+                        {"role": "assistant", "content": msg.content}
+                    )
+
+            db_chat_history.append({"role": "user", "content": transcribed_text})
+
+            # run_langraph 호출
+            try:
+                response = run_langraph(
+                    transcribed_text, session_id, None, db_chat_history
+                )
+            except Exception as e:
+                if "Rate limit" in str(e) or "429" in str(e):
+                    response = "죄송합니다. 현재 API 사용량이 한도를 초과했습니다. 잠시 후 다시 시도해 주세요."
+                else:
+                    response = f"응답 생성 중 오류가 발생했습니다: {str(e)}"
+
+            # DB에 저장
+            ChatMessage.objects.create(
+                session=session, role="user", content=transcribed_text
+            )
+            ChatMessage.objects.create(
+                session=session, role="assistant", content=response
+            )
+
+            return JsonResponse(
+                {
+                    "success": True,
+                    "transcribed_text": transcribed_text,
+                    "bot_response": response,
+                }
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
 
 @csrf_exempt
@@ -357,12 +475,14 @@ def session_list(request):
     print(data)
     return JsonResponse({"results": data})
 
+
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from main.models import Card, CardMessage, ChatSession, ChatMessage
 import json
+
 
 @csrf_exempt
 @login_required
@@ -385,7 +505,11 @@ def save_card(request):
     session = get_object_or_404(ChatSession, id=session_id, user=request.user)
 
     # 2) 메시지 유효성(모두 이 세션 소속?)
-    msgs = list(ChatMessage.objects.filter(session=session, id__in=message_ids).order_by("created_at"))
+    msgs = list(
+        ChatMessage.objects.filter(session=session, id__in=message_ids).order_by(
+            "created_at"
+        )
+    )
     if len(msgs) != len(message_ids):
         return JsonResponse({"error": "메시지 목록이 유효하지 않습니다."}, status=400)
 
@@ -406,33 +530,41 @@ def save_card(request):
 @login_required
 def my_cards(request):
     rows = Card.objects.filter(user=request.user).order_by("-created_at")
-    results = [{
-        "id": c.id,
-        "title": c.title,
-        "created_at": c.created_at.isoformat(),
-        "session_id": c.session_id,
-        "count": c.card_messages.count(),
-    } for c in rows]
+    results = [
+        {
+            "id": c.id,
+            "title": c.title,
+            "created_at": c.created_at.isoformat(),
+            "session_id": c.session_id,
+            "count": c.card_messages.count(),
+        }
+        for c in rows
+    ]
     return JsonResponse({"results": results})
 
 
 @login_required
 def card_detail(request, card_id):
     card = get_object_or_404(Card, id=card_id, user=request.user)
-    items = [{
-        "message_id": cm.message.id,
-        "role": cm.message.role,
-        "content": cm.message.content,
-        "created_at": cm.message.created_at.isoformat(),
-        "position": cm.position
-    } for cm in card.card_messages.select_related("message").all()]
-    return JsonResponse({
-        "id": card.id,
-        "title": card.title,
-        "created_at": card.created_at.isoformat(),
-        "session_id": card.session_id,
-        "items": items,
-    })
+    items = [
+        {
+            "message_id": cm.message.id,
+            "role": cm.message.role,
+            "content": cm.message.content,
+            "created_at": cm.message.created_at.isoformat(),
+            "position": cm.position,
+        }
+        for cm in card.card_messages.select_related("message").all()
+    ]
+    return JsonResponse(
+        {
+            "id": card.id,
+            "title": card.title,
+            "created_at": card.created_at.isoformat(),
+            "session_id": card.session_id,
+            "items": items,
+        }
+    )
 
 
 @csrf_exempt
