@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Count
 from .models import Post, Comment
 from .forms import CommentForm, PostForm
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -29,18 +30,28 @@ def internal_docs_view(request):
 
 
 def community_board_view(request):
-    all_posts = (
+    best_posts = (
         Post.objects.select_related("author")
-        .annotate(num_likes=Count("likers"))
-        .order_by("-created_at")
+        .filter(likes__gte=5)
+        .order_by("-created_at")[:5]
     )
 
-    best_posts = [p for p in all_posts if p.num_likes >= 5][:5]
-    regular_posts = [p for p in all_posts if p.num_likes < 5]
+    best_post_ids = [post.id for post in best_posts]
+
+    # 정렬 순서를 '-likes', '-created_at'으로 변경합니다.
+    regular_posts_list = (
+        Post.objects.select_related("author")
+        .exclude(id__in=best_post_ids)
+        .order_by("-likes", "-created_at")
+    )
+
+    paginator = Paginator(regular_posts_list, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     context = {
         "best_posts": best_posts,
-        "regular_posts": regular_posts,
+        "page_obj": page_obj,
     }
     return render(request, "my_app/community_board.html", context)
 
@@ -83,9 +94,12 @@ def like_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.user in post.likers.all():
         post.likers.remove(request.user)
+        post.likes -= 1
     else:
         post.likers.add(request.user)
-    return JsonResponse({"new_likes": post.total_likes})
+        post.likes += 1
+    post.save()
+    return JsonResponse({"new_likes": post.likes})
 
 
 @login_required
@@ -94,9 +108,12 @@ def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user in comment.likers.all():
         comment.likers.remove(request.user)
+        comment.likes -= 1
     else:
         comment.likers.add(request.user)
-    return JsonResponse({"new_likes": comment.total_likes})
+        comment.likes += 1
+    comment.save()
+    return JsonResponse({"new_likes": comment.likes})
 
 
 @login_required
