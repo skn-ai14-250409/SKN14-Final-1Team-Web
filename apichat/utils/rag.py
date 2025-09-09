@@ -11,7 +11,7 @@ load_dotenv()
 
 
 def basic_chain_setting():
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
     basic_prompt = PromptTemplate.from_template(
         """
@@ -32,7 +32,7 @@ def basic_chain_setting():
 
 def query_setting():
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         temperature=0,
         model_kwargs={"response_format": {"type": "json_object"}},
     )
