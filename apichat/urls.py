@@ -4,6 +4,7 @@ from .views import save_card, my_cards, card_detail, delete_card
 
 urlpatterns = [
     path("chat/", views.chat, name="chat"),
+    path("transcribe/", views.transcribe_audio, name="transcribe_audio"),
     path("sessions/", views.session_list, name="session_list"),
     path("session_create/", views.create_session, name="session_create"),
     path(

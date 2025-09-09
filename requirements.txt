@@ -16,3 +16,5 @@ sentence-transformers
 chromadb
 requests
 gdown
+openai
+boto3

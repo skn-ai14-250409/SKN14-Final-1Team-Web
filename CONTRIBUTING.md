@@ -18,7 +18,9 @@ pre-commit install
 `.env` 설정하기
 
 ```
-OPENAI_API_KEY = your_api_key
+OPENAI_API_KEY=your_api_key
+DJANGO_SUPERUSER_PASSWORD=your_password
+SLLM_API_URL=fast_api_url
 ```
 
 # 로컬 실행 방법
@@ -26,13 +28,14 @@ OPENAI_API_KEY = your_api_key
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+python manage.py create_superuser_local
 python manage.py runserver 0.0.0.0:8000
 ```
 
 # 도커 실행방법
 
 ```bash
-docker build -t codenova-web . 
+docker build -t codenova-web .
 docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 ```
 
