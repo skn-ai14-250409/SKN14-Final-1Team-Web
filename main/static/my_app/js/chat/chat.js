@@ -120,7 +120,7 @@ async function loadChatHistory(sessionId) {
     data.messages.forEach(msg => {
       // 이미지가 있으면 이미지 URL 사용
       let imageData = null;
-      if (msg.images) {
+      if (msg.images && msg.images.length > 0 && msg.images[0] && msg.images[0].url) {
         imageData = msg.images[0].url; // 이미지 URL
       }
       
