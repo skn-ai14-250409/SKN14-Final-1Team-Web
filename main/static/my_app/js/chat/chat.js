@@ -118,7 +118,13 @@ async function loadChatHistory(sessionId) {
     
     // 메시지 히스토리 표시
     data.messages.forEach(msg => {
-  addMessage(msg.content, msg.role === 'user' ? 'user' : 'assistant', msg.id); // id 전달
+      // 이미지가 있으면 이미지 URL 사용
+      let imageData = null;
+      if (msg.images) {
+        imageData = msg.images[0].url; // 이미지 URL
+      }
+      
+      addMessage(msg.content, msg.role === 'user' ? 'user' : 'assistant', msg.id, imageData);
     });
 
     console.log(`세션 ${sessionId} 히스토리 로드 완료:`, data.messages.length, '개 메시지');
@@ -214,75 +220,84 @@ function addMessage(text, role = 'user', id = null, imageData = null) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// 메시지 전송 공통 함수
+// 메시지 전송 함수 수정
 async function sendMessage() {
-  const message = chatInput.value.trim();
-  
-  // 메시지나 이미지 중 하나는 있어야 함
-  if (!message && !selectedImage) return;
-
-  // 현재 선택된 세션 확인
-  if (!selectedSessionId) {
-    alert('세션을 선택해주세요.');
-    return;
-  }
-
-  // 입력 메시지를 채팅창에 추가 (이미지와 함께)
-  addMessage(message || '[이미지]', 'user', null, selectedImage);
-
-  // 입력창 비우기
-  chatInput.value = '';
-
-  // 서버 전송 (추후 API 연동 가능)
-  console.log('사용자 질문 전송:', message, '세션 ID:', selectedSessionId);
-
-  // 임시 봇 응답 + 서버 호출
-  try {
-    const csrfToken = getCSRFToken();
-
-    const response = await fetch('/api-chat/chat/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken,        // Django 표준 헤더명
-      },
-      credentials: 'same-origin',         // 쿠키 포함 (csrftoken 사용 시 필요)
-      body: JSON.stringify({ 
-        message: message,
-        session_id: selectedSessionId,
-        image: selectedImage
-      }),
-    });
-
-    // 네트워크/HTTP 에러 체크
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    const messageInput = document.getElementById('chatInput');
+    const message = messageInput.value.trim();
+    
+    if (!message && !selectedImage) return;
+    
+    // Object URL로 즉시 표시 (임시)
+    let tempImageUrl = null;
+    if (selectedImage) {
+        tempImageUrl = URL.createObjectURL(selectedImage);
     }
-
-    // JSON 파싱은 await 필요
-    const data = await response.json();
-
-    // 성공 여부에 따라 처리 (서버 스키마에 맞게 조정)
-    if (data.success) {
-      // 실제 응답 텍스트 키가 있으면 그걸 사용 (예: data.reply)
-      addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'assistant');
-
-      if (data.title) {
-        if(sessionTitle) sessionTitle.textContent = data.title;
-
-        const btn = document.querySelector(
-            `#sessionList .session-link[data-session-id="${selectedSessionId}"]`
-        );
-        if (btn) btn.textContent = data.title;
-      }
+    
+    // 사용자 메시지 표시 (임시 Object URL)
+    addMessage(message || '[이미지]', 'user', null, tempImageUrl);
+    
+    // 입력 필드 초기화
+    messageInput.value = '';
+    
+    try {
+        const csrfToken = getCSRFToken();
+        
+        // FormData로 파일과 메시지를 함께 전송
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('session_id', selectedSessionId);
+        if (selectedImage) {
+            formData.append('image', selectedImage);
+        }
+        
+        const response = await fetch('/api-chat/chat/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 서버에서 S3 URL을 받아서 메시지 업데이트
+            if (data.image_url) {
+                // 마지막 사용자 메시지의 이미지를 S3 URL로 업데이트
+                const lastUserMessage = chatLog.querySelector('.msg--user:last-child');
+                if (lastUserMessage) {
+                    const img = lastUserMessage.querySelector('.image-preview img');
+                    if (img) {
+                        img.src = data.image_url; // S3 URL로 교체
+                    }
+                }
+            }
+            
+            addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'assistant');
+            
+            if (data.title) {
+                if(sessionTitle) sessionTitle.textContent = data.title;
+                const btn = document.querySelector(
+                    `#sessionList .session-link[data-session-id="${selectedSessionId}"]`
+                );
+                if (btn) btn.textContent = data.title;
+            }
+        }
+    } catch (err) {
+        console.error('요청 실패:', err);
+        addMessage('죄송합니다. 요청 처리 중 오류가 발생했습니다.', 'assistant');
+    } finally {
+        // 임시 Object URL 정리
+        if (tempImageUrl) {
+            URL.revokeObjectURL(tempImageUrl);
+        }
+        clearImage();
     }
-  } catch (err) {
-    console.error('요청 실패:', err);
-    addMessage('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'bot');
-  } finally {
-    // 이미지 전송 후 초기화
-    removeImage();
-  }
 }
 
 // 보내기 버튼 클릭 이벤트
@@ -306,58 +321,36 @@ document.getElementById('uploadBtn').addEventListener('click', function() {
 document.getElementById('imageInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedImage = e.target.result;
-            console.log('이미지 선택됨:', file.name);
-            showImagePreview(selectedImage);
-        };
-        reader.readAsDataURL(file);
+        selectedImage = file; // File 객체 자체를 저장
+        showImagePreview(file); // File 객체로 미리보기
     }
 });
 
-// 이미지 미리보기 표시 함수
-function showImagePreview(imageData) {
-    // 기존 미리보기 제거
-    const existingPreview = document.getElementById('imagePreview');
-    if (existingPreview) {
-        existingPreview.remove();
-    }
-    
-    // 새 미리보기 생성
-    const preview = document.createElement('div');
-    preview.id = 'imagePreview';
-    preview.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        border: 2px solid #007bff;
-        border-radius: 8px;
-        padding: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 1000;
-        max-width: 200px;
-    `;
-    
-    preview.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 12px; color: #666;">선택된 이미지</span>
-            <button onclick="removeImage()" style="background: none; border: none; color: #999; cursor: pointer; font-size: 16px;">×</button>
-        </div>
-        <img src="${imageData}" style="max-width: 180px; max-height: 120px; border-radius: 4px;">
-    `;
-    
-    document.body.appendChild(preview);
+// 이미지 미리보기 표시 함수 (File 객체 사용)
+function showImagePreview(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('imagePreview');
+        if (preview) {
+            preview.style.display = 'block'; // 컨테이너 표시
+            preview.innerHTML = `
+                <img src="${e.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 5px;">
+                <br>
+                <button type="button" onclick="clearImage()" style="margin-top: 5px; padding: 5px 10px; background: #ff4444; color: white; border: none; border-radius: 3px; cursor: pointer;">삭제</button>
+            `;
+        }
+    };
+    reader.readAsDataURL(file);
 }
 
-// 이미지 제거 함수
-function removeImage() {
+// 이미지 제거 함수 (clearImage로 이름 변경)
+function clearImage() {
     selectedImage = null;
     document.getElementById('imageInput').value = '';
     const preview = document.getElementById('imagePreview');
     if (preview) {
-        preview.remove();
+        preview.style.display = 'none';
+        preview.innerHTML = '';
     }
 }
 
