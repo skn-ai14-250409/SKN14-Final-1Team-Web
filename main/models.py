@@ -134,3 +134,21 @@ class CardMessage(models.Model):
 
     def __str__(self):
         return f"{self.card.title} #{self.position}"
+
+
+# 채팅 메시지에 첨부된 이미지
+class ChatImage(models.Model):
+    message = models.ForeignKey(
+        ChatMessage,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+    image_url = models.URLField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "chat_image"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Image for message: {self.message.id}"

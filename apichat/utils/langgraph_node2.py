@@ -50,11 +50,7 @@ def analyze_image(state: ChatState) -> ChatState:
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": (
-                                        state["image"]
-                                        if state["image"].startswith("data:")
-                                        else f"data:image/jpeg;base64,{state['image']}"
-                                    )
+                                    "url": state["image"]  # URL이면 그대로 사용
                                 },
                             },
                         ],

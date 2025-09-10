@@ -11,11 +11,12 @@ import os
 import re, textwrap  # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
 from datetime import datetime, timedelta, timezone
 
-from main.models import ChatMessage, ChatSession, ChatMode
+from main.models import ChatMessage, ChatSession, ChatMode, ChatImage
 from uauth.models import *
 from .utils.main import run_rag, run_graph
 from .utils.main3 import run_langraph
 from .utils.whisper import call_whisper_api
+from .aws_s3_service import S3Client # S3Client 추가
 
 
 # 제목 요약 #
@@ -257,13 +258,10 @@ def update_session_title_inline(session, all_messages):
 def chat(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            user_message = data.get("message")
-            session_id = data.get("session_id")
-            image_data = data.get("image")
-            print(
-                f"User message: {user_message}, Session ID: {session_id}, Image: {bool(image_data)}"
-            )
+            # FormData에서 데이터 추출
+            user_message = request.POST.get("message")
+            session_id = request.POST.get("session_id")
+            image_file = request.FILES.get("image")  # 이미지 파일
 
             # 세션 확인
             if not session_id:
@@ -278,9 +276,7 @@ def chat(request):
             messages = ChatMessage.objects.filter(session=session).order_by(
                 "-created_at"
             )[:6]
-            # 시간순으로 다시 정렬 (오래된 것부터)
             messages = reversed(messages)
-            # print(messages)
 
             for msg in messages:
                 if msg.role == "user":
@@ -290,16 +286,20 @@ def chat(request):
                         {"role": "assistant", "content": msg.content}
                     )
 
-            # 현재 사용자 메시지를 대화 기록에 추가 (RAG 처리용)
             db_chat_history.append({"role": "user", "content": user_message})
 
-            # print(db_chat_history)
-            print(f"이미지 데이터 길이: {len(image_data) if image_data else 0}")
+            # 이미지 처리 - 파일을 S3에 업로드
+            image_url = None
+            if image_file:
+                s3_client = S3Client()
+                image_url = s3_client.upload(image_file)
+                if not image_url:
+                    return JsonResponse({"error": "이미지 업로드에 실패했습니다."}, status=500)
 
-            # RAG 봇 호출
+            # RAG 봇 호출 - 이미지 URL 전달
             try:
                 response = run_langraph(
-                    user_message, session_id, image_data, db_chat_history
+                    user_message, session_id, image_url, db_chat_history
                 )
             except Exception as e:
                 if "Rate limit" in str(e) or "429" in str(e):
@@ -308,9 +308,16 @@ def chat(request):
                     response = f"응답 생성 중 오류가 발생했습니다: {str(e)}"
 
             # 사용자 메시지 저장
-            ChatMessage.objects.create(
+            user_msg = ChatMessage.objects.create(
                 session=session, role="user", content=user_message
             )
+
+            # 이미지 URL이 있으면 ChatImage 객체 생성
+            if image_url:
+                ChatImage.objects.create(
+                    message=user_msg,
+                    image_url=image_url
+                )
 
             # 봇 응답 저장
             ChatMessage.objects.create(
@@ -323,12 +330,22 @@ def chat(request):
             )
             update_session_title_inline(session, all_msgs)
 
-            # 갱신된 제목을 응답에 포함
-            return JsonResponse(
-                {"success": True, "bot_message": response, "title": session.title}
-            )
+            # 응답에 이미지 URL 포함
+            response_data = {
+                "success": True, 
+                "bot_message": response, 
+                "title": session.title
+            }
+            
+            if image_url:
+                response_data["image_url"] = image_url
+
+            return JsonResponse(response_data)
 
         except Exception as e:
+            import traceback
+            print(f"Chat 오류 상세: {str(e)}")
+            print(f"Traceback: {traceback.format_exc()}")
             return JsonResponse(
                 {"error": f"서버 오류가 발생했습니다: {str(e)}"}, status=500
             )
@@ -405,16 +422,27 @@ def get_chat_history(request, session_id):
         # 해당 세션의 모든 메시지 조회
         messages = ChatMessage.objects.filter(session=session).order_by("created_at")
 
-        # JSON 형태로 변환
-        data = [
-            {
+        # JSON 형태로 변환 (이미지 URL 포함)
+        data = []
+        for msg in messages:
+            message_data = {
                 "id": msg.id,
                 "role": msg.role,
                 "content": msg.content,
                 "created_at": msg.created_at.isoformat(),
+                "images": []
             }
-            for msg in messages
-        ]
+            
+            # 해당 메시지의 이미지들 조회
+            images = ChatImage.objects.filter(message=msg).order_by("created_at")
+            for img in images:
+                message_data["images"].append({
+                    "id": img.id,
+                    "url": img.image_url,
+                    "created_at": img.created_at.isoformat()
+                })
+            
+            data.append(message_data)
 
         return JsonResponse({"messages": data})
 
