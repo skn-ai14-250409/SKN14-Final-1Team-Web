@@ -15,7 +15,16 @@
         <div class="chat-container">
             <ul class="chat-messages">
                 {% for message in messages %}
-                    <li class="chat-message">{{ message.content }}</li>
+                    <li class="chat-message">
+                        <div class="message-content">{{ message.content }}</div>
+                        {% if message.images.all %}
+                            <div class="message-images">
+                                {% for image in message.images.all %}
+                                    <img src="{{ image.image_url }}" alt="첨부 이미지" class="message-image">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </li>
                 {% empty %}
                     <li class="no-messages">저장된 메시지가 없습니다.</li>
                 {% endfor %}
