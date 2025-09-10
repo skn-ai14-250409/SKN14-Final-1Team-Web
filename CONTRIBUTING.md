@@ -7,8 +7,8 @@
 가상환경 설정하기
 
 ```python
-conda create -n codenova python=3.12 -y
-conda activate codenova
+conda create -n codenova-web python=3.12 -y
+conda activate codenova-web
 pip install -r requirements-dev.txt
 pip install -r requirements-prod.txt
 
