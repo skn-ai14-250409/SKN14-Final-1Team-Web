@@ -1,7 +1,6 @@
 # uauth/views.py
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_backends
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -20,12 +19,13 @@ from .models import User, ApprovalLog, Status
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import ApprovalLog
-from .models import Status 
+from .models import Status
 from .models import User, Status
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 
 from .models import User, Rank, Department, Gender
+
 
 # -----------------------------
 # 유틸
@@ -138,6 +138,7 @@ def login_view(request):
     return redirect("main:home")
     # ▲▲▲ 여기까지 교체 ▲▲▲
 
+
 # -----------------------------
 # 회원가입
 # -----------------------------
@@ -157,6 +158,7 @@ class SignUpEchoForm(forms.Form):
     gender = forms.CharField(required=True)
     phoneNumber = forms.CharField(required=True)
 
+
 def signup_context(form=None):
     return {
         "form": form or SignUpEchoForm(),
@@ -164,6 +166,7 @@ def signup_context(form=None):
         "ranks": Rank.choices,
         "genders": Gender.choices,
     }
+
 
 @csrf_protect
 @require_http_methods(["GET", "POST"])
@@ -225,7 +228,6 @@ def signup_view(request: HttpRequest):
     return redirect("uauth:login")
 
 
-
 # -----------------------------
 # (옵션) JSON API - 필요 시 사용
 # -----------------------------
@@ -272,11 +274,10 @@ def reject_view(request):
         return redirect("main:home")
     if current_status == Status.PENDING:
         return redirect("uauth:pending")
-    
-      # 1) action 값 대소문자/라벨 오차까지 허용
+
+    # 1) action 값 대소문자/라벨 오차까지 허용
     approval_log = (
-        ApprovalLog.objects
-        .filter(user=request.user, action__iexact="rejected")
+        ApprovalLog.objects.filter(user=request.user, action__iexact="rejected")
         .order_by("-created_at")
         .first()
     )
@@ -284,8 +285,7 @@ def reject_view(request):
     # 2) 거부 로그가 없을 경우 대비(상태는 Rejected인데 로그가 없을 수 있음)
     if not approval_log:
         approval_log = (
-            ApprovalLog.objects
-            .filter(user=request.user)
+            ApprovalLog.objects.filter(user=request.user)
             .order_by("-created_at")
             .first()
         )

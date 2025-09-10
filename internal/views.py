@@ -1,16 +1,10 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 
 import json
-import uuid
-import requests
-import os
-from datetime import datetime, timedelta, timezone
 
-from main.models import ChatMessage, ChatSession, ChatMode
+from main.models import ChatMessage, ChatSession
 from uauth.models import *
 from .utils.sllm import run_sllm
 

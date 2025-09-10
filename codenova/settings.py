@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     "uauth",
     "apichat",
     "mypage",
-    "internal"
+    "internal",
 ]
 
 AUTH_USER_MODEL = "uauth.User"
@@ -118,15 +118,15 @@ LOGIN_REDIRECT_URL = reverse_lazy("main:home")  # 실제 라우트 이름에 맞
 LOGOUT_REDIRECT_URL = reverse_lazy("uauth:login")
 
 
-
 # S3 setting
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # local 실행 시 .env 사용
+load_dotenv()  # local 실행 시 .env 사용
 
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'ap-northeast-2') # 기본값 설정
-
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.environ.get(
+    "AWS_S3_REGION_NAME", "ap-northeast-2"
+)  # 기본값 설정

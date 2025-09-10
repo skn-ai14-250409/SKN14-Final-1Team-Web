@@ -23,6 +23,23 @@ if (newsessionBtn) {
 
 // 초기 세션 선택 (Django 템플릿으로 렌더링된 첫 번째 세션 선택)
 async function initializeFirstSession() {
+  // 추가=======
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionIdFromUrl = urlParams.get('session_id');
+
+  if (sessionIdFromUrl) {
+    // URL에서 세션 ID를 찾았다면 해당 세션을 선택
+    const sessionLink = document.querySelector(`[data-session-id="${sessionIdFromUrl}"]`);
+    if (sessionLink) {
+      selectedSessionId = sessionIdFromUrl;
+      sessionTitle.textContent = sessionLink.textContent.trim();
+      sessionLink.parentElement.classList.add('is-active');
+      await loadChatHistory(selectedSessionId);
+      return; 
+    }
+  }
+  //=====================
+  
     if (!sessionList) { 
     console.warn('#sessionList 가 없어 초기 선택을 건너뜀'); 
     return;
@@ -61,6 +78,12 @@ if (sessionList) {
 
   // 채팅 히스토리 로드
   await loadChatHistory(selectedSessionId);
+
+  // 추가: URL 변경======
+  const newUrl = new URL(window.location.href);
+  newUrl.searchParams.set('session_id', selectedSessionId);
+  window.history.pushState({ sessionId: selectedSessionId }, '', newUrl.href);
+  //=====================
 });
 } else {
     console.warn('#sessionList 요소가 없어 세션 클릭 바인딩을 건너뜀');
@@ -120,7 +143,7 @@ async function loadChatHistory(sessionId) {
     data.messages.forEach(msg => {
       // 이미지가 있으면 이미지 URL 사용
       let imageData = null;
-      if (msg.images) {
+      if (msg.images && msg.images.length > 0 && msg.images[0] && msg.images[0].url) {
         imageData = msg.images[0].url; // 이미지 URL
       }
       

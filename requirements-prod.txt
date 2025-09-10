@@ -1,0 +1,13 @@
+django
+django-cors-headers
+python-dotenv
+gunicorn
+uvicorn
+blacknoise
+langgraph
+langchain_openai
+langchain_chroma
+langchain_huggingface
+sentence-transformers
+gdown
+boto3

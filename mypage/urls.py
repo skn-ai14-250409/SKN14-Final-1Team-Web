@@ -18,5 +18,4 @@ urlpatterns = [
         "check_api_key_name/", views.check_api_key_name, name="check_api_key_name"
     ),  # apikey 중복 검사
     path("api-key/create/", views.create_api_key, name="create_api_key"),  # apikey 생성
-
 ]

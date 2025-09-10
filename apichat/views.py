@@ -1,22 +1,16 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 
 import json
-import uuid
-import requests
 import os
 import re, textwrap  # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
-from datetime import datetime, timedelta, timezone
 
 from main.models import ChatMessage, ChatSession, ChatMode, ChatImage
 from uauth.models import *
-from .utils.main import run_rag, run_graph
 from .utils.main3 import run_langraph
 from .utils.whisper import call_whisper_api
-from .aws_s3_service import S3Client # S3Client 추가
+from .aws_s3_service import S3Client  # S3Client 추가
 
 
 # 제목 요약 #
@@ -294,7 +288,9 @@ def chat(request):
                 s3_client = S3Client()
                 image_url = s3_client.upload(image_file)
                 if not image_url:
-                    return JsonResponse({"error": "이미지 업로드에 실패했습니다."}, status=500)
+                    return JsonResponse(
+                        {"error": "이미지 업로드에 실패했습니다."}, status=500
+                    )
 
             # RAG 봇 호출 - 이미지 URL 전달
             try:
@@ -314,10 +310,7 @@ def chat(request):
 
             # 이미지 URL이 있으면 ChatImage 객체 생성
             if image_url:
-                ChatImage.objects.create(
-                    message=user_msg,
-                    image_url=image_url
-                )
+                ChatImage.objects.create(message=user_msg, image_url=image_url)
 
             # 봇 응답 저장
             ChatMessage.objects.create(
@@ -332,11 +325,11 @@ def chat(request):
 
             # 응답에 이미지 URL 포함
             response_data = {
-                "success": True, 
-                "bot_message": response, 
-                "title": session.title
+                "success": True,
+                "bot_message": response,
+                "title": session.title,
             }
-            
+
             if image_url:
                 response_data["image_url"] = image_url
 
@@ -344,6 +337,7 @@ def chat(request):
 
         except Exception as e:
             import traceback
+
             print(f"Chat 오류 상세: {str(e)}")
             print(f"Traceback: {traceback.format_exc()}")
             return JsonResponse(
@@ -430,18 +424,20 @@ def get_chat_history(request, session_id):
                 "role": msg.role,
                 "content": msg.content,
                 "created_at": msg.created_at.isoformat(),
-                "images": []
+                "images": [],
             }
-            
+
             # 해당 메시지의 이미지들 조회
             images = ChatImage.objects.filter(message=msg).order_by("created_at")
             for img in images:
-                message_data["images"].append({
-                    "id": img.id,
-                    "url": img.image_url,
-                    "created_at": img.created_at.isoformat()
-                })
-            
+                message_data["images"].append(
+                    {
+                        "id": img.id,
+                        "url": img.image_url,
+                        "created_at": img.created_at.isoformat(),
+                    }
+                )
+
             data.append(message_data)
 
         return JsonResponse({"messages": data})

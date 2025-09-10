@@ -1,10 +1,13 @@
 import os
 from dotenv import load_dotenv
-
-import torch
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import ChatOpenAI
+
 from .vector_db import create_chroma_db
+
+from langchain.retrievers.self_query.base import SelfQueryRetriever
+from langchain.chains.query_constructor.schema import AttributeInfo
 
 # .env 로드
 load_dotenv()
@@ -34,6 +37,26 @@ def retriever_setting():
         embedding_function=embeddings,
     )
 
-    # 기본은 similarity. 필요하면 search_type='mmr' 등 옵션 조정
-    retriever = vs.as_retriever(search_kwargs={"k": TOP_K})
-    return retriever
+    # 메타데이터 필드 정보 정의
+    metadata_field_info = [
+        AttributeInfo(
+            name="tags",
+            type="string",
+            description="구글 API 주제명 (11개 중에서 선택: map, firestore, drive, firebase, gmail, google_identity, calendar, bigquery, sheets, people, youtube)",
+        ),
+        AttributeInfo(
+            name="chroma:document", type="string", description="문서 본문 내용"
+        ),
+    ]
+
+    # SelfQueryRetriever 객체생성
+
+    self_query_retriever = SelfQueryRetriever.from_llm(
+        llm=ChatOpenAI(model="gpt-4o", temperature=0),
+        vectorstore=vs,
+        document_contents="chroma:document",  # 문서 내용을 가리키는 메타데이터 필드명
+        metadata_field_info=metadata_field_info,
+        search_kwargs={"k": TOP_K},
+    )
+
+    return self_query_retriever
