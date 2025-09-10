@@ -16,4 +16,4 @@ def run_sllm(history, permission="none", tone="formal"):
 
     response = requests.post(url, headers=headers, json=data)
 
-    return response.json()["response"]
+    return response.json()["response"], response.json()["title"] 
