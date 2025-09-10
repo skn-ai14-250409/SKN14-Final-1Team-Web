@@ -8,26 +8,29 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Prefetch
+from django.core.paginator import Paginator
 
 @login_required
 def mypage(request):
     # [GET] 페이지 로딩
-    api_keys = request.user.api_keys.all().order_by("-created_at")
     all_cards = request.user.cards.select_related("session").order_by("-created_at")
-
     api_cards = all_cards.filter(session__mode="api")
     internal_cards = all_cards.filter(session__mode="internal")
+    api_keys_qs = request.user.api_keys.order_by("-created_at")
+
+    key_page = request.GET.get("key_page", 1)
+    api_keys = Paginator(api_keys_qs, 3).get_page(key_page)
 
     context = {
         "user": request.user,
-        "api_keys": api_keys,
-        "cards": all_cards,          
-        "api_cards": api_cards,     
-        "internal_cards": internal_cards,  
+        "api_cards": api_cards,                
+        "internal_cards": internal_cards,
+        "api_keys": api_keys,                   
         "departments": Department.choices,
         "ranks": Rank.choices,
         "genders": Gender.choices,
     }
+
     return render(request, "my_app/mypage.html", context)
 
 

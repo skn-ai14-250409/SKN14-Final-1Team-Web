@@ -147,6 +147,14 @@ body {
     gap: 0.5rem;
 }
 
+.item-list li span{
+  display:inline-block;
+  max-width:60%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
 /* apikey 추가 */
 .api-key-form .input-container {
     align-items: flex-start;
@@ -195,4 +203,47 @@ body {
 
 .card-api-section .section-box + .section-box {
     margin-top: 20px; 
+}
+
+.card-api-section > .section-box:last-child .item-list {
+  max-height: 320px;   
+  overflow-y: auto;
+}
+
+#apiCardsList,
+#internalCardsList {
+  max-height: 220px;   
+  overflow-y: auto;
+}
+
+#apiKeysList {
+  max-height: none;
+  overflow: visible;
+}
+
+.pager{
+  display:flex; 
+  gap:6px; 
+  align-items:center; 
+  justify-content:center;
+  margin-top:12px; 
+  flex-wrap:wrap;
+}
+
+.pager a,
+.pager span {
+    text-decoration: none;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f8f8f8;
+    color: #333;
+    display: inline-block;
+}
+
+.pager .active {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+    cursor: default;
 }
