@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from uauth.models import ApiKey, User, Department, Rank, Gender
 from django.core.exceptions import ObjectDoesNotExist
@@ -90,7 +90,7 @@ def mypage_edit(request):
             if phone:
                 request.user.phone = phone
             if birthday:
-                request.user.birthday = birthday 
+                request.user.birthday = birthday
 
             request.user.save()
 

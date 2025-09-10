@@ -9,7 +9,8 @@
 ```python
 conda create -n codenova python=3.12 -y
 conda activate codenova
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pip install -r requirements-prod.txt
 
 # black 코드 포멧팅 설정
 pre-commit install
@@ -18,9 +19,18 @@ pre-commit install
 `.env` 설정하기
 
 ```
-OPENAI_API_KEY=your_api_key
-DJANGO_SUPERUSER_PASSWORD=your_password
-SLLM_API_URL=fast_api_url
+# 개발용 환경변수
+OPENAI_API_KEY=
+DJANGO_SUPERUSER_PASSWORD=
+SLLM_API_URL=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_REGION_NAME=
+AWS_STORAGE_BUCKET_NAME=
+
+# 배포용 환경변수
+ALLOWED_HOST=
+DJANGO_SETTINGS_MODULE=
 ```
 
 # 로컬 실행 방법
