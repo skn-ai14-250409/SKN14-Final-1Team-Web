@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from uauth.models import ApiKey, User, Department, Rank, Gender
 from django.core.exceptions import ObjectDoesNotExist
-from main.models import Card, ChatImage
+from main.models import Card, ChatImage, ChatMode
 from django.contrib import messages
 
 from django.views.decorators.csrf import csrf_exempt
@@ -13,12 +13,17 @@ from django.db.models import Prefetch
 def mypage(request):
     # [GET] 페이지 로딩
     api_keys = request.user.api_keys.all().order_by("-created_at")
-    my_cards = request.user.cards.all().order_by("-created_at")
+    all_cards = request.user.cards.select_related("session").order_by("-created_at")
+
+    api_cards = all_cards.filter(session__mode="api")
+    internal_cards = all_cards.filter(session__mode="internal")
 
     context = {
         "user": request.user,
         "api_keys": api_keys,
-        "cards": my_cards,
+        "cards": all_cards,          
+        "api_cards": api_cards,     
+        "internal_cards": internal_cards,  
         "departments": Department.choices,
         "ranks": Rank.choices,
         "genders": Gender.choices,

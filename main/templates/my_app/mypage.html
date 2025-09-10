@@ -49,7 +49,6 @@
                             <option value="{{ value }}" {% if user.department == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                         </select>
-                    </select>
                     </div>
                 </div>
                 
@@ -84,33 +83,57 @@
                         <div id="phoneErr" class="error" style="margin-top:4px;"></div>
                     </div>
                 </div>
-                
             </form>
         </section>
 
         <section class="card-api-section">
-            <div class="section-box">
-                <h4>내가 저장한 카드</h4>
-                <ul class="item-list" id="cardsList">
-                    {% for card in cards %}
+            <div class="chatbox-wrapper">
+                <h3 class="chatbox-title">내가 저장한 카드</h3>
+
+                <div class="section-box">
+                <h4>API 메인 챗봇</h4>
+                <ul class="item-list" id="apiCardsList">
+                    {% for card in api_cards %}
                     <li data-card-id="{{ card.id }}">
                         <span>{{ card.title }}</span>
                         <div class="actions">
-                            <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
-                            <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
-                                <button>채팅 보러가기</button>
-                            </a>
-                            <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button> 
+                        <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
+                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                            <button>채팅 보러가기</button>
+                        </a>
+                        <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>
                         </div>
                     </li>
                     {% empty %}
-                    <li>저장된 카드가 없습니다.</li>
+                    <li>card가 없습니다.</li>
                     {% endfor %}
                 </ul>
+                </div>
+
+                <div class="section-box">
+                <h4>사내문서 챗봇</h4>
+                <ul class="item-list" id="internalCardsList">
+                    {% for card in internal_cards %}
+                    <li data-card-id="{{ card.id }}">
+                        <span>{{ card.title }}</span>
+                        <div class="actions">
+                        <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
+                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                            <button>채팅 보러가기</button>
+                        </a>
+                        <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>card가 없습니다.</li>
+                    {% endfor %}
+                </ul>
+                </div>
+
             </div>
 
             <div class="section-box">
-                <h4>내 API 키</h4>
+                <h3 class="chatbox-title">내 API 키</h3>
 
                 <form method="post" action="{% url 'mypage:create_api_key' %}" class="api-key-form">
                     {% csrf_token %}
