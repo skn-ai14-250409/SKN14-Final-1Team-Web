@@ -18,7 +18,10 @@ def chat(request):
         try:
             data = json.loads(request.body)
             user_message = data.get("message")
+            tone = data.get("tone")
             session_id = data.get("session_id")
+            rank = request.user.rank
+            department = request.user.department
             print(f"User message: {user_message}, Session ID: {session_id}")
 
             # 세션 확인
@@ -45,9 +48,14 @@ def chat(request):
 
             # 현재 사용자 메시지를 대화 기록에 추가
             db_chat_history.append({"role": "user", "content": user_message})
+            
+            if rank == "cto":
+                permission="cto"
+            else:
+                permission=department
 
             # RAG 봇 호출
-            response = run_sllm(db_chat_history)
+            response = run_sllm(db_chat_history, permission=permission, tone=tone)
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
