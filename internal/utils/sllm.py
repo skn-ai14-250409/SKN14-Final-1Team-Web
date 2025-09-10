@@ -11,9 +11,9 @@ url = SLLM_API_URL + "/api/v1/chat"
 headers = {"Content-Type": "application/json"}
 
 
-def run_sllm(history):
-    data = {"history": history}
+def run_sllm(history, permission="none", tone="formal"):
+    data = {"history": history, "permission": permission, "tone": tone}
 
     response = requests.post(url, headers=headers, json=data)
 
-    return response.json()["response"]
+    return response.json()["response"], response.json()["title"] 

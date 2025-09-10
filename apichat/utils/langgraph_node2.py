@@ -1,7 +1,7 @@
 from typing import TypedDict, List, Dict, Any
 
 from .rag2 import basic_chain_setting
-from .rag import query_setting
+from .rag2 import query_setting
 from .retriever import retriever_setting
 
 import openai
@@ -75,7 +75,7 @@ def analyze_image(state: ChatState) -> ChatState:
 def extract_queries(state: ChatState) -> ChatState:
     user_text = state["question"]
     image_text = state.get(
-        "image"
+        "image_analysis"
     )  # 이미지 설명 (이 부분은 이미 전달된 이미지 설명이어야 함)
 
     # 히스토리에서 최근 몇 개의 메시지를 가져와서 통합 질문을 생성
@@ -135,7 +135,9 @@ def langgraph_node(state: ChatState) -> Dict[str, Any]:
     # 이미지 분석 결과가 있으면 컨텍스트에 포함
     context_parts = [str(res) for res in search_results]
     if state.get("image_analysis"):
-        context_parts.insert(0, f"이미지 분석 결과: {state['image_analysis']}")
+        context_parts.insert(
+            0, f"사용자가 올린 이미지 분석 결과: {state['image_analysis']}"
+        )
 
     # 검색된 결과를 바탕으로 답변 생성
     answer = basic_chain.invoke(

@@ -59,6 +59,16 @@ main {
     margin-bottom: 0;
 }
 
+.chat-message img {
+    max-width: 460px; 
+    max-height: 250px; 
+    width: auto; 
+    height: auto; 
+    display: block;
+    margin: 10px auto;
+    border-radius: 8px;
+}
+
 .no-messages {
     color: #6c757d;
     text-align: center;
