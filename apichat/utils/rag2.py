@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableSequence, RunnableLambda, RunnableParallel
 
 # LangChain OpenAI
 from langchain_openai import ChatOpenAI
-import json
 
 load_dotenv()
 

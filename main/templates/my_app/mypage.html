@@ -96,10 +96,10 @@
                     <li data-card-id="{{ card.id }}">
                         <span>{{ card.title }}</span>
                         <div class="actions">
-                            {% comment %} "openCardDetail('{{ card.id }}')" {% endcomment %}
                             <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
-                            {% comment %} 링크 연결 필 {% endcomment %}
-                            <button>채팅 보러가기</button>
+                            <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                                <button>채팅 보러가기</button>
+                            </a>
                             <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button> 
                         </div>
                     </li>

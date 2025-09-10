@@ -5,6 +5,7 @@ app_name = "main"
 
 urlpatterns = [
     path("home/", views.home_view, name="home"),
+    path("api/docsearch/", views.docsearch, name="docsearch"),
     path("main-chatbot/", views.main_chatbot_view, name="main-chatbot"),
     path("internal-docs/", views.internal_docs_view, name="internal-docs"),
     path("api-chat/", include("apichat.urls")),

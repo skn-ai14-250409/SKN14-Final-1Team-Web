@@ -9,7 +9,7 @@ urlpatterns = [
     path("main/", include("main.urls")),
     path("mypage/", include("mypage.urls")),
     path("api-chat/", include("apichat.urls")),
-    path("internal-chat/", include("internal.urls"))
+    path("internal-chat/", include("internal.urls")),
 ]
 
 # 개발 환경에서 정적/미디어 서빙
