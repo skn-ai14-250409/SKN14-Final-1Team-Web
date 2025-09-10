@@ -241,6 +241,7 @@ function addMessage(text, role = 'user', id = null, imageData = null) {
   li.innerHTML = content;
   chatLog.appendChild(li);
   chatLog.scrollTop = chatLog.scrollHeight;
+  return li;
 }
 
 // 메시지 전송 함수 수정
@@ -301,7 +302,11 @@ async function sendMessage() {
                 }
             }
             
-            addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'assistant');
+            const assistantLi = addMessage(data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`, 'assistant');
+
+            if (Array.isArray(data.suggestions) && data.suggestions.length) {
+                renderSuggestions(assistantLi, data.suggestions);
+            }
             
             if (data.title) {
                 if(sessionTitle) sessionTitle.textContent = data.title;
@@ -590,4 +595,29 @@ $btnSave.addEventListener('click', async () => {
     $selCount.style.display = 'none';
   }
 });
+}
+
+function renderSuggestions(afterLi, items = []) {
+  // 기존 추천 영역 있으면 제거
+  const old = afterLi.querySelector('.suggest-row');
+  if (old) old.remove();
+  if (!items.length) return;
+
+  const row = document.createElement('div');
+  row.className = 'suggest-row';
+  // 칩 컨테이너
+  row.innerHTML = items.map(q => 
+    `<button class="suggest-chip" type="button" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button>`
+  ).join('');
+
+  afterLi.appendChild(row);
+
+  // 칩 클릭 -> 입력창 채우고 전송
+  row.addEventListener('click', (e) => {
+    const btn = e.target.closest('.suggest-chip');
+    if (!btn) return;
+    chatInput.value = btn.dataset.q || '';
+    chatInput.focus();
+    sendMessage();
+  });
 }
