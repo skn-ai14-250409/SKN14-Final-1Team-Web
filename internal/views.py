@@ -55,7 +55,7 @@ def chat(request):
                 permission=department
 
             # RAG 봇 호출
-            response = run_sllm(db_chat_history, permission=permission, tone=tone)
+            response, title = run_sllm(db_chat_history, permission=permission, tone=tone)
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
@@ -66,9 +66,15 @@ def chat(request):
             ChatMessage.objects.create(
                 session=session, role="assistant", content=response
             )
+            
+            # title이 없거나 초기 "새로운 대화" 메시지로 존재할 때
+            if not session.title or session.title == "새로운 대화":
+                session.title = title
+                session.save(update_fields=["title"])
+
 
             # 갱신된 제목을 응답에 포함
-            return JsonResponse({"success": True, "bot_message": response})
+            return JsonResponse({"success": True, "bot_message": response,  "title": session.title})
 
         except Exception as e:
             return JsonResponse(

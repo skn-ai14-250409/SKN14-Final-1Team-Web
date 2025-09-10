@@ -63,13 +63,16 @@ sessionList.addEventListener("click", async (e) => {
 // 세션 삭제 함수
 async function deleteSession(sessionId) {
   try {
-    const response = await fetch(`/internal-chat/delete_session/${sessionId}/`, {
-      method: "DELETE",
-      headers: {
-        "X-CSRFToken": getCSRFToken(),
-      },
-      credentials: "same-origin",
-    });
+    const response = await fetch(
+      `/internal-chat/delete_session/${sessionId}/`,
+      {
+        method: "DELETE",
+        headers: {
+          "X-CSRFToken": getCSRFToken(),
+        },
+        credentials: "same-origin",
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -297,6 +300,15 @@ async function sendMessage() {
         data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`,
         "bot"
       );
+
+      // 챗팅 타이틀 갱신
+      if (data.title) {
+        if (sessionTitle) sessionTitle.textContent = data.title;
+        const btn = document.querySelector(
+          `#sessionList .session-link[data-session-id="${selectedSessionId}"]`
+        );
+        if (btn) btn.textContent = data.title;
+      }
     }
   } catch (err) {
     console.error("요청 실패:", err);
