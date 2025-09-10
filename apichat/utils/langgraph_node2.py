@@ -1,7 +1,7 @@
 from typing import TypedDict, List, Dict, Any
 
 from .rag2 import basic_chain_setting
-from .rag import query_setting
+from .rag2 import query_setting
 from .retriever import retriever_setting
 
 import openai
