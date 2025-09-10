@@ -1,25 +1,43 @@
-function openCardDetail(cardUrl) { // card 팝업창
-    // const url = `mypage/card_detail/${cardId}/`; 
-    window.open(cardUrl, 'CardDetail', 'width=500,height=300');
+function openCardDetail(cardUrl) {
+  window.open(cardUrl, 'CardDetail', 'width=500,height=300');
 }
 
 async function copyToClipboard(textToCopy) {
-    try {
-        await navigator.clipboard.writeText(textToCopy); // 비동기적으로 복사
-        alert('키가 복사되었습니다!');
-    } catch (err) {
-        console.error('클립보드 복사 실패:', err);
-        alert('클립보드 복사에 실패했습니다.');
-    }
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    alert('키가 복사되었습니다!');
+  } catch (err) {
+    console.error('클립보드 복사 실패:', err);
+    alert('클립보드 복사에 실패했습니다.');
+  }
 }
 
-// 정보 수정
+// 키 복사 수정 : navigator.clipboard -> document.execCommand('copy')
+// -> 배포환경에서 복붙되는지 확인 필
+// async function copyToClipboard(textToCopy) {
+//   try {
+//     const tempInput = document.createElement('textarea');
+//     tempInput.value = textToCopy;
+//     tempInput.style.position = 'fixed';
+//     tempInput.style.top = '-9999px';
+//     document.body.appendChild(tempInput);
+//     tempInput.focus();
+//     tempInput.select();
+//     document.execCommand('copy');
+//     document.body.removeChild(tempInput);
+//     alert('키가 복사되었습니다!');
+//   } catch (err) {
+//     console.error('클립보드 복사 실패:', err);
+//     alert('클립보드 복사에 실패했습니다.');
+//   }
+// }
+
 function toggleEditMode() {
   const editBtn = document.getElementById('edit-btn');
   const saveBtn = document.getElementById('save-btn');
 
   const formEl = document.getElementById('profile-form');
-  const rankCode = formEl?.dataset.rank;         // 'cto' / 'general' …
+  const rankCode = formEl?.dataset.rank;
   const isCTO = rankCode === 'cto';
 
   const editableInputs = document.querySelectorAll('#profile-form input:not(#id):not(#rank)');
@@ -40,7 +58,7 @@ function toggleEditMode() {
 
     editableInputs.forEach(input => {
       if (isCTO && input.id === 'department-text') {
-        input.setAttribute('readonly', true); 
+        input.setAttribute('readonly', true);
       } else {
         input.removeAttribute('readonly');
       }
@@ -83,50 +101,70 @@ function toggleEditMode() {
   }
 }
 
-// 이미 있는 apikey 체크
-document.addEventListener('DOMContentLoaded', function() {
-    const inputField = document.getElementById('api_key_name');
-    const keyNameMessage = document.getElementById('api_key_message');
-    const createKeyButton = document.getElementById('create_key_button'); 
-    
-    updateButtonState();
+document.addEventListener('DOMContentLoaded', function () {
+  const inputField = document.getElementById('api_key_name');
+  const keyNameMessage = document.getElementById('api_key_message');
+  const createKeyButton = document.getElementById('create_key_button');
 
-    inputField.addEventListener('keyup', function() {
-        const keyName = inputField.value;
+  updateButtonState();
 
-        if (keyName.trim() === '') {
-            keyNameMessage.textContent = '';
-            updateButtonState(false); 
-            return;
-        }
+  inputField.addEventListener('keyup', function () {
+    const keyName = inputField.value;
 
-        fetch('/mypage/check_api_key_name/?name=' + encodeURIComponent(keyName))
-            .then(response => response.json())
-            .then(data => {
-                if (data.is_taken) {
-                    keyNameMessage.textContent = '동일한 이름의 API키가 존재합니다.';
-                    keyNameMessage.style.color = 'red';
-                    updateButtonState(false); 
-                } else {
-                    keyNameMessage.textContent = '등록 가능한 API키입니다.';
-                    keyNameMessage.style.color = 'green';
-                    updateButtonState(true); 
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                updateButtonState(false);
-            });
-    });
-
-    // apikey 버튼
-    function updateButtonState(isValid = false) {
-        if (inputField.value.trim() === '' || !isValid) {
-            createKeyButton.disabled = true;
-        } else {
-            createKeyButton.disabled = false;
-        }
+    if (keyName.trim() === '') {
+      keyNameMessage.textContent = '';
+      updateButtonState(false);
+      return;
     }
+
+    fetch('/mypage/check_api_key_name/?name=' + encodeURIComponent(keyName))
+      .then(response => response.json())
+      .then(data => {
+        if (data.is_taken) {
+          keyNameMessage.textContent = '동일한 이름의 API키가 존재합니다.';
+          keyNameMessage.style.color = 'red';
+          updateButtonState(false);
+        } else {
+          keyNameMessage.textContent = '등록 가능한 API키입니다.';
+          keyNameMessage.style.color = 'green';
+          updateButtonState(true);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        updateButtonState(false);
+      });
+  });
+
+  function updateButtonState(isValid = false) {
+    if (inputField.value.trim() === '' || !isValid) {
+      createKeyButton.disabled = true;
+    } else {
+      createKeyButton.disabled = false;
+    }
+  }
+
+  // 전화번호 자동 하이픈
+  const phoneInput = document.getElementById('phone');
+  const phoneErr = document.getElementById('phoneErr');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', e => {
+      let v = e.target.value.replace(/[^0-9]/g, '');
+      if (v.startsWith('010')) {
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length >= 8) {
+          v = v.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+        } else if (v.length >= 4) {
+          v = v.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+        }
+      }
+      e.target.value = v;
+      if (phoneErr) {
+        if (!v || /^010-\d{4}-\d{4}$/.test(v)) phoneErr.textContent = '';
+        else phoneErr.textContent = '올바른 형식으로 입력해주세요 (예: 010-1234-5678)';
+      }
+    });
+  }
 });
 
 // API 키 삭제: 폼 submit을 가로채서 AJAX로 처리 (삭제 후 alert 띄우고 li 제거)
@@ -184,7 +222,7 @@ async function deleteCard(cardId) {
 
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(`HTTP ${res.status}: ${txt.slice(0,200)}`);
+      throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
     }
 
     // 바로 리다이렉트 (서버 렌더링으로 empty 상태 표시 보장)

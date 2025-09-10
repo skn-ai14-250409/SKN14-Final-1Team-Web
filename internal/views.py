@@ -1,18 +1,12 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 
 import json
-import uuid
-import requests
-import os
-from datetime import datetime, timedelta, timezone
 
-from main.models import ChatMessage, ChatSession, ChatMode
+from main.models import ChatMessage, ChatSession
 from uauth.models import *
-from .utils.sllm import  run_sllm
+from .utils.sllm import run_sllm
 
 # Create your views here.
 
@@ -36,8 +30,24 @@ def chat(request):
             except ChatSession.DoesNotExist:
                 return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
 
+            messages = ChatMessage.objects.filter(session=session).order_by(
+                "-created_at"
+            )[:6]
+            db_chat_history = []
+
+            for msg in messages:
+                if msg.role == "user":
+                    db_chat_history.append({"role": "user", "content": msg.content})
+                else:
+                    db_chat_history.append(
+                        {"role": "assistant", "content": msg.content}
+                    )
+
+            # 현재 사용자 메시지를 대화 기록에 추가
+            db_chat_history.append({"role": "user", "content": user_message})
+
             # RAG 봇 호출
-            response = run_sllm(user_message)
+            response = run_sllm(db_chat_history)
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
@@ -49,11 +59,8 @@ def chat(request):
                 session=session, role="assistant", content=response
             )
 
-
             # 갱신된 제목을 응답에 포함
-            return JsonResponse(
-                {"success": True, "bot_message": response}
-            )
+            return JsonResponse({"success": True, "bot_message": response})
 
         except Exception as e:
             return JsonResponse(

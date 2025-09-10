@@ -7,9 +7,10 @@
 가상환경 설정하기
 
 ```python
-conda create -n codenova python=3.12 -y
-conda activate codenova
-pip install -r requirements.txt
+conda create -n codenova-web python=3.12 -y
+conda activate codenova-web
+pip install -r requirements-dev.txt
+pip install -r requirements-prod.txt
 
 # black 코드 포멧팅 설정
 pre-commit install
@@ -18,7 +19,19 @@ pre-commit install
 `.env` 설정하기
 
 ```
-OPENAI_API_KEY = your_api_key
+# 개발용 환경변수
+OPENAI_API_KEY=
+DJANGO_SUPERUSER_PASSWORD=
+SLLM_API_URL=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_S3_REGION_NAME=
+AWS_STORAGE_BUCKET_NAME=
+
+# 배포용 환경변수
+ALLOWED_HOST=
+DJANGO_SETTINGS_MODULE=
+DJANGO_SECRET_KEY=
 ```
 
 # 로컬 실행 방법
@@ -26,13 +39,14 @@ OPENAI_API_KEY = your_api_key
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+python manage.py create_superuser_local
 python manage.py runserver 0.0.0.0:8000
 ```
 
 # 도커 실행방법
 
 ```bash
-docker build -t codenova-web . 
+docker build -t codenova-web .
 docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 ```
 

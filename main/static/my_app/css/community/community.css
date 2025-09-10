@@ -150,3 +150,32 @@
    height: 200px;
    resize: vertical;
 }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 24px;
+    gap: 8px;
+}
+.pagination a {
+    color: #555;
+    padding: 6px 12px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.pagination a:hover {
+    background-color: #f5f5f5;
+}
+.pagination .current-page {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Best Post Row Style */
+.best-post-row {
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+}

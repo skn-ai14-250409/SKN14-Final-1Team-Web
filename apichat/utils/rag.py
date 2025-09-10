@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableSequence, RunnableLambda, RunnableParallel
 
 # LangChain OpenAI
 from langchain_openai import ChatOpenAI
@@ -11,7 +10,7 @@ load_dotenv()
 
 
 def basic_chain_setting():
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
     basic_prompt = PromptTemplate.from_template(
         """
@@ -32,7 +31,7 @@ def basic_chain_setting():
 
 def query_setting():
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         temperature=0,
         model_kwargs={"response_format": {"type": "json_object"}},
     )

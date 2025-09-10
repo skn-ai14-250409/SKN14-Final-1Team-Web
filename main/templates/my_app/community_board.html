@@ -4,12 +4,10 @@
 {% block title %}커뮤니티 게시글{% endblock %}
 
 {% block content %}
- <div class="community-container">
-    <div class="community-header">
-        <a href="{% url 'main:create-post' %}" class="btn-create-post">글 쓰기</a>
-    </div>
- </div>
 <div class="community-container">
+    <div class="community-header">
+        <a href="{% url 'main:create-post' %}" class="btn-create-post">글쓰기</a>
+    </div>
     <table class="community-table">
         <thead>
             <tr>
@@ -22,39 +20,57 @@
             </tr>
         </thead>
         <tbody>
+             <!-- 1. 베스트 게시글 목록 먼저 표시 -->
             {% for post in best_posts %}
-             <tr>
-              <td class="col-number">{{ post.id }}</td>
-              <td class="col-title">
-                 <a href="{% url 'main:post-detail' post_id=post.id %}">
-                  <span class="best-post-icon">🏆</span>
-                  <span class="best-post title-text">{{ post.title }}</span>
-                  <span class="comment-count">[{{ post.comments.count }}]</span>
-            </a>
-        </td>
-    <td class="col-author">{{ post.author.name }}</td>
-    <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
-    <td class="col-views">{{ post.views }}</td>
-    <td class="col-likes">{{ post.total_likes }}</td>
-</tr>
-{% endfor %}
+            <tr class="best-post-row">
+                <td class="col-number">{{ post.id }}</td>
+                <td class="col-title">
+                    <a href="{% url 'main:post-detail' post_id=post.id %}">
+                        <span class="best-post-icon">🏆</span>
+                        <span class="best-post title-text">{{ post.title }}</span>
+                        <span class="comment-count">[{{ post.comments.count }}]</span>
+                    </a>
+                </td>
+                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
+                <td class="col-views">{{ post.views }}</td>
+                <td class="col-likes">{{ post.likes }}</td>
+            </tr>
+            {% endfor %}
 
-{% for post in regular_posts %}
-<tr>
-    <td class="col-number">{{ post.id }}</td>
-    <td class="col-title">
-        <a href="{% url 'main:post-detail' post_id=post.id %}">
-            <span class="title-text">{{ post.title }}</span>
-            <span class="comment-count">[{{ post.comments.count }}]</span>
-        </a>
-    </td>
-    <td class="col-author">{{ post.author.name }}</td>
-    <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
-    <td class="col-views">{{ post.views }}</td>
-    <td class="col-likes">{{ post.total_likes }}</td>
-</tr>
-{% endfor %}
+            <!-- 2. 페이징된 일반 게시글 목록 표시 -->
+            {% for post in page_obj %}
+            <tr>
+                <td class="col-number">{{ post.id }}</td>
+                <td class="col-title">
+                    <a href="{% url 'main:post-detail' post_id=post.id %}">
+                        <span class="title-text">{{ post.title }}</span>
+                        <span class="comment-count">[{{ post.comments.count }}]</span>
+                    </a>
+                </td>
+                <td class="col-author">{{ post.author.username }}</td>
+                <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
+                <td class="col-views">{{ post.views }}</td>
+                <td class="col-likes">{{ post.likes }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; 처음</a>
+            <a href="?page={{ page_obj.previous_page_number }}">이전</a>
+        {% endif %}
+
+        <span class="current-page">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">다음</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">마지막 &raquo;</a>
+        {% endif %}
+    </div>
 </div>
-{% endblock %}```
+{% endblock %}
