@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
 
+
 @login_required
 def mypage(request):
     # [GET] 페이지 로딩
@@ -23,9 +24,9 @@ def mypage(request):
 
     context = {
         "user": request.user,
-        "api_cards": api_cards,                
+        "api_cards": api_cards,
         "internal_cards": internal_cards,
-        "api_keys": api_keys,                   
+        "api_keys": api_keys,
         "departments": Department.choices,
         "ranks": Rank.choices,
         "genders": Gender.choices,
@@ -98,9 +99,11 @@ def api_key_delete(request, key_id):
 def card_detail(request, card_id):
     try:
         card = Card.objects.prefetch_related(
-            Prefetch('card_messages__message__images',
-                     queryset=ChatImage.objects.all(),
-                     to_attr='prefetched_images')
+            Prefetch(
+                "card_messages__message__images",
+                queryset=ChatImage.objects.all(),
+                to_attr="prefetched_images",
+            )
         ).get(id=card_id, user=request.user)
 
         card_messages = [cm.message for cm in card.card_messages.all()]
