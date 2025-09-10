@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(HERE, "chroma_db")
 COLLECTION_NAME = "qna_collection"
 EMBED_MODEL = "BAAI/bge-m3"
-TOP_K = 5
+TOP_K = 15
 
 embeddings = HuggingFaceEmbeddings(
     model_name=EMBED_MODEL,
@@ -37,12 +37,30 @@ def retriever_setting():
         embedding_function=embeddings,
     )
 
-    # 메타데이터 필드 정보 정의
     metadata_field_info = [
         AttributeInfo(
             name="tags",
-            type="string",
-            description="구글 API 주제명 (11개 중에서 선택: map, firestore, drive, firebase, gmail, google_identity, calendar, bigquery, sheets, people, youtube)",
+            type="list<string>",
+            description=(
+                "이 필드는 구글 API 종류를 선택하는 필드입니다. "
+                "다음 11개 Google API 중에서 질문과 관련 있는 API를 1개 이상 선택해야 합니다. "
+                "선택할 수 있는 API 종류는 다음과 같습니다:"
+                "\n\n1. map: Google Maps API (구글 맵 API)"
+                "\n2. firestore: Google Firestore API (구글 파이어스토어 API)"
+                "\n3. drive: Google Drive API (구글 드라이브 API)"
+                "\n4. firebase: Google Firebase API (구글 파이어베이스 API)"
+                "\n5. gmail: Gmail API (구글 메일 API)"
+                "\n6. google_identity: Google Identity API (구글 인증 API)"
+                "\n7. calendar: Google Calendar API (구글 캘린더 API)"
+                "\n8. bigquery: Google BigQuery API (구글 빅쿼리 API)"
+                "\n9. sheets: Google Sheets API (구글 시트 API)"
+                "\n10. people: Google People API (구글 피플 API)"
+                "\n11. youtube: YouTube API (구글 유튜브 API)"
+                "\n\n**주의:** 각 API는 구글의 서비스별로 제공하는 API입니다. "
+                "질문에 언급된 기능이나 요구사항에 맞는 API를 정확하게 선택해주세요. "
+                "예를 들어, '일정을 추가하려면?' 이라는 질문에 대해선 'calendar'를 선택해야 합니다. "
+                "이 필드는 여러 개의 API를 선택할 수 있으며, 주어진 질문과 가장 관련이 있는 API를 선택해 주세요."
+            ),
         ),
         AttributeInfo(
             name="chroma:document", type="string", description="문서 본문 내용"
