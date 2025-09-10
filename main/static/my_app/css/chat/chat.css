@@ -31,3 +31,16 @@
   position: absolute; left: -18px; top: 6px;
   font-weight: 700; color: #4f46e5;
 }
+
+
+.formal-button.active {
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+}
+
+.informal-button.active {
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+}

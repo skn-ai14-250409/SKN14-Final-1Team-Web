@@ -213,6 +213,37 @@ function addMessage(text, role = "user", id = null) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+let selectedTone = "formal"; // 기본값: 공손 말투
+
+// 버튼 선택 처리
+document.addEventListener("DOMContentLoaded", () => {
+  const formalBtn = document.querySelector(".formal-button");
+  const informalBtn = document.querySelector(".informal-button");
+
+  // 스타일 초기화 및 토글 함수
+  function updateToneSelection() {
+    if (selectedTone === "formal") {
+      formalBtn.classList.add("active");
+      informalBtn.classList.remove("active");
+    } else {
+      informalBtn.classList.add("active");
+      formalBtn.classList.remove("active");
+    }
+  }
+
+  formalBtn.addEventListener("click", () => {
+    selectedTone = "formal";
+    updateToneSelection();
+  });
+
+  informalBtn.addEventListener("click", () => {
+    selectedTone = "informal";
+    updateToneSelection();
+  });
+
+  updateToneSelection(); // 처음 로딩 시 기본 적용
+});
+
 // 메시지 전송 공통 함수
 async function sendMessage() {
   const message = chatInput.value.trim();
@@ -246,6 +277,7 @@ async function sendMessage() {
       credentials: "same-origin", // 쿠키 포함 (csrftoken 사용 시 필요)
       body: JSON.stringify({
         message: message,
+        tone: selectedTone, // 선택된 tone 값
         session_id: selectedSessionId,
       }),
     });
