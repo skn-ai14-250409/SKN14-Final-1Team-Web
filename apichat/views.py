@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required
 
 import json
 import os
-import re, textwrap  # 정규식(re), 프롬프트 들여쓰기 정리(textwrap)
+import re, textwrap
+import requests
 
 from main.models import ChatMessage, ChatSession, ChatMode, ChatImage
 from uauth.models import *
 from .utils.main3 import run_langraph
 from .utils.whisper import call_whisper_api
-from .aws_s3_service import S3Client  # S3Client 추가
+from .aws_s3_service import S3Client
 
 
 # 제목 요약 #
@@ -323,11 +324,15 @@ def chat(request):
             )
             update_session_title_inline(session, all_msgs)
 
+            # 추천 질문 생성
+            suggestions = generate_suggestions(user_message, response, k=5)
+
             # 응답에 이미지 URL 포함
             response_data = {
                 "success": True,
                 "bot_message": response,
                 "title": session.title,
+                "suggestions": suggestions,
             }
 
             if image_url:
@@ -598,3 +603,68 @@ def delete_card(request, card_id):
     card = get_object_or_404(Card, id=card_id, user=request.user)
     card.delete()
     return JsonResponse({"ok": True})
+
+
+# 추천 질문 생성
+OPENAI_SUGGEST_MODEL = os.getenv("OPENAI_SUGGEST_MODEL", "gpt-4o-mini")
+
+def generate_suggestions(user_q: str, answer: str, k: int = 5) -> list[str]:
+    """사용자 질문 + 현재 답변을 보고 후속 질문 추천"""
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    prompt = textwrap.dedent(
+        f"""
+    너는 대화형 검색 보조도구야. 아래 '질문'과 '답변'을 보고
+    서로 다른 관점의 **후속 질문**을 최대 {k}개 만들어.
+    형식/규칙:
+    - 한국어, 12~30자, 간결한 명사/구문 중심
+    - 중복/의미 반복 금지, 너무 지엽적·랜덤 금지
+    - 다양한 관점(개념 설명, 단계, 코드, 오류 해결, 모범사례 등) 섞기
+    - 반드시 **JSON 배열**(예: ["...","..."])만 출력
+
+    [질문]
+    {user_q}
+
+    [답변]
+    {answer}
+    """
+    ).strip()
+    r = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": OPENAI_SUGGEST_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Return only a JSON array of short follow-up questions.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.4,
+            "max_tokens": 150,
+        },
+        timeout=15,
+    )
+    r.raise_for_status()
+    raw = r.json()["choices"][0]["message"]["content"].strip()
+
+    suggestions = json.loads(raw)
+    # 정리(중복/공백/길이)
+    seen, out = set(), []
+    for s in suggestions:
+        if not isinstance(s, str):
+            continue
+        s = re.sub(r"\s+", " ", s).strip()
+        if not (6 <= len(s) <= 40):
+            continue
+        if s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+        if len(out) >= k:
+            break
+    return out

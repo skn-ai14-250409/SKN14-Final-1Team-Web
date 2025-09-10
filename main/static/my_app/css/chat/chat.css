@@ -32,7 +32,6 @@
   font-weight: 700; color: #4f46e5;
 }
 
-
 .formal-button.active {
   background-color: #007bff;
   color: white;
@@ -43,4 +42,26 @@
   background-color: #007bff;
   color: white;
   border-radius: 6px;
+
 }
+
+.suggest-row{
+  margin: 8px 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.suggest-chip{
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+}
+.suggest-chip:hover{
+  background: #f5f5f5;
+}
+
+}
+
