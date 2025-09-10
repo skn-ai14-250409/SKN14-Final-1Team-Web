@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 phone="1234567890",
                 gender="male",
                 birthday="2000-01-01",
-                rank="general",
+                rank="cto",
             )
             self.stdout.write(self.style.SUCCESS("Superuser created successfully"))
         else:

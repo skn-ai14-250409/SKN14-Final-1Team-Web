@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from .rag import basic_chain_setting
+from .rag2 import basic_chain_setting
 from .retriever import retriever_setting
 from langgraph.checkpoint.memory import MemorySaver
 from .langgraph_node2 import *

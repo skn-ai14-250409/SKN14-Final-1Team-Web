@@ -4,33 +4,64 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'my_app/css/chat/chat.css' %}">
+<link rel="stylesheet" href="{% static 'my_app/css/docsearch/sidebar.css' %}">
 
-<div class="content-header">
-    <div class="search-bar">
+<div class="layout">
+  <!-- 메인 영역 -->
+  <div class="main-pane">
+    <div class="content-header">
+      <div class="search-bar">
         <input type="text" placeholder="검색창에 문서 내용을 찾아보세요">
         <button type="submit">🔍</button>
+      </div>
+      <button id="btnCardSelect">카드만들기</button>
+      <button id="btnCardSave">카드 저장</button>
+      <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
     </div>
-    <button id="btnCardSelect">카드만들기</button>
-    <button id="btnCardSave">카드 저장</button>
 
-    <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
-</div>
+    <div class="chat-area">
+      <h2></h2>
+      <ul id="chatLog" class="chat-log"></ul>
+    </div>
 
-<div class="chat-area">
-    <h2></h2>
-    <ul id="chatLog" class="chat-log"></ul>
-</div>
+    <!-- 이미지 미리보기 컨테이너 추가 -->
+    <div id="imagePreview" style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;"></div>
 
-<!-- 이미지 미리보기 컨테이너 추가 -->
-<div id="imagePreview" style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;"></div>
+    <div class="chat-input-area">
+        <button id="uploadBtn">사진 업로드</button>
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <input id="chatInput" type="text" placeholder="질문하는 INPUT 영역">
+        <button id="voiceBtn">🎤</button>
+        <button id="sendBtn">보내기</button>
+    </div>
+  </div>
 
-<div class="chat-input-area">
-    <button id="uploadBtn">사진 업로드</button>
-    <input type="file" id="imageInput" accept="image/*" style="display: none;">
-    <input id="chatInput" type="text" placeholder="질문하는 INPUT 영역">
-    <button id="voiceBtn">🎤</button>
-    <button id="sendBtn">보내기</button>
-</div>
+  <!-- 문서 검색 -->
+  <aside class="right-sidebar" id="docSearchSidebar" aria-label="문서 검색 사이드바" data-endpoint="/main/api/docsearch/">
+    <header class="sidebar-header">
+      <h3>문서 검색</h3>
+      <div class="sidebar-search">
+        <input id="docSearchInput" type="text" placeholder="키워드 입력 (예: bigquery delete)">
+        <button id="docSearchBtn" type="button" title="검색">🔎</button>
+      </div>
+      <div class="sidebar-sub">
+        <label class="sim-th">유사도 임계값</label>
+        <input id="similarityThreshold" type="number" min="0" max="1" step="0.01" value="0.6">
+      </div>
+    </header>
+
+    <div class="sidebar-body">
+      <div id="docSearchStatus" class="status">검색 대기 중…</div>
+      <ul id="docSearchResults" class="results"></ul>
+    </div>
+
+
+    <footer class="sidebar-footer">
+      <span id="docSearchCount" class="count">0건</span>
+      <button id="copyAllBtn" class="ghost">URL 모두 복사</button>
+    </footer>
+  </aside>
 
 <script src="{% static 'my_app/js/chat/chat.js' %}"></script>
+<script src="{% static 'my_app/js/docsearch/sidebar.js' %}"></script>
 {% endblock %}

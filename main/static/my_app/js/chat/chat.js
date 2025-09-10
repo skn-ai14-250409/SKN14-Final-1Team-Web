@@ -249,6 +249,12 @@ async function sendMessage() {
     const message = messageInput.value.trim();
     
     if (!message && !selectedImage) return;
+
+    // 현재 선택된 세션 확인
+    if (!selectedSessionId) {
+    alert("세션을 선택해주세요.");
+    return;
+  }
     
     // Object URL로 즉시 표시 (임시)
     let tempImageUrl = null;
