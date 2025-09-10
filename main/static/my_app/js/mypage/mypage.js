@@ -2,35 +2,35 @@ function openCardDetail(cardUrl) {
   window.open(cardUrl, 'CardDetail', 'width=500,height=300');
 }
 
-// async function copyToClipboard(textToCopy) {
-//   try {
-//     await navigator.clipboard.writeText(textToCopy);
-//     alert('키가 복사되었습니다!');
-//   } catch (err) {
-//     console.error('클립보드 복사 실패:', err);
-//     alert('클립보드 복사에 실패했습니다.');
-//   }
-// }
-
-// 키 복사 수정 : navigator.clipboard -> document.execCommand('copy')
-// -> 배포환경에서 복붙되는지 확인 필
 async function copyToClipboard(textToCopy) {
   try {
-    const tempInput = document.createElement('textarea');
-    tempInput.value = textToCopy;
-    tempInput.style.position = 'fixed';
-    tempInput.style.top = '-9999px';
-    document.body.appendChild(tempInput);
-    tempInput.focus();
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
+    await navigator.clipboard.writeText(textToCopy);
     alert('키가 복사되었습니다!');
   } catch (err) {
     console.error('클립보드 복사 실패:', err);
     alert('클립보드 복사에 실패했습니다.');
   }
 }
+
+// 키 복사 수정 : navigator.clipboard -> document.execCommand('copy')
+// -> 배포환경에서 복붙되는지 확인 필
+// async function copyToClipboard(textToCopy) {
+//   try {
+//     const tempInput = document.createElement('textarea');
+//     tempInput.value = textToCopy;
+//     tempInput.style.position = 'fixed';
+//     tempInput.style.top = '-9999px';
+//     document.body.appendChild(tempInput);
+//     tempInput.focus();
+//     tempInput.select();
+//     document.execCommand('copy');
+//     document.body.removeChild(tempInput);
+//     alert('키가 복사되었습니다!');
+//   } catch (err) {
+//     console.error('클립보드 복사 실패:', err);
+//     alert('클립보드 복사에 실패했습니다.');
+//   }
+// }
 
 function toggleEditMode() {
   const editBtn = document.getElementById('edit-btn');
