@@ -98,7 +98,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_image = models.ImageField(
         upload_to='profile/',  # media/profile/ 폴더에 저장됨
         blank=True,
-        null=True
+        null=True,
+        default='profile/default2.png' 
     )
 
 
