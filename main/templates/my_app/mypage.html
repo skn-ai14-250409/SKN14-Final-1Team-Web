@@ -13,7 +13,11 @@
             
             <div class="profile-section-header">
                 <div class="profile-image-container">
-                    <div class="profile-image-placeholder">👤</div>
+                    {% if user.profile_image %}
+                        <img class="profile-image" src="{{ user.profile_image.url }}" alt="{{ user.name }} 프로필">
+                    {% else %}
+                        <img class="profile-image" src="{{ MEDIA_URL }}profile/default.png" alt="기본 프로필">
+                    {% endif %}
                 </div>
                 <div id="edit-buttons">
                     <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
