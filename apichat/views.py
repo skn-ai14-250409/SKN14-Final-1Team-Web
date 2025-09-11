@@ -650,6 +650,7 @@ def delete_card(request, card_id):
 # 추천 질문 생성
 
 
+
 def generate_suggestions(user_q: str, answer: str, k: int = 5) -> list[str]:
     """
     LangChain 기반 후속 질문 생성 함수
