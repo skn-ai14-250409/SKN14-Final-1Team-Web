@@ -1,9 +1,11 @@
 """
 Django settings for codenova project.
 """
+
 from django.urls import reverse_lazy
 from pathlib import Path
 import os
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- Security / Debug ---
@@ -105,14 +107,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic 결과물
 STATICFILES_DIRS = [BASE_DIR / "main" / "static"]  # 개발용 정적 소스
 
 
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
 
 
 LOGIN_URL = reverse_lazy("uauth:login")  # 루트('/')로 resolve됨 (현 구조에서)
@@ -123,8 +122,6 @@ LOGOUT_REDIRECT_URL = reverse_lazy("uauth:login")
 # S3 setting
 import os
 from dotenv import load_dotenv
-
-
 
 
 load_dotenv()  # local 실행 시 .env 사용

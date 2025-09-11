@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name="profile_image",
             field=models.ImageField(
                 blank=True,
-                default="profile/default2.png",
+                default="profile/default.png",
                 null=True,
                 upload_to="profile/",
             ),
