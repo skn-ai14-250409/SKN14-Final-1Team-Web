@@ -24,7 +24,7 @@ class Rank(models.TextChoices):
 class Department(models.TextChoices):
     FRONTEND = "frontend", "프론트엔드팀"
     BACKEND = "backend", "백엔드팀"
-    AI_DATA = "ai_data", "AI/데이터팀"
+    DATA_AI = "data_ai", "데이터/AI팀"
 
 
 class Gender(models.TextChoices):

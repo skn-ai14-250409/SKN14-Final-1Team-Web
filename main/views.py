@@ -186,6 +186,7 @@ def delete_post(request, post_id):
         return redirect("main:community-board")
     return HttpResponseForbidden()
 
+
 # Chroma 설정
 BASE_DIR = getattr(settings, "BASE_DIR", os.getcwd())
 CHROMA_PERSIST_DIR = os.path.join(BASE_DIR, "apichat", "utils", "chroma_db")
@@ -198,6 +199,7 @@ EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_NAME", "BAAI/bge-m3")
 try:
     import chromadb
     from chromadb.utils import embedding_functions
+
     CHROMA_OK = True
 except Exception as e:
     CHROMA_OK = False
@@ -210,7 +212,9 @@ TOTAL_COUNT = 0
 
 if CHROMA_OK:
     try:
-        emb = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL_NAME)
+        emb = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name=EMBED_MODEL_NAME
+        )
         client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
         existing = [c.name for c in client.list_collections()]
 
@@ -222,9 +226,14 @@ if CHROMA_OK:
             if len(existing) == 1:
                 name = existing[0]
             else:
-                candidates = [n for n in existing if "docs" in n.lower()] or \
-                             [n for n in existing if "apichat" in n.lower()]
-                name = (candidates[0] if candidates else (existing[0] if existing else "docs"))
+                candidates = [n for n in existing if "docs" in n.lower()] or [
+                    n for n in existing if "apichat" in n.lower()
+                ]
+                name = (
+                    candidates[0]
+                    if candidates
+                    else (existing[0] if existing else "docs")
+                )
         collection = client.get_collection(name=name, embedding_function=emb)
         TOTAL_COUNT = collection.count()
         COLLECTION_NAME = name
@@ -232,21 +241,27 @@ if CHROMA_OK:
         CHROMA_OK = False
         CHROMA_ERR = f"init error: {e}"
 
+
 def pick_source(meta: dict) -> str:
     v = (meta or {}).get("source") or (meta or {}).get("url")
-    if not v: return ""
-    if isinstance(v, list): return (v[0] or "").strip()
+    if not v:
+        return ""
+    if isinstance(v, list):
+        return (v[0] or "").strip()
     if isinstance(v, str):
         s = v.strip()
         if s.startswith("[") or s.startswith("{"):
             try:
                 data = json.loads(s)
-                if isinstance(data, list) and data: return str(data[0]).strip()
-                if isinstance(data, dict) and "url" in data: return str(data["url"]).strip()
+                if isinstance(data, list) and data:
+                    return str(data[0]).strip()
+                if isinstance(data, dict) and "url" in data:
+                    return str(data["url"]).strip()
             except Exception:
                 pass
         return s
     return str(v).strip()
+
 
 def to_similarity(dist):
     # distance → similarity 보수 변환
@@ -254,11 +269,12 @@ def to_similarity(dist):
         d = float(dist)
     except Exception:
         return None
-    if 0.0 <= d <= 1.0:   # 이미 0~1 코사인 distance인 경우
+    if 0.0 <= d <= 1.0:  # 이미 0~1 코사인 distance인 경우
         return 1.0 - d
-    if 0.0 <= d <= 2.0:   # 0~2 범위로 나오는 구현에 대한 완화 변환
+    if 0.0 <= d <= 2.0:  # 0~2 범위로 나오는 구현에 대한 완화 변환
         return 1.0 - (d / 2.0)
     return 1.0 / (1.0 + d)
+
 
 @require_GET
 def docsearch(request):
@@ -267,15 +283,30 @@ def docsearch(request):
     k = int(request.GET.get("k") or 10)
 
     if not q:
-        return JsonResponse({"results": [], "meta": {
-            "persist_dir": CHROMA_PERSIST_DIR, "collection": COLLECTION_NAME,
-            "existing": existing, "count": TOTAL_COUNT
-        }})
+        return JsonResponse(
+            {
+                "results": [],
+                "meta": {
+                    "persist_dir": CHROMA_PERSIST_DIR,
+                    "collection": COLLECTION_NAME,
+                    "existing": existing,
+                    "count": TOTAL_COUNT,
+                },
+            }
+        )
 
     if not CHROMA_OK or collection is None:
-        return JsonResponse({"results": [],
-                             "warning": f"vector backend unavailable: {CHROMA_ERR}",
-                             "meta": {"persist_dir": CHROMA_PERSIST_DIR, "existing": existing, "collection": COLLECTION_NAME}})
+        return JsonResponse(
+            {
+                "results": [],
+                "warning": f"vector backend unavailable: {CHROMA_ERR}",
+                "meta": {
+                    "persist_dir": CHROMA_PERSIST_DIR,
+                    "existing": existing,
+                    "collection": COLLECTION_NAME,
+                },
+            }
+        )
 
     try:
         res = collection.query(
@@ -284,23 +315,31 @@ def docsearch(request):
             include=["documents", "metadatas", "distances"],
         )
     except Exception as e:
-        return JsonResponse({"results": [],
-                             "warning": f"query error: {e}",
-                             "collection": COLLECTION_NAME})
+        return JsonResponse(
+            {
+                "results": [],
+                "warning": f"query error: {e}",
+                "collection": COLLECTION_NAME,
+            }
+        )
 
-    docs  = (res.get("documents") or [[]])[0]
+    docs = (res.get("documents") or [[]])[0]
     metas = (res.get("metadatas") or [[]])[0]
     dists = (res.get("distances") or [[]])[0]
 
     rows = []
     for doc, meta, dist in zip(docs, metas, dists):
         sim = to_similarity(dist)
-        rows.append({
-            "source" : pick_source(meta or {}),
-            "title"  : (meta or {}).get("title") or (meta or {}).get("source_file") or "",
-            "score"  : round(sim, 4) if sim is not None else None,
-            "snippet": (doc or "")[:220],
-        })
+        rows.append(
+            {
+                "source": pick_source(meta or {}),
+                "title": (meta or {}).get("title")
+                or (meta or {}).get("source_file")
+                or "",
+                "score": round(sim, 4) if sim is not None else None,
+                "snippet": (doc or "")[:220],
+            }
+        )
 
     # 임계값 필터
     filtered = [r for r in rows if (r["score"] is None or r["score"] >= threshold)]
@@ -313,23 +352,24 @@ def docsearch(request):
     seen, dedup = set(), []
     for r in out:
         key = r["source"] or (r["title"], r["snippet"])
-        if key in seen: 
+        if key in seen:
             continue
         seen.add(key)
         dedup.append(r)
         if len(dedup) >= k:
             break
 
-    return JsonResponse({
-        "results": dedup,
-        "meta": {
-            "persist_dir": CHROMA_PERSIST_DIR,
-            "collection" : COLLECTION_NAME,
-            "existing"   : existing,
-            "count"      : TOTAL_COUNT,
-            "returned"   : len(dedup),
-            "threshold"  : threshold,
-        },
-        "warning": warning,
-    })
-
+    return JsonResponse(
+        {
+            "results": dedup,
+            "meta": {
+                "persist_dir": CHROMA_PERSIST_DIR,
+                "collection": COLLECTION_NAME,
+                "existing": existing,
+                "count": TOTAL_COUNT,
+                "returned": len(dedup),
+                "threshold": threshold,
+            },
+            "warning": warning,
+        }
+    )
