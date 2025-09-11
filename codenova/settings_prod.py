@@ -3,7 +3,7 @@ import os
 
 DEBUG = False
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+# SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 ALLOWED_HOST = os.getenv("ALLOWED_HOST", "127.0.0.1")
 ALLOWED_HOSTS = [
     ALLOWED_HOST,
