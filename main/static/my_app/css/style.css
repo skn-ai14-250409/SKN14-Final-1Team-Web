@@ -45,13 +45,20 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
 /* Top Header */
 .top-header {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    align-items: center;          /* 세로 중앙 */
+    justify-content: flex-start;  /* 기본 왼쪽 정렬 */
     padding: 16px 24px;
     border-bottom: 1px solid #e0e0e0;
     background-color: #fff;
 }
-.btn-header { margin-left: 8px; }
+
+/* Header Buttons Wrapper */
+.header-buttons {
+    margin-left: auto;            /* 오른쪽 끝으로 */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
 /* Main Content */
 .main-content {
@@ -143,3 +150,61 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     background-color: #28a745;
 }
 
+
+/* === Header Avatar & Buttons === */
+/* 버튼과 프로필 크기 분리 */
+:root {
+    --header-h: 36px;     /* 버튼 높이 */
+    --avatar-size: 48px;  /* 프로필 이미지 크기 */
+}
+
+.avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    object-fit: cover;      /* 비율 유지하면서 꽉 채우기 */
+    object-position: center;
+    border-radius: 50%;     /* 동그라미 (네모 원하면 8px/0) */
+    border: 1px solid #e0e0e0;
+    display: block;
+    flex-shrink: 0;
+}
+
+.user-name, .user-role {
+    line-height: 1;         /* 텍스트 세로축 정렬 보정 */
+}
+
+.btn-header {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--header-h); /* 버튼은 기존 높이 유지 */
+    padding: 0 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+/* 불필요한 기본 마진 제거 */
+.top-header form { margin: 0; }
+
+.session-list {
+    max-height: 300px;       /* 원하는 최대 높이 */
+    overflow-y: auto;        /* 세로 스크롤 활성화 */
+    overflow-x: hidden;      /* 가로 스크롤 숨김 */
+    padding-right: 5px;
+    
+    /* 스크롤바 기본 숨김 */
+    scrollbar-width: thin;       /* Firefox용 */
+    scrollbar-color: transparent transparent;
+}
+
+/* 크롬/사파리/Edge */
+.session-list::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;   /* 기본 트랙 투명 */
+}
+
+.session-list::-webkit-scrollbar-thumb {
+    background-color: transparent; /* 평소 투명 */
+    border-radius: 4px;
+}

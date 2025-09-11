@@ -45,20 +45,26 @@
 
         <div class="content-wrapper">
             <header class="top-header">
-               <div class="header-buttons">
-    <span class="btn-header">
-        {{ request.user.name }} / {{ request.user.get_rank_display }}
-        {% if request.user.department %}
-        / {{ request.user.get_department_display }}
-        {% endif %}
-    </span>
-    <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
-    <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn-header">로그아웃</button>
-    </form>
-</div>
-
+                <div class="header-buttons">
+            {% if request.user.is_authenticated %}
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" alt="프로필 이미지" class="avatar" >
+                {% else %}
+                    <img src="{% static 'images/default_avatar.png' %}" alt="기본 프로필" class="avatar" >
+                {% endif %}
+            {% endif %}
+                    <span class="btn-header">
+                        {{ request.user.name }} / {{ request.user.get_rank_display }}
+                        {% if request.user.department %}
+                        / {{ request.user.get_department_display }}
+                        {% endif %} 
+                    </span>                       
+                    <button class="btn-header" onclick="location.href='{% url 'mypage:mypage' %}'">마이페이지</button>
+                    <form action="{% url 'uauth:logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-header">로그아웃</button>
+                    </form>
+                </div>
             </header>
             <main class="main-content">
                 {% block content %}{% endblock %}

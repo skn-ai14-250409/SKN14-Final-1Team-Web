@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(HERE, "chroma_db")
 COLLECTION_NAME = "qna_collection"
 EMBED_MODEL = "BAAI/bge-m3"
-TOP_K = 15
+TOP_K = 8
 
 embeddings = HuggingFaceEmbeddings(
     model_name=EMBED_MODEL,
@@ -25,9 +25,29 @@ embeddings = HuggingFaceEmbeddings(
 )
 
 
-def retriever_setting():
-    # (선택) 디렉토리 존재 확인
+def retriever_setting(force_download=False):
+    # 디렉토리 존재 및 내용 확인
+    need_download = force_download
+
     if not os.path.isdir(DB_DIR):
+        need_download = True
+    else:
+        # 디렉토리는 있지만 내용이 불완전한지 확인
+        chroma_file = os.path.join(DB_DIR, "chroma.sqlite3")
+        folder_dir = os.path.join(DB_DIR, "66c170c0-0369-4132-a6c5-19f6643bf942")
+
+        if not os.path.exists(chroma_file) or not os.path.exists(folder_dir):
+            need_download = True
+        else:
+            # 폴더 내부 내용도 확인
+            try:
+                folder_contents = os.listdir(folder_dir)
+                if len(folder_contents) == 0:
+                    need_download = True
+            except Exception:
+                need_download = True
+
+    if need_download:
         create_chroma_db()
 
     # 기존 크로마 벡터스토어 로드

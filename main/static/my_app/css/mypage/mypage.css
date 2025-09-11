@@ -21,37 +21,49 @@ body {
     color: #555;
     text-decoration: none;
 }
+
+/* 컨테이너: 그대로 사용 */
 .container {
-    display: flex; 
-    gap: 2rem;     
+    display: flex;
+    gap: 2rem;
     padding: 2rem;
-    align-items: flex-start; 
+    align-items: flex-start;
 }
+
+/* 왼쪽/오른쪽 폭을 퍼센트로 고정 */
+.account-section {
+    flex: 0 0 35%;
+    max-width: 35%;
+}
+
+.card-api-section {
+    flex: 0 0 60%;
+    max-width: 60%;
+}
+
+/* 편집 상태에서도 폭이 바뀌지 않도록 flex 제거 */
+.account-section.editing {
+    background-color: #faf7ea;
+}
+
+/* (선택) 페이지 전체가 너무 좁다면 컨테이너 최대폭을 넓히고 가운데 정렬 */
+.main-wrapper, .page-wrapper, body > .container-parent {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 .section-box {
     background-color: #fff;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-.account-section {
-    flex: 1.5; 
-}
-
-.account-section.editing {
-    background-color: #faf7ea;
-    flex: 1.5; 
-}
-
-.card-api-section {
-    flex: 2; 
-    display: flex;
-    flex-direction: column; 
-}
 
 .section-box h2, .section-box h4 {
     margin-top: 0;
     margin-bottom: 1.5rem;
 }
+
 .profile-section-header {
     display: flex;
     justify-content: space-between;
@@ -64,12 +76,20 @@ body {
     border-radius: 5px;
     background-color: #f9f9f9;
 }
+
 .profile-image-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+    display: inline-flex;
+    justify-content: center;
+    border: 1px solid #ddd;
 }
+
 .profile-image-placeholder {
     width: 80px;
     height: 80px;
@@ -81,6 +101,15 @@ body {
     color: #fff;
     font-size: 2rem;
 }
+
+/* 프로필 이미지 */
+.profile-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    display: block;
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -92,26 +121,25 @@ body {
 }
 .form-group input,
 .form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  font: inherit;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font: inherit;
 }
-
 .form-group select,
 .form-group input[type="date"] {
-  height: 44px;   
-  line-height: 1.2;
+    height: 44px;
+    line-height: 1.2;
+}
+.form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff;
 }
 
-.form-group select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: #fff;
-}
 .form-row {
     display: flex;
     gap: 1rem;
@@ -119,6 +147,7 @@ body {
 .form-row .form-group {
     flex: 1;
 }
+
 .item-list {
     list-style: none;
     padding: 0;
@@ -133,103 +162,94 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-
 .item-list li button {
     background-color: #ccc;
     border: none;
     padding: 0.5rem 1rem;
     cursor: pointer;
     border-radius: 5px;
-    margin-left: 0.5rem; 
+    margin-left: 0.5rem;
 }
 .item-list li .actions {
     display: flex;
     gap: 0.5rem;
 }
-
-.item-list li span{
-  display:inline-block;
-  max-width:60%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.item-list li span {
+    display: inline-block;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* apikey 추가 */
 .api-key-form .input-container {
     align-items: flex-start;
+    justify-content: space-between; 
     display: flex;
     gap: 10px;
 }
-
 .name-group,
 .value-group {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
 }
-
 .api-key-message {
-    display: block; 
+    display: block;
     margin-top: 5px;
     font-size: 0.9em;
 }
-
 .api-key-form input[type="text"] {
-    width: 250px; 
+    width: 250px;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
-
 #create_key_button {
-    height: fit-content; 
-    padding: 8px 15px; 
+    height: fit-content;
+    padding: 8px 15px;
 }
 
-.chatbox-wrapper { 
-    margin-bottom: 24px; 
-    padding: 16px; 
-    border: 2px solid #e5e7eb; 
-    border-radius: 12px; 
-    background:#fafafa; 
+.chatbox-wrapper {
+    margin-bottom: 24px;
+    padding: 32px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafafa;
 }
-  
-.chatbox-title { 
-    margin-bottom: 10px; 
-    font-size: 18px; 
-    font-weight: 700; 
-    color:#333; }
+.chatbox-title {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color:#333;
+}
 
 .card-api-section .section-box + .section-box {
-    margin-top: 20px; 
+    margin-top: 20px;
 }
-
 .card-api-section > .section-box:last-child .item-list {
-  max-height: 320px;   
-  overflow-y: auto;
+    max-height: 320px;
+    overflow-y: auto;
 }
-
 #apiCardsList,
 #internalCardsList {
-  max-height: 220px;   
-  overflow-y: auto;
+    max-height: 220px;
+    overflow-y: auto;
 }
-
 #apiKeysList {
-  max-height: none;
-  overflow: visible;
+    max-height: none;
+    overflow: visible;
 }
 
-.pager{
-  display:flex; 
-  gap:6px; 
-  align-items:center; 
-  justify-content:center;
-  margin-top:12px; 
-  flex-wrap:wrap;
+.pager {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
 }
-
 .pager a,
 .pager span {
     text-decoration: none;
@@ -240,7 +260,6 @@ body {
     color: #333;
     display: inline-block;
 }
-
 .pager .active {
     background: #333;
     color: #fff;
