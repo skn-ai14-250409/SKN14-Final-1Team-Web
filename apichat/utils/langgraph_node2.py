@@ -1,7 +1,12 @@
 from typing import TypedDict, List, Dict, Any
 
-from .rag2 import basic_chain_setting
-from .rag2 import query_setting
+from .rag2 import (
+    basic_chain_setting,
+    query_setting,
+    classify_chain_setting,
+    simple_chain_setting,
+    impossable_chain_setting,
+)
 from .retriever import retriever_setting
 
 import openai
@@ -17,6 +22,9 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 basic_chain = basic_chain_setting()
 retriever = retriever_setting()
 query_chain = query_setting()
+classification_chain = classify_chain_setting()
+simple_chain = simple_chain_setting()
+imp_chain = impossable_chain_setting()
 
 
 class ChatState(TypedDict, total=False):
@@ -28,6 +36,37 @@ class ChatState(TypedDict, total=False):
     messages: List[Dict[str, str]]  # 사용자 및 모델의 대화 히스토리
     image: str  # 원본 이미지 데이터
     image_analysis: str  # 이미지 분석 결과
+    classify: str  # 질문 분류
+
+
+# 분류 노드
+def classify(state: ChatState):
+    image_text = state.get("image_analysis")
+    question = state["question"]
+    chat_history = state.get("messages", [])
+    chat_history = chat_history[:4]
+
+    # 이미지 분석 결과가 있으면 질문에 포함시킴
+    if state.get("image_analysis"):
+        question = (
+            f"사용자의 이번 질문:{question}"
+            + "\n"
+            + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
+        )
+
+    result = classification_chain.invoke(
+        {"question": question, "context": chat_history}
+    ).strip()
+
+    state["classify"] = result
+
+    return state
+
+
+def route_from_classify(state):
+    route = state.get("classify").strip()
+    # classification_chain이 실제로 뭘 반환하는지에 따라 매핑
+    return route
 
 
 def analyze_image(state: ChatState) -> ChatState:
@@ -125,6 +164,7 @@ def langgraph_node(state: ChatState) -> Dict[str, Any]:
     queries = state["queries"]
     print(f"생성된 질문 리스트 {queries}")
     search_results = []
+    question = state["question"]
 
     # 각 쿼리마다 벡터 DB 검색
     for query in queries:
@@ -132,23 +172,85 @@ def langgraph_node(state: ChatState) -> Dict[str, Any]:
         results = search_tool(query)
         search_results.append(results)  # 검색된 결과들을 모아서 저장
 
-    # 이미지 분석 결과가 있으면 컨텍스트에 포함
-    context_parts = [str(res) for res in search_results]
+    # 이미지 분석 결과가 있으면 질문에 포함시킴
     if state.get("image_analysis"):
-        context_parts.insert(
-            0, f"사용자가 올린 이미지 분석 결과: {state['image_analysis']}"
+        question = (
+            f"사용자의 이번 질문:{question}"
+            + "\n"
+            + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
         )
+
+    print(f"사용자 통합 질문: {question}")
+    # print(search_results)
 
     # 검색된 결과를 바탕으로 답변 생성
     answer = basic_chain.invoke(
         {
-            "question": state["question"],
+            "question": question,
             "history": history,
-            "context": "\n".join(context_parts),
+            "context": search_results,
         }
     ).strip()
 
     state["search_results"] = search_results
+    state["answer"] = answer
+
+    return state  # 답변을 반환
+
+
+# (5) 일상 질문 답변 노득
+def simple(state: ChatState):
+    print("일상 질문 답변 노드 시작")
+    image_text = state.get("image_analysis")
+    question = state["question"]
+    chat_history = state.get("messages", [])
+    chat_history = chat_history[:4]
+
+    # 이미지 분석 결과가 있으면 질문에 포함시킴
+    if state.get("image_analysis"):
+        question = (
+            f"사용자의 이번 질문:{question}"
+            + "\n"
+            + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
+        )
+
+    # 검색된 결과를 바탕으로 답변 생성
+    answer = simple_chain.invoke(
+        {
+            "question": question,
+            "context": chat_history,
+        }
+    ).strip()
+
+    state["answer"] = answer
+
+    return state  # 답변을 반환
+
+
+# (5) 답변할 수 없는 질문(구글 api 혹은 일상 질문 아닌 경우)
+def impossible(state: ChatState):
+    print("답변 불가 노드 시작")
+    image_text = state.get("image_analysis")
+    question = state["question"]
+    chat_history = state.get("messages", [])
+    chat_history = chat_history[:4]
+
+    # 이미지 분석 결과가 있으면 질문에 포함시킴
+    if state.get("image_analysis"):
+        question = (
+            f"사용자의 이번 질문:{question}"
+            + "\n"
+            + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
+        )
+
+    # 검색된 결과를 바탕으로 답변 생성
+    answer = imp_chain.invoke(
+        {
+            "question": question,
+            "context": chat_history,
+        }
+    ).strip()
+
     state["answer"] = answer
 
     return state  # 답변을 반환
