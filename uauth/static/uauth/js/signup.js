@@ -34,6 +34,23 @@
     });
   });
 
+const fileInput = document.getElementById("profile_image");
+const previewImg = document.getElementById("profilePreview");
+
+if (fileInput && previewImg) {
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      previewImg.style.display = "none";
+      previewImg.src = "";
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    previewImg.src = url;
+    previewImg.style.display = "block";
+  });
+}
+
   // ===============================
   // 3) 전화번호 자동 하이픈(010만)
   // ===============================

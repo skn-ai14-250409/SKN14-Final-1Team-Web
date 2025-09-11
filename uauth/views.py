@@ -188,6 +188,7 @@ def signup_view(request: HttpRequest):
     birth_dt = parse_date(birth_raw)
     gender = form.data.get("gender", "").strip()
     phone = form.data.get("phoneNumber", "").strip()
+    profile_image = request.FILES.get("profile_image")  
 
     # DB 저장 (중복 아이디 방어)
     try:
@@ -203,6 +204,8 @@ def signup_view(request: HttpRequest):
                 phone=phone,
                 status=Status.PENDING,
                 is_active=True,
+                profile_image=profile_image
+                
             )
             user.set_password(password)  # 해시 저장
             # user.is_active = False

@@ -16,7 +16,7 @@
   <main class="card" role="main" aria-labelledby="sectionTitle">
     <div class="section-desc">아래 정보를 입력하여 회원가입을 완료해주세요.</div>
 
-    <form id="registerForm" class="form" method="post" action="{% url 'uauth:signup' %}" novalidate>
+    <form id="registerForm" class="form" method="post" action="{% url 'uauth:signup' %}" novalidate enctype="multipart/form-data">
       {% csrf_token %}
 
       {# 🔧 추가: 전체(non-field) 에러 표시 #}
@@ -25,8 +25,24 @@
           {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
         </div>
       {% endif %}
-
       <div class="grid">
+        <div class="form-item full profile-row">
+          <label for="profile_image">프로필 이미지</label>
+
+          <div class="profile-flex">
+            <!-- 왼쪽: 미리보기 -->
+            <div class="avatar-preview">
+              <img id="profilePreview" alt="프로필 미리보기" style="display:none;">
+            </div>
+
+            <!-- 오른쪽: 파일 선택 -->
+            <div class="file-input">
+              <input id="profile_image" name="profile_image" type="file" accept="image/*" aria-describedby="profileImageErr">
+              <div id="profileImageErr" class="error"></div>
+            </div> <!-- ⬅️ file-input 닫기 -->
+          </div>   <!-- ⬅️ profile-flex 닫기 -->
+        </div> 
+   
         <!-- 아이디 -->
         <div class="form-item">
           <label for="userId">아이디</label>
