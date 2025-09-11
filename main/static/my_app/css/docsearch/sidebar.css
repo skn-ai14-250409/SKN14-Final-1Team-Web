@@ -3,7 +3,9 @@
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 16px;
-  height: calc(100vh - 80px);
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .main-pane {
   display: flex;
