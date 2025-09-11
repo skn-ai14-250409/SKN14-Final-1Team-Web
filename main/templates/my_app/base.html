@@ -46,7 +46,6 @@
         <div class="content-wrapper">
             <header class="top-header">
                 <div class="header-buttons">
-
             {% if request.user.is_authenticated %}
                 {% if request.user.profile_image %}
                     <img src="{{ request.user.profile_image.url }}" alt="프로필 이미지" class="avatar" >

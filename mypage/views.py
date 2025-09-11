@@ -1,53 +1,37 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from uauth.models import ApiKey, User, Department, Rank, Gender
 from django.core.exceptions import ObjectDoesNotExist
-from main.models import Card
+from main.models import Card, ChatImage, ChatMode
 from django.contrib import messages
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-
-# Create your views here.
-# @login_required
-# def mypage(request):
-#     # 임시로 로긴..
-#     user = get_object_or_404(User, id='uu001')
-#     if request.method == 'POST':
-#         key_name = request.POST.get('api_key_name')
-#         key_value = request.POST.get('api_key_value')
-
-#         if key_name and key_value:
-#             ApiKey.objects.create(user=user, name=key_name, secret_key=key_value)
-
-#         return redirect('main:mypage')
-
-#     # [GET] 요청 처리: 페이지 로딩
-#     api_keys = user.api_keys.all()
-#     my_cards = user.cards.all()
-
-#     context = {
-#         'user': user,
-#         'api_keys': api_keys,
-#         'cards': my_cards,
-#     }
-#     return render(request, 'my_app/mypage.html', context)
+from django.db.models import Prefetch
+from django.core.paginator import Paginator
 
 
 @login_required
 def mypage(request):
     # [GET] 페이지 로딩
-    api_keys = request.user.api_keys.all().order_by("-created_at")
-    my_cards = request.user.cards.all().order_by("-created_at")
+    all_cards = request.user.cards.select_related("session").order_by("-created_at")
+    api_cards = all_cards.filter(session__mode="api")
+    internal_cards = all_cards.filter(session__mode="internal")
+    api_keys_qs = request.user.api_keys.order_by("-created_at")
+
+    key_page = request.GET.get("key_page", 1)
+    api_keys = Paginator(api_keys_qs, 3).get_page(key_page)
 
     context = {
         "user": request.user,
+        "api_cards": api_cards,
+        "internal_cards": internal_cards,
         "api_keys": api_keys,
-        "cards": my_cards,
         "departments": Department.choices,
         "ranks": Rank.choices,
         "genders": Gender.choices,
     }
+
     return render(request, "my_app/mypage.html", context)
 
 
@@ -90,7 +74,7 @@ def mypage_edit(request):
             if phone:
                 request.user.phone = phone
             if birthday:
-                request.user.birthday = birthday 
+                request.user.birthday = birthday
 
             request.user.save()
 
@@ -114,15 +98,23 @@ def api_key_delete(request, key_id):
 @login_required
 def card_detail(request, card_id):
     try:
-        card = Card.objects.get(id=card_id)
-        messages = [card_message.message for card_message in card.card_messages.all()]
+        card = Card.objects.prefetch_related(
+            Prefetch(
+                "card_messages__message__images",
+                queryset=ChatImage.objects.all(),
+                to_attr="prefetched_images",
+            )
+        ).get(id=card_id, user=request.user)
+
+        card_messages = [cm.message for cm in card.card_messages.all()]
+
     except ObjectDoesNotExist:
         card = None
-        messages = []
+        card_messages = []
 
     context = {
         "card": card,
-        "messages": messages,
+        "messages": card_messages,
     }
 
     return render(request, "my_app/card_detail.html", context)

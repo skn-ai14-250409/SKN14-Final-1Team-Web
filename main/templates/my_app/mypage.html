@@ -43,13 +43,12 @@
                     
                     <div class="form-group">
                         <label for="department-text">팀</label>
-                        <input type="text" id="department-text" value="{{ user.get_department_display }}" readonly>
+                        <input type="text" id="department-text" value="{{ user.get_department_display|default_if_none:'' }}" readonly>
                         <select id="department-select" name="department" style="display:none;" {% if user.rank == 'cto' %}disabled{% endif %}>
                         {% for value, label in departments %}
                             <option value="{{ value }}" {% if user.department == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                         </select>
-                    </select>
                     </div>
                 </div>
                 
@@ -77,40 +76,91 @@
                     </div>
                     <div class="form-group">
                         <label for="phone">전화번호</label>
-                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}" readonly>
+                        <input type="tel" id="phone" name="phone"
+                               value="{{ user.phone }}" readonly
+                               inputmode="numeric" placeholder="010-1234-5678"
+                               pattern="^010-\d{4}-\d{4}$" aria-describedby="phoneErr">
+                        <div id="phoneErr" class="error" style="margin-top:4px;"></div>
                     </div>
                 </div>
-                
             </form>
         </section>
 
         <section class="card-api-section">
-            <div class="section-box">
-                <h4>내가 저장한 카드</h4>
-                <ul class="item-list" id="cardsList">
-                    {% for card in cards %}
+            <div class="chatbox-wrapper">
+                <h3 class="chatbox-title">내가 저장한 카드</h3>
+
+                <div class="section-box">
+                <h4>API 메인 챗봇</h4>
+                <ul class="item-list" id="apiCardsList">
+                    {% for card in api_cards %}
                     <li data-card-id="{{ card.id }}">
                         <span>{{ card.title }}</span>
                         <div class="actions">
-                            {% comment %} "openCardDetail('{{ card.id }}')" {% endcomment %}
-                            <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
-                            {% comment %} 링크 연결 필 {% endcomment %}
+                        <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
+                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
                             <button>채팅 보러가기</button>
-                            <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button> 
+                        </a>
+                        <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>
                         </div>
                     </li>
                     {% empty %}
-                    <li>저장된 카드가 없습니다.</li>
+                    <li>card가 없습니다.</li>
                     {% endfor %}
+                    {% if api_cards.has_other_pages %}
+                    <div class="pager">
+                        {% if api_cards.has_previous %}
+                        <a href="?api_page={{ api_cards.previous_page_number }}#apiCardsList">이전</a>
+                        {% endif %}
+                        <span>{{ api_cards.number }} / {{ api_cards.paginator.num_pages }}</span>
+                        {% if api_cards.has_next %}
+                        <a href="?api_page={{ api_cards.next_page_number }}#apiCardsList">다음</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </ul>
             </div>
 
+                <div class="section-box">
+                <h4>사내문서 챗봇</h4>
+                <ul class="item-list" id="internalCardsList">
+                {% for card in internal_cards %}
+                    <li data-card-id="{{ card.id }}">
+                    <span>{{ card.title }}</span>
+                    <div class="actions">
+                        <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
+                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                        <button>채팅 보러가기</button>
+                        </a>
+                        <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>
+                    </div>
+                    </li>
+                {% empty %}
+                    <li>card가 없습니다.</li>
+                {% endfor %}
+                </ul>
+
+                {% if internal_cards.has_other_pages %}
+                <div class="pager">
+                    {% if internal_cards.has_previous %}
+                    <a href="?int_page={{ internal_cards.previous_page_number }}#internalCardsList">이전</a>
+                    {% endif %}
+                    <span>{{ internal_cards.number }} / {{ internal_cards.paginator.num_pages }}</span>
+                    {% if internal_cards.has_next %}
+                    <a href="?int_page={{ internal_cards.next_page_number }}#internalCardsList">다음</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                </ul>
+                </div>
+
+            </div>
+
             <div class="section-box">
-                <h4>내 API 키</h4>
+                <h3 class="chatbox-title" id="my-api-keys">내 API 키</h3>
 
                 <form method="post" action="{% url 'mypage:create_api_key' %}" class="api-key-form">
-                    {% csrf_token %}
-
+                {% csrf_token %}
                     <div class="input-container">
                         <div class="api-key-group">
                             <input type="text" name="api_key_name" id="api_key_name" placeholder="API 키 이름" required>
@@ -125,23 +175,62 @@
                     </div>
                 </form>
 
-                <ul class="item-list">
-                    {% for key in api_keys %}
+                <ul class="item-list" id="apiKeysList">
+                {% for key in api_keys %}
                     <li>
-                        <span>{{ key.name }}</span>
-                        <span class="api-value">{{ key.secret_key }}</span>
-                        <div class="actions">
-                            <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
-                            <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="key_id" value="{{ key.id }}">
-                                <button type="submit" class="delete-button">❌</button>
-                            </form>
-                        </div>
+                    <span>{{ key.name }}</span>
+                    <span class="api-value">{{ key.secret_key }}</span>
+                    <div class="actions">
+                        <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
+                        <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="key_id" value="{{ key.id }}">
+                        <button type="submit" class="delete-button">❌</button>
+                        </form>
+                    </div>
                     </li>
-                    {% empty %}
+                {% empty %}
                     <li>등록된 API 키가 없습니다.</li>
+                {% endfor %}
+                {% if api_keys.has_other_pages %}
+                <div class="pager">
+                    {% if api_keys.has_previous %}
+                    <a href="?key_page={{ api_keys.previous_page_number }}#my-api-keys" class="page-btn">이전</a>
+                    {% else %}
+                    <span class="page-btn disabled">이전</span>
+                    {% endif %}
+
+                    {% if api_keys.paginator.num_pages > 5 %}
+                        {% if api_keys.number > 3 %}
+                        <a href="?key_page=1#my-api-keys" class="page-num">1</a>
+                        <span class="page-ellipsis">...</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for page_num in api_keys.paginator.page_range %}
+                        {% if forloop.counter > api_keys.number|add:-3 and forloop.counter < api_keys.number|add:3 %}
+                            {% if api_keys.number == page_num %}
+                            <span class="page-num active">{{ page_num }}</span>
+                            {% else %}
+                            <a href="?key_page={{ page_num }}#my-api-keys" class="page-num">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
                     {% endfor %}
+
+                    {% if api_keys.paginator.num_pages > 5 %}
+                        {% if api_keys.number < api_keys.paginator.num_pages|add:-2 %}
+                        <span class="page-ellipsis">...</span>
+                        <a href="?key_page={{ api_keys.paginator.num_pages }}#my-api-keys" class="page-num">{{ api_keys.paginator.num_pages }}</a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if api_keys.has_next %}
+                    <a href="?key_page={{ api_keys.next_page_number }}#my-api-keys" class="page-btn">다음</a>
+                    {% else %}
+                    <span class="page-btn disabled">다음</span>
+                    {% endif %}
+                </div>
+                {% endif %}
                 </ul>
             </div>
         </section>

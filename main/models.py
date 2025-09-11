@@ -10,6 +10,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     views = models.PositiveIntegerField(default=0)
+    likes = models.PositiveIntegerField(default=0)
     likers = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="liked_posts", blank=True
     )
@@ -17,11 +18,9 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-
     @property
     def total_likes(self):
         return self.likers.count()
-
 
 
 class Comment(models.Model):
@@ -29,6 +28,7 @@ class Comment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.PositiveIntegerField(default=0)
     likers = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="liked_comments", blank=True
     )
@@ -36,11 +36,9 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.author} : {self.content[:20]}"
 
-
     @property
     def total_likes(self):
         return self.likers.count()
-
 
 
 class ChatMode(models.TextChoices):
@@ -134,3 +132,21 @@ class CardMessage(models.Model):
 
     def __str__(self):
         return f"{self.card.title} #{self.position}"
+
+
+# 채팅 메시지에 첨부된 이미지
+class ChatImage(models.Model):
+    message = models.ForeignKey(
+        ChatMessage,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+    image_url = models.URLField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "chat_image"
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Image for message: {self.message.id}"

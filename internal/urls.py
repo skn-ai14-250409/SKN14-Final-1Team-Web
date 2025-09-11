@@ -13,4 +13,5 @@ urlpatterns = [
     ),
     path(
         "delete_session/<int:session_id>/", views.delete_session, name="delete_session"
-    )]
+    ),
+]

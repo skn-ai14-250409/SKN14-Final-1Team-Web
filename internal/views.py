@@ -1,18 +1,12 @@
-from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 
 import json
-import uuid
-import requests
-import os
-from datetime import datetime, timedelta, timezone
 
-from main.models import ChatMessage, ChatSession, ChatMode
+from main.models import ChatMessage, ChatSession
 from uauth.models import *
-from .utils.sllm import  run_sllm
+from .utils.sllm import run_sllm
 
 # Create your views here.
 
@@ -24,7 +18,10 @@ def chat(request):
         try:
             data = json.loads(request.body)
             user_message = data.get("message")
+            tone = data.get("tone")
             session_id = data.get("session_id")
+            rank = request.user.rank
+            department = request.user.department
             print(f"User message: {user_message}, Session ID: {session_id}")
 
             # 세션 확인
@@ -36,8 +33,31 @@ def chat(request):
             except ChatSession.DoesNotExist:
                 return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
 
+            messages = ChatMessage.objects.filter(session=session).order_by(
+                "-created_at"
+            )[:6]
+            db_chat_history = []
+
+            for msg in messages:
+                if msg.role == "user":
+                    db_chat_history.append({"role": "user", "content": msg.content})
+                else:
+                    db_chat_history.append(
+                        {"role": "assistant", "content": msg.content}
+                    )
+
+            # 현재 사용자 메시지를 대화 기록에 추가
+            db_chat_history.append({"role": "user", "content": user_message})
+
+            if rank == "cto":
+                permission = "cto"
+            else:
+                permission = department
+
             # RAG 봇 호출
-            response = run_sllm(user_message)
+            response, title = run_sllm(
+                db_chat_history, permission=permission, tone=tone
+            )
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
@@ -49,10 +69,14 @@ def chat(request):
                 session=session, role="assistant", content=response
             )
 
+            # title이 없거나 초기 "새로운 대화" 메시지로 존재할 때
+            if not session.title or session.title == "새로운 대화":
+                session.title = title
+                session.save(update_fields=["title"])
 
             # 갱신된 제목을 응답에 포함
             return JsonResponse(
-                {"success": True, "bot_message": response}
+                {"success": True, "bot_message": response, "title": session.title}
             )
 
         except Exception as e:

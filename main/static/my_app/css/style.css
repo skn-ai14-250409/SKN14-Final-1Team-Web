@@ -150,6 +150,7 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     background-color: #28a745;
 }
 
+
 /* === Header Avatar & Buttons === */
 /* 버튼과 프로필 크기 분리 */
 :root {
@@ -185,3 +186,25 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
 
 /* 불필요한 기본 마진 제거 */
 .top-header form { margin: 0; }
+
+.session-list {
+    max-height: 300px;       /* 원하는 최대 높이 */
+    overflow-y: auto;        /* 세로 스크롤 활성화 */
+    overflow-x: hidden;      /* 가로 스크롤 숨김 */
+    padding-right: 5px;
+    
+    /* 스크롤바 기본 숨김 */
+    scrollbar-width: thin;       /* Firefox용 */
+    scrollbar-color: transparent transparent;
+}
+
+/* 크롬/사파리/Edge */
+.session-list::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;   /* 기본 트랙 투명 */
+}
+
+.session-list::-webkit-scrollbar-thumb {
+    background-color: transparent; /* 평소 투명 */
+    border-radius: 4px;
+}

@@ -33,7 +33,7 @@
        <div class="comments-header">
            <button class="like-btn post-like-btn" data-post-id="{{ post.id }}">
                <span class="heart-icon">♥</span>
-               <strong id="post-likes-count">좋아요 {{ post.total_likes }}</strong>
+               <strong id="post-likes-count">좋아요 {{ post.likes }}</strong>
            </button>
            <strong>댓글 {{ post.comments.count }}</strong>
        </div>
@@ -55,7 +55,7 @@
                    <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
                    <button class="like-btn comment-like-btn" data-comment-id="{{ comment.id }}">
                        <span class="heart-icon">♥</span>
-                       <span class="comment-likes-count">{{ comment.total_likes }}</span>
+                       <span class="comment-likes-count">{{ comment.likes }}</span>
                    </button>
                </div>
            </div>

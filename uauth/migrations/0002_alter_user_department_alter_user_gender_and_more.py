@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 choices=[
                     ("frontend", "프론트엔드팀"),
                     ("backend", "백엔드팀"),
-                    ("ai_data", "AI/데이터팀"),
+                    ("data_ai", "데이터/AI팀"),
                 ],
                 max_length=20,
                 null=True,
