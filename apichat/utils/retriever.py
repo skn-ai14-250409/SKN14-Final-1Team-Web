@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(HERE, "chroma_db")
 COLLECTION_NAME = "qna_collection"
 EMBED_MODEL = "BAAI/bge-m3"
-TOP_K = 15
+TOP_K = 8
 
 embeddings = HuggingFaceEmbeddings(
     model_name=EMBED_MODEL,

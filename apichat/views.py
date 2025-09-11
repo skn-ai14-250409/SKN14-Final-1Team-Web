@@ -6,12 +6,81 @@ import json
 import os
 import re, textwrap
 import requests
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 from main.models import ChatMessage, ChatSession, ChatMode, ChatImage
 from uauth.models import *
 from .utils.main3 import run_langraph
 from .utils.whisper import call_whisper_api
 from .aws_s3_service import S3Client
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 제목 요약을 위한 LangChain용 LLM (모델명은 상황에 맞게)
+title_llm = ChatOpenAI(
+    model="gpt-4o",  # 또는 OPENAI_TITLE_MODEL
+    temperature=0.2,
+    max_tokens=30,
+)
+
+# 프롬프트 템플릿 정의
+title_prompt = PromptTemplate.from_template(
+    """
+아래 대화 맥락과 기존 제목을 참고하여 **짧고 간결한 한국어 대화 제목**을 최종 확정하라.
+- 글자 수: 12자 이상, 24자 이하
+- 반드시 명사/주제어 위주 (불필요한 수식어 제거)
+- 이모지, 따옴표, 마침표, 물음표, 느낌표, 특수문자 금지
+- 접두사/접미사/콜론/괄호 금지
+- 기존 제목(draft_title)이 이미 간결하고 적절하면 그대로 유지
+- 문장을 그대로 복붙하지 말고, 맥락에서 핵심 주제만 뽑아 제목화
+- 답변은 오직 제목 텍스트만 출력 (설명, 접두어, 여분 텍스트 금지)
+
+기존 제목(draft_title): {draft_title}
+최근 대화(context):
+{transcript}
+"""
+)
+
+# 체인 구성
+title_chain = title_prompt | title_llm | StrOutputParser()
+
+
+# 연관 질문 추천 모델 지정 (환경변수 fallback)
+suggest_model = os.getenv("OPENAI_SUGGEST_MODEL", "gpt-4o-mini")
+
+# LangChain LLM 객체
+suggest_llm = ChatOpenAI(
+    model=suggest_model,
+    temperature=0.4,
+    max_tokens=150,
+)
+
+# 프롬프트 템플릿
+suggest_prompt = PromptTemplate.from_template(
+    """
+너는 대화형 검색 보조도구야. 아래 '질문'과 '답변'을 보고
+서로 다른 관점의 **후속 질문**을 최대 {k}개 만들어.
+
+형식/규칙:
+- 한국어, 12~30자, 간결한 명사/구문 중심
+- 중복/의미 반복 금지, 너무 지엽적·랜덤 금지
+- 다양한 관점(개념 설명, 단계, 코드, 오류 해결, 모범사례 등) 섞기
+- 반드시 **JSON 배열**(예: ["...","..."])만 출력
+
+[질문]
+{user_q}
+
+[답변]
+{answer}
+"""
+)
+
+# 체인 구성
+suggest_chain = suggest_prompt | suggest_llm | StrOutputParser()
 
 
 # 제목 요약 #
@@ -159,65 +228,38 @@ def initial_title_with_llm(first_question: str) -> str:
 
 def refine_title_with_llm(draft_title: str, transcript: str) -> str:
     """
-    최근 2~4개 Q/A 문맥으로 최종 제목 리라이트
-    OPENAI_API_KEY 없거나 실패하면 draft 그대로
+    LangChain 기반 제목 리파인
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    if not os.getenv("OPENAI_API_KEY"):
         return draft_title
-    try:
-        import requests
 
-        url = "https://api.openai.com/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
-        prompt = textwrap.dedent(
-            f"""
-          아래 대화 맥락과 기존 제목을 참고하여 **짧고 간결한 한국어 대화 제목**을 최종 확정하라.
-          - 글자 수: 12자 이상, 24자 이하
-          - 반드시 명사/주제어 위주 (불필요한 수식어 제거)
-          - 이모지, 따옴표, 마침표, 물음표, 느낌표, 특수문자 금지
-          - 접두사/접미사/콜론/괄호 금지
-          - 기존 제목(draft_title)이 이미 간결하고 적절하면 그대로 유지
-          - 문장을 그대로 복붙하지 말고, 맥락에서 핵심 주제만 뽑아 제목화
-          - 답변은 오직 제목 텍스트만 출력 (설명, 접두어, 여분 텍스트 금지)
-          기존 제목(draft_title): {draft_title}
-          최근 대화(context):
-          {transcript}
-        """
+    try:
+        result = title_chain.invoke(
+            {"draft_title": draft_title, "transcript": transcript}
         ).strip()
-        body = {
-            "model": OPENAI_TITLE_MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "Return only the title text. No punctuation at the end.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": 0.2,
-            "max_tokens": 30,
-        }
-        r = requests.post(url, headers=headers, json=body, timeout=12)
-        r.raise_for_status()
-        raw = r.json()["choices"][0]["message"]["content"]
-        title = sanitize_title(raw)
+
+        # 후처리 (기존 로직 유지)
+
+        title = sanitize_title(result)
 
         user_lines = [
             ln[3:].strip() for ln in transcript.splitlines() if ln.startswith("Q:")
         ]
+
         for q in user_lines:
             if is_echo_like(title, q):
                 return draft_title
 
-            if is_echo_like(title, draft_title, hard_ratio=0.95, token_ratio=0.9):
-                return draft_title
-            if len(tokens(title)) < 2:
-                return draft_title
+        if is_echo_like(title, draft_title, hard_ratio=0.95, token_ratio=0.9):
+            return draft_title
+
+        if len(tokens(title)) < 2:
+            return draft_title
+
         return title or draft_title
-    except Exception:
+
+    except Exception as e:
+        print(f"[title refinement error] {str(e)}")
         return draft_title
 
 
@@ -606,65 +648,41 @@ def delete_card(request, card_id):
 
 
 # 추천 질문 생성
-OPENAI_SUGGEST_MODEL = os.getenv("OPENAI_SUGGEST_MODEL", "gpt-4o-mini")
+
 
 def generate_suggestions(user_q: str, answer: str, k: int = 5) -> list[str]:
-    """사용자 질문 + 현재 답변을 보고 후속 질문 추천"""
-    api_key = os.getenv("OPENAI_API_KEY")
-
-    prompt = textwrap.dedent(
-        f"""
-    너는 대화형 검색 보조도구야. 아래 '질문'과 '답변'을 보고
-    서로 다른 관점의 **후속 질문**을 최대 {k}개 만들어.
-    형식/규칙:
-    - 한국어, 12~30자, 간결한 명사/구문 중심
-    - 중복/의미 반복 금지, 너무 지엽적·랜덤 금지
-    - 다양한 관점(개념 설명, 단계, 코드, 오류 해결, 모범사례 등) 섞기
-    - 반드시 **JSON 배열**(예: ["...","..."])만 출력
-
-    [질문]
-    {user_q}
-
-    [답변]
-    {answer}
     """
-    ).strip()
-    r = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": OPENAI_SUGGEST_MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "Return only a JSON array of short follow-up questions.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": 0.4,
-            "max_tokens": 150,
-        },
-        timeout=15,
-    )
-    r.raise_for_status()
-    raw = r.json()["choices"][0]["message"]["content"].strip()
+    LangChain 기반 후속 질문 생성 함수
+    """
+    try:
+        # LangChain chain 실행
+        raw_output = suggest_chain.invoke(
+            {
+                "user_q": user_q,
+                "answer": answer,
+                "k": k,
+            }
+        ).strip()
 
-    suggestions = json.loads(raw)
-    # 정리(중복/공백/길이)
-    seen, out = set(), []
-    for s in suggestions:
-        if not isinstance(s, str):
-            continue
-        s = re.sub(r"\s+", " ", s).strip()
-        if not (6 <= len(s) <= 40):
-            continue
-        if s in seen:
-            continue
-        seen.add(s)
-        out.append(s)
-        if len(out) >= k:
-            break
-    return out
+        # JSON 파싱
+        suggestions = json.loads(raw_output)
+
+        # 후처리 (중복/길이/타입 체크)
+        seen, out = set(), []
+        for s in suggestions:
+            if not isinstance(s, str):
+                continue
+            s = re.sub(r"\s+", " ", s).strip()
+            if not (6 <= len(s) <= 40):
+                continue
+            if s in seen:
+                continue
+            seen.add(s)
+            out.append(s)
+            if len(out) >= k:
+                break
+        return out
+
+    except Exception as e:
+        print(f"[suggestion error] {e}")
+        return []
