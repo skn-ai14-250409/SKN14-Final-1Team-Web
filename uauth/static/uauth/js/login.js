@@ -132,4 +132,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 뒤로가기 시 로딩 상태 해제
     window.addEventListener('pageshow', e => { if (e.persisted) setLoadingState(false); });
-});z
+});
