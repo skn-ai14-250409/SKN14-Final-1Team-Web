@@ -11,7 +11,6 @@ from django.conf import settings
 from django.core.paginator import Paginator
 
 
-
 @login_required
 def home_view(request):
     return render(request, "my_app/home.html")
