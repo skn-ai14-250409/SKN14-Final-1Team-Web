@@ -11,7 +11,6 @@ from django.conf import settings
 from django.core.paginator import Paginator
 
 
-
 @login_required
 def home_view(request):
     return render(request, "my_app/home.html")
@@ -42,13 +41,11 @@ def community_board_view(request):
 
     best_post_ids = [post.id for post in best_posts]
 
-    # 정렬 순서를 '-likes', '-created_at'으로 변경합니다.
     regular_posts_list = (
         Post.objects.select_related("author")
         .exclude(id__in=best_post_ids)
         .order_by("-likes", "-created_at")
     )
-
     paginator = Paginator(regular_posts_list, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)

@@ -20,9 +20,9 @@
             </tr>
         </thead>
         <tbody>
-             <!-- 1. 베스트 게시글 목록 먼저 표시 -->
+            <!-- Best Posts -->
             {% for post in best_posts %}
-            <tr class="best-post-row">
+            <tr>
                 <td class="col-number">{{ post.id }}</td>
                 <td class="col-title">
                     <a href="{% url 'main:post-detail' post_id=post.id %}">
@@ -31,14 +31,15 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author.username }}</td>
+                <!-- 이 부분을 {{ post.author }} 로 수정합니다. -->
+                <td class="col-author">{{ post.author }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>
             </tr>
             {% endfor %}
 
-            <!-- 2. 페이징된 일반 게시글 목록 표시 -->
+            <!-- Regular Posts -->
             {% for post in page_obj %}
             <tr>
                 <td class="col-number">{{ post.id }}</td>
@@ -48,7 +49,8 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <td class="col-author">{{ post.author.username }}</td>
+                <!-- 이 부분도 {{ post.author }} 로 수정합니다. -->
+                <td class="col-author">{{ post.author }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>
