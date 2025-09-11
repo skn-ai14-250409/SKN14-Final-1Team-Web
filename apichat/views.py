@@ -608,6 +608,7 @@ def delete_card(request, card_id):
 # 추천 질문 생성
 OPENAI_SUGGEST_MODEL = os.getenv("OPENAI_SUGGEST_MODEL", "gpt-4o-mini")
 
+
 def generate_suggestions(user_q: str, answer: str, k: int = 5) -> list[str]:
     """사용자 질문 + 현재 답변을 보고 후속 질문 추천"""
     api_key = os.getenv("OPENAI_API_KEY")

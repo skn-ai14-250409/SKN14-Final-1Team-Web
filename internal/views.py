@@ -48,14 +48,16 @@ def chat(request):
 
             # 현재 사용자 메시지를 대화 기록에 추가
             db_chat_history.append({"role": "user", "content": user_message})
-            
+
             if rank == "cto":
-                permission="cto"
+                permission = "cto"
             else:
-                permission=department
+                permission = department
 
             # RAG 봇 호출
-            response, title = run_sllm(db_chat_history, permission=permission, tone=tone)
+            response, title = run_sllm(
+                db_chat_history, permission=permission, tone=tone
+            )
 
             # 사용자 메시지 저장
             ChatMessage.objects.create(
@@ -66,15 +68,16 @@ def chat(request):
             ChatMessage.objects.create(
                 session=session, role="assistant", content=response
             )
-            
+
             # title이 없거나 초기 "새로운 대화" 메시지로 존재할 때
             if not session.title or session.title == "새로운 대화":
                 session.title = title
                 session.save(update_fields=["title"])
 
-
             # 갱신된 제목을 응답에 포함
-            return JsonResponse({"success": True, "bot_message": response,  "title": session.title})
+            return JsonResponse(
+                {"success": True, "bot_message": response, "title": session.title}
+            )
 
         except Exception as e:
             return JsonResponse(
