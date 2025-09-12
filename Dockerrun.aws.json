@@ -16,6 +16,10 @@
     {
       "HostDirectory": "/var/app/media",
       "ContainerDirectory": "/app/media"
+    },
+    {
+      "HostDirectory": "/mnt/huggingface",
+      "ContainerDirectory": "/root/.cache/huggingface"
     }
   ],
   "Logging": "/var/log/nginx"
