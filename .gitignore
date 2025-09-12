@@ -391,3 +391,9 @@ staticfiles
 
 /**/vectordb
 /**/chroma_db
+
+# media/profile 안의 모든 파일 무시
+media/profile/*
+
+# 단, default.png는 예외로 추적
+!media/profile/default.png
