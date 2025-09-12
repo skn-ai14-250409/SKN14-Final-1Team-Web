@@ -209,6 +209,26 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     border-radius: 4px;
 }
 
+.profile-image-container {
+    position: relative;
+    width: 120px;   /* ← 원 크기 키우기 */
+    height: 120px;  /* ← 원 크기 키우기 */
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #ddd; /* 테두리도 조금 굵게 */
+    background-color: #fff;
+}
+.profile-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+=======
+
 /* Responsive Styles for Mobile & Tablet */
 @media (max-width: 768px) {
     .main-layout {
@@ -259,4 +279,5 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
 .main-content code {
     font-family: 'D2Coding', 'Consolas', 'Monaco', monospace;
     font-size: 0.9rem;
+
 }
