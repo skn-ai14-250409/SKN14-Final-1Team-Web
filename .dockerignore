@@ -1,5 +1,7 @@
 .idea
+.DS_Store
 .git
+.github
 .gitignore
 __pycache__
 *.pyc
@@ -12,3 +14,5 @@ Dockerfile
 *.yml
 .env
 db.sqlite3
+requirements-dev.txt
+.pre-commit-config.yaml

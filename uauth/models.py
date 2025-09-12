@@ -86,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         choices=Status.choices,
         default=Status.PENDING,
     )
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # AbstractBaseUser 제공: password, last_login
@@ -94,14 +94,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Django 관리용 (Django Admin/인증과 호환)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
+
     profile_image = models.ImageField(
-        upload_to='profile/',  # media/profile/ 폴더에 저장됨
+        upload_to="profile/",  # media/profile/ 폴더에 저장됨
         blank=True,
         null=True,
-        default='profile/default2.png' 
+        default="profile/default.png",
     )
-
 
     # 로그인 ID 필드 = id
     USERNAME_FIELD = "id"

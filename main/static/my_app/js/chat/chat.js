@@ -230,20 +230,20 @@ function escapeHtml(str) {
 // 메시지를 채팅창에 추가하는 함수
 function addMessage(text, role = 'user', id = null, imageData = null) {
   const li = document.createElement('li');
-  li.className = `msg msg--${role}`;   // 선택 모드가 찾는 클래스
-  if (id != null) li.dataset.mid = id; // 데이터 id 부여
-  
-  let content = `<div class="bubble">${escapeHtml(text)}</div>`;
+  li.className = `msg msg--${role}`;
+  if (id != null) li.dataset.mid = id;
+
+  let content = `<div class="bubble">${marked.parse(text)}</div>`;
+
   if (imageData) {
     content += `<div class="image-preview"><img src="${imageData}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 8px;"></div>`;
   }
-  
+
   li.innerHTML = content;
   chatLog.appendChild(li);
   chatLog.scrollTop = chatLog.scrollHeight;
   return li;
 }
-
 // 메시지 전송 함수 수정
 async function sendMessage() {
     const messageInput = document.getElementById('chatInput');

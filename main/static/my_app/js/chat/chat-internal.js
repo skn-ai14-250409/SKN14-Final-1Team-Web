@@ -209,9 +209,11 @@ function escapeHtml(str) {
 // 메시지를 채팅창에 추가하는 함수
 function addMessage(text, role = "user", id = null) {
   const li = document.createElement("li");
-  li.className = `msg msg--${role}`; // 선택 모드가 찾는 클래스
-  if (id != null) li.dataset.mid = id; // 데이터 id 부여
-  li.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+  li.className = `msg msg--${role}`;
+  if (id != null) li.dataset.mid = id;
+
+  li.innerHTML = `<div class="bubble">${marked.parse(text)}</div>`;
+
   chatLog.appendChild(li);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
