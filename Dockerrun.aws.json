@@ -9,13 +9,14 @@
       "ContainerPort": 8000
     }
   ],
-  "Environment": [
-    { "Name": "OPENAI_API_KEY", "Value": "${OPENAI_API_KEY}" }
-  ],
   "Volumes": [
     {
       "HostDirectory": "/var/app/media",
       "ContainerDirectory": "/app/media"
+    },
+    {
+      "HostDirectory": "/mnt/huggingface",
+      "ContainerDirectory": "/root/.cache/huggingface"
     }
   ],
   "Logging": "/var/log/nginx"
