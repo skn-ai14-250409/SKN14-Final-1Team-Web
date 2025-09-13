@@ -227,7 +227,7 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     object-fit: cover;
     display: block;
     border-radius: 50%;
-=======
+}
 
 /* Responsive Styles for Mobile & Tablet */
 @media (max-width: 768px) {
