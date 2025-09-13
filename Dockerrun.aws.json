@@ -9,15 +9,6 @@
       "ContainerPort": 8000
     }
   ],
-  "Volumes": [
-    {
-      "HostDirectory": "/var/app/media",
-      "ContainerDirectory": "/app/media"
-    },
-    {
-      "HostDirectory": "/mnt/huggingface",
-      "ContainerDirectory": "/root/.cache/huggingface"
-    }
-  ],
+  "Volumes": [],
   "Logging": "/var/log/nginx"
 }

@@ -208,3 +208,76 @@ button { cursor: pointer; border: 1px solid #ccc; background-color: #fff; paddin
     background-color: transparent; /* 평소 투명 */
     border-radius: 4px;
 }
+
+.profile-image-container {
+    position: relative;
+    width: 120px;   /* ← 원 크기 키우기 */
+    height: 120px;  /* ← 원 크기 키우기 */
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #ddd; /* 테두리도 조금 굵게 */
+    background-color: #fff;
+}
+.profile-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+}
+
+/* Responsive Styles for Mobile & Tablet */
+@media (max-width: 768px) {
+    .main-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        box-sizing: border-box;
+    }
+    .content-wrapper {
+        height: auto;
+        overflow: visible;
+    }
+    .main-content {
+        overflow-y: visible;
+    }
+    .top-header {
+        justify-content: space-between;
+    }
+       .home-buttons {
+        display: flex;
+        flex-direction: column; /* 버튼들을 세로로 쌓음 */
+        align-items: center;   /* 가운데 정렬 */
+        width: 100%;
+    }
+
+    .home-buttons a {
+        margin: 0.5rem 0; /* 좌우 마진을 없애고 상하 마진으로 변경 */
+        width: 80%;       /* 버튼 너비를 통일 */
+        max-width: 300px; /* 너무 커지지 않도록 최대 너비 설정 */
+    }
+}
+
+/* Markdown Code Block Styles */
+.main-content pre {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.main-content code {
+    font-family: 'D2Coding', 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+
+}
