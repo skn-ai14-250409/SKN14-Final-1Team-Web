@@ -78,7 +78,12 @@
                    required pattern="^(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[a-z\d@$!%*?&]{8,}$"
                    aria-describedby="passwordErr" autocomplete="new-password"
                    {% if form.password.errors %}aria-invalid="true"{% endif %}>
-            <button class="toggle" type="button" aria-label="비밀번호 표시" data-target="password">👁</button>
+            <button class="toggle" type="button" aria-label="비밀번호 표시" data-target="password">
+              <svg class="eye-icon" id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
           </div>
           <div id="passwordErr" class="error">
             {% for err in form.password.errors %}<p>{{ err }}</p>{% endfor %}
@@ -92,7 +97,12 @@
             <input id="confirmPassword" name="confirmPassword" type="password" placeholder="비밀번호를 다시 입력하세요"
                    required aria-describedby="confirmErr" autocomplete="new-password"
                    {% if form.confirmPassword.errors %}aria-invalid="true"{% endif %}>
-            <button class="toggle" type="button" aria-label="비밀번호 확인 표시" data-target="confirmPassword">👁</button>
+            <button class="toggle" type="button" aria-label="비밀번호 확인 표시" data-target="confirmPassword">
+              <svg class="eye-icon" id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
           </div>
           <div id="confirmErr" class="error">
             {% for err in form.confirmPassword.errors %}<p>{{ err }}</p>{% endfor %}
