@@ -1,20 +1,26 @@
 {% extends 'my_app/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'my_app/css/community/community.css' %}">
+{% endblock %}
+
 {% block title %}새 글 작성{% endblock %}
 
 {% block content %}
-<div style="padding: 24px; background-color: #fff; border-radius: 8px;">
+<div class="form-container">
     <h2>새 글 작성하기</h2>
-    <form method="post" action="{% url 'main:create-post' %}">
+    <form method="post">
         {% csrf_token %}
-        <div style="margin-bottom: 1rem;">
-            <label for="id_title">제목:</label>
+        <div class="form-group">
+            <label for="id_title">제목</label>
             {{ form.title }}
         </div>
-        <div style="margin-bottom: 1rem;">
-            <label for="id_content">내용:</label>
+        <div class="form-group">
+            <label for="id_content">내용</label>
             {{ form.content }}
         </div>
-        <button type="submit">등록하기</button>
+        <button type="submit" class="btn-submit">등록하기</button>
     </form>
 </div>
 {% endblock %}
