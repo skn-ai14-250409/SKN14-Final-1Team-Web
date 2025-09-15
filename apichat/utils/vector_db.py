@@ -110,9 +110,7 @@ def download_drive_folder_to_chroma_db(folder_url: str, target_dir: Path):
 
 def create_chroma_db():
     HERE = Path(__file__).resolve().parent
-    FOLDER_URL = (
-        "https://drive.google.com/drive/folders/1_paLIqOIeOyozE-wsKuMO4wIiOpaLio9"
-    )
+    FOLDER_URL = "https://drive.google.com/drive/folders/1wp-Cy05VKJi1kYAku8AkJylO4i0hqdzN?usp=drive_link"
     target_path = HERE / "chroma_db"
 
     download_drive_folder_to_chroma_db(FOLDER_URL, target_path)
