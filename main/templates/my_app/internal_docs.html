@@ -4,15 +4,18 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'my_app/css/chat/chat.css' %}">
 
-<div class="content-header">
-  <div class="search-bar">
-    <input type="text" placeholder="검색창에 문서 내용을 찾아보세요" />
-    <button type="submit">🔍</button>
+<div class="content-header header-split">
+  <div class="left-group">
+    <button id="btnCardSelect">카드만들기</button>
+    <button id="btnCardSave">카드 저장</button>
+    <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
   </div>
-
-  <button class="formal-button">공손 말투</button>
-  <button class="informal-button">친구 말투</button>
+  <div class="right-group">
+    <button class="formal-button">공손 말투</button>
+    <button class="informal-button">친구 말투</button>
+  </div>
 </div>
+
 
 <div class="chat-area">
     <h2></h2>

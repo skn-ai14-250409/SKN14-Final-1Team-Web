@@ -35,21 +35,15 @@ async function copyToClipboard(textToCopy) {
 function toggleEditMode() {
   const editBtn = document.getElementById('edit-btn');
   const saveBtn = document.getElementById('save-btn');
-
-  const formEl = document.getElementById('profile-form');
-  const rankCode = formEl?.dataset.rank;
-  const isCTO = rankCode === 'cto';
-
-  const editableInputs = document.querySelectorAll('#profile-form input:not(#id):not(#rank)');
-  const editableSelects = document.querySelectorAll('#profile-form select');
-
-  const deptText = document.getElementById('department-text');
-  const deptSelect = document.getElementById('department-select');
   const genderText = document.getElementById('gender-text');
   const genderSelect = document.getElementById('gender-select');
 
-  const accountSection = document.querySelector('.account-section');
+  const editableInputs = document.querySelectorAll(
+    '#profile-form input:not(#id):not(#rank):not(#department)'
+  );
+  const editableSelects = document.querySelectorAll('#profile-form select');
 
+  const accountSection = document.querySelector('.account-section');
   const isEditMode = editBtn.style.display !== 'none';
 
   if (isEditMode) {
@@ -57,34 +51,17 @@ function toggleEditMode() {
     saveBtn.style.display = 'block';
 
     editableInputs.forEach(input => {
-      if (isCTO && input.id === 'department-text') {
-        input.setAttribute('readonly', true);
-      } else {
-        input.removeAttribute('readonly');
-      }
+      input.removeAttribute('readonly');
     });
 
     editableSelects.forEach(select => {
-      if (isCTO && select.id === 'department-select') {
-        select.setAttribute('disabled', true);
-      } else {
-        select.removeAttribute('disabled');
-      }
+      select.removeAttribute('disabled');
     });
-
-    if (isCTO) {
-      deptText.style.display = 'inline';
-      deptSelect.style.display = 'none';
-    } else {
-      deptText.style.display = 'none';
-      deptSelect.style.display = 'inline';
-    }
-
+    
     genderText.style.display = 'none';
     genderSelect.style.display = 'inline';
 
     accountSection.classList.add('editing');
-
   } else {
     editBtn.style.display = 'block';
     saveBtn.style.display = 'none';
@@ -92,8 +69,6 @@ function toggleEditMode() {
     editableInputs.forEach(i => i.setAttribute('readonly', true));
     editableSelects.forEach(s => s.setAttribute('disabled', true));
 
-    deptText.style.display = 'inline';
-    deptSelect.style.display = 'none';
     genderText.style.display = 'inline';
     genderSelect.style.display = 'none';
 

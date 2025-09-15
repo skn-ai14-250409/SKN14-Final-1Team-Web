@@ -9,14 +9,14 @@
 <div class="layout">
   <!-- 메인 영역 -->
   <div class="main-pane">
-    <div class="content-header">
-      <div class="search-bar">
-        <input type="text" placeholder="검색창에 문서 내용을 찾아보세요">
-        <button type="submit">🔍</button>
+    <div class="content-header content-header--split">
+      <div class="left-group">
+        <button id="btnCardSelect">카드만들기</button>
+        <button id="btnCardSave">카드 저장</button>
+        <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
       </div>
-      <button id="btnCardSelect">카드만들기</button>
-      <button id="btnCardSave">카드 저장</button>
-      <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
+      <div class="right-group">
+      </div>
     </div>
 
     <div class="chat-area">

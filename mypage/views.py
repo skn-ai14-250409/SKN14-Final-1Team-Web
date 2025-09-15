@@ -57,7 +57,6 @@ def mypage_edit(request):
         print("POST 데이터:", request.POST)
         try:
             name = request.POST.get("name")
-            department = request.POST.get("department")
             email = request.POST.get("email")
             gender = request.POST.get("gender")
             phone = request.POST.get("phone")
@@ -65,8 +64,6 @@ def mypage_edit(request):
 
             if name:
                 request.user.name = name
-            if department:
-                request.user.department = department
             if email:
                 request.user.email = email
             if gender:
