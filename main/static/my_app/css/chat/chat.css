@@ -94,3 +94,33 @@
 .suggest-chip:hover{
   background: #f5f5f5;
 }
+
+.content-header {
+  margin-bottom: 10px;
+}
+
+.content-header--split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.content-header--split .left-group button,
+.content-header--split .right-group button {
+  margin-right: 6px;
+}
+
+.header-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-split .left-group button {
+  margin-right: 6px;
+}
+
+.header-split .right-group button {
+  margin-left: 6px;
+}
