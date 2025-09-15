@@ -360,3 +360,113 @@ function getCookie(name) {
   return m ? m.pop() : "";
 }
 const CSRF = getCookie("csrftoken");
+
+// ====== 카드 선택/저장 기능 ======
+(function initCardSelectSave() {
+  const $btnSelect = document.getElementById('btnCardSelect');
+  const $btnSave   = document.getElementById('btnCardSave');
+  const $selCount  = document.getElementById('selCount');
+
+  const $chatLog = chatLog;
+
+  if ($btnSave) $btnSave.disabled = true;
+  if (!$btnSelect || !$btnSave || !$selCount || !$chatLog) {
+    console.warn('카드 선택/저장 UI 요소를 찾지 못해 기능을 건너뜁니다.');
+    return;
+  }
+
+  let selecting   = false;
+  let selectedIds = [];
+
+  function updateSelectUI() {
+    [...$chatLog.querySelectorAll('li.msg')].forEach(li => {
+      const mid = li.dataset.mid;
+      const chosen = selectedIds.includes(mid);
+
+      if (selecting) {
+        li.classList.add('msg--selecting');
+        li.classList.toggle('msg--chosen', chosen);
+
+        let mark = li.querySelector('.select-mark');
+        if (!mark) {
+          mark = document.createElement('span');
+          mark.className = 'select-mark';
+          mark.textContent = '✓';
+          li.appendChild(mark);
+        }
+        mark.style.display = 'inline';
+        mark.style.opacity = chosen ? '1' : '0.25';
+      } else {
+        li.classList.remove('msg--selecting', 'msg--chosen');
+        const mark = li.querySelector('.select-mark');
+        if (mark) mark.remove();
+      }
+    });
+
+    $btnSave.disabled = !selecting || selectedIds.length === 0;
+    $selCount.style.display = selecting ? 'inline' : 'none';
+    $selCount.textContent = `${selectedIds.length}개 선택`;
+    $btnSelect.textContent = selecting ? '선택 취소' : '카드만들기';
+  }
+
+  $btnSelect.addEventListener('click', () => {
+    selecting = !selecting;
+    if (!selecting) selectedIds = [];
+    updateSelectUI();
+  });
+
+  $chatLog.addEventListener('click', (e) => {
+    if (!selecting) return;
+    const li = e.target.closest('li.msg');
+    if (!li) return;
+    const mid = li.dataset.mid;
+    if (!mid) return;
+
+    const idx = selectedIds.indexOf(mid);
+    if (idx === -1) selectedIds.push(mid);
+    else selectedIds.splice(idx, 1);
+
+    updateSelectUI();
+  });
+
+  // 카드 저장
+  $btnSave.addEventListener('click', async () => {
+    if (!selecting) return;
+    if (!selectedSessionId) { alert('세션 ID가 없습니다.'); return; }
+    if (selectedIds.length === 0) { alert('선택된 메시지가 없습니다.'); return; }
+
+    const raw = prompt('카드 제목(비우면 세션 제목 사용)');
+    if (raw === null) return;
+    const title = raw.trim();
+
+    try {
+      const res = await fetch('/api-chat/cards/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          session_id: Number(selectedSessionId),
+          title,
+          message_ids: selectedIds.map(Number)
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || '저장 실패');
+      alert('카드 저장 완료!');
+    } catch (err) {
+      console.error(err);
+      alert(`저장 중 오류: ${err.message}`);
+    } finally {
+      // 저장 후 선택모드 해제
+      selecting = false;
+      selectedIds = [];
+      updateSelectUI();
+    }
+  });
+
+  updateSelectUI();
+})();
