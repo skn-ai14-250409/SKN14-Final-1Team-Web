@@ -568,7 +568,11 @@ $btnSave.addEventListener('click', async () => {
   if (selectedIds.length === 0) { alert('선택된 메시지가 없습니다.'); return; }
 
   // 제목 입력 받기. 비우면 서버가 session.title 사용
-  const title = prompt('카드 제목(비우면 세션 제목 사용)') || '';
+  const raw = prompt('카드 제목(비우면 세션 제목 사용)');
+
+  if (raw === null) return;
+
+  const title = raw.trim();
 
   try {
     const res = await fetch('/api-chat/cards/save/', {
