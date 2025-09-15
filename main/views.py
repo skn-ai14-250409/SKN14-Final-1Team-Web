@@ -44,7 +44,7 @@ def community_board_view(request):
     regular_posts_list = (
         Post.objects.select_related("author")
         .exclude(id__in=best_post_ids)
-        .order_by("-likes", "-created_at")
+        .order_by("-created_at")
     )
     paginator = Paginator(regular_posts_list, 10)
     page_number = request.GET.get("page")
