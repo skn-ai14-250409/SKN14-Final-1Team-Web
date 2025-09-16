@@ -129,7 +129,7 @@
                     <span>{{ card.title }}</span>
                     <div class="actions">
                         <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
-                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                        <a href="{% url 'main:internal-docs' %}?session_id={{ card.session_id }}">
                         <button>채팅 보러가기</button>
                         </a>
                         <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>

@@ -18,6 +18,22 @@ if (newsessionBtn) {
 
 // 초기 세션 선택 (Django 템플릿으로 렌더링된 첫 번째 세션 선택)
 async function initializeFirstSession() {
+  // 추가=======
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionIdFromUrl = urlParams.get('session_id');
+
+  if (sessionIdFromUrl) {
+    // URL에서 세션 ID를 찾았다면 해당 세션을 선택
+    const sessionLink = document.querySelector(`[data-session-id="${sessionIdFromUrl}"]`);
+    if (sessionLink) {
+      selectedSessionId = sessionIdFromUrl;
+      sessionTitle.textContent = sessionLink.textContent.trim();
+      sessionLink.parentElement.classList.add('is-active');
+      await loadChatHistory(selectedSessionId);
+      return; 
+    }
+  }
+  //=====================
   if (!sessionList) {
     console.warn("#sessionList 가 없어 초기 선택을 건너뜀");
     return;
@@ -58,6 +74,12 @@ sessionList.addEventListener("click", async (e) => {
 
   // 채팅 히스토리 로드
   await loadChatHistory(selectedSessionId);
+
+  // 추가: URL 변경======
+  const newUrl = new URL(window.location.href);
+  newUrl.searchParams.set('session_id', selectedSessionId);
+  window.history.pushState({ sessionId: selectedSessionId }, '', newUrl.href);
+  //=====================
 });
 
 // 세션 삭제 함수
