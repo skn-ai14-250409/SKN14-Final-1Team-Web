@@ -61,10 +61,10 @@ LOGGING = {
     # 이름 없는 기본 로거
     # 내가 만든 코드(logging.getLogger(__name__))에서 로거 이름이 별도로 없으면 root가 처리
     # "handlers": ["console"] → console로 출력
-    # "level": "DEBUG" → DEBUG 이상 로그 처리
+    # "level": "INFO" → INFO 이상 로그 처리
     "root": {
         "handlers": ["console"],
-        "level": "DEBUG",
+        "level": "INFO",
     },
 }
 
