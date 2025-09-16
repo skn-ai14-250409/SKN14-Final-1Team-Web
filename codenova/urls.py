@@ -1,9 +1,17 @@
+from django.http import HttpResponse
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+# health_check 함수
+def health_check(request):
+    return HttpResponse("OK", status=200)
+
+
 urlpatterns = [
+    path("health/", health_check),
     path("admin/", admin.site.urls),
     path("", include("uauth.urls")),
     path("main/", include("main.urls")),
