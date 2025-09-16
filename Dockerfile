@@ -12,6 +12,12 @@ RUN pip install --user --no-cache-dir -r requirements-prod.txt
 FROM python:3.12-slim
 WORKDIR /app
 
+# .pyc 파일 생성 방지
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Python 출력 버퍼링 방지
+ENV PYTHONUNBUFFERED=1
+
 # copy only installed packages from builder
 ENV PATH=/root/.local/bin:$PATH
 COPY --from=builder /root/.local /root/.local
