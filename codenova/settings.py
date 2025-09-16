@@ -120,7 +120,6 @@ LOGOUT_REDIRECT_URL = reverse_lazy("uauth:login")
 
 
 # S3 setting
-import os
 from dotenv import load_dotenv
 
 
