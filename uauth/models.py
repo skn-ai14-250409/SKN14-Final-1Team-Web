@@ -94,8 +94,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Django 관리용 (Django Admin/인증과 호환)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
-    profile_image = models.URLField(max_length=500,default='https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png')
+
+    profile_image = models.URLField(
+        max_length=500,
+        default="https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png",
+    )
 
     # 로그인 ID 필드 = id
     USERNAME_FIELD = "id"

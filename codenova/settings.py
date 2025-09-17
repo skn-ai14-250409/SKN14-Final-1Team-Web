@@ -69,26 +69,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "codenova.wsgi.application"
 
 # --- Database ---
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-# MySQL 사용 시 아래 예시 사용
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("MYSQL_DATABASE", "codenovadb"),
-        "USER": os.environ.get("MYSQL_USER", "django"),
-        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "django"),
-        "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("MYSQL_PORT", "3306"),
-        "OPTIONS": {
-            "charset": "utf8mb4",
-        },
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+# MySQL 사용 시 아래 예시 사용
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": os.environ.get("MYSQL_DATABASE", "codenovadb"),
+#         "USER": os.environ.get("MYSQL_USER", "django"),
+#         "PASSWORD": os.environ.get("MYSQL_PASSWORD", "django"),
+#         "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
+#         "PORT": os.environ.get("MYSQL_PORT", "3306"),
+#         "OPTIONS": {
+#             "charset": "utf8mb4",
+#         },
+#     }
+# }
 
 # --- Auth password validators ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -110,7 +110,6 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic 결과물
 STATICFILES_DIRS = [BASE_DIR / "main" / "static"]  # 개발용 정적 소스
-
 
 
 # --- Defaults ---

@@ -205,7 +205,7 @@ def signup_view(request: HttpRequest):
         s3_client = S3Client()
         image_url = s3_client.upload(profile_image)
         if not image_url:
-            print("image url 생성 오류") 
+            print("image url 생성 오류")
 
     # DB 저장 (중복 아이디 방어)
     try:
@@ -221,7 +221,7 @@ def signup_view(request: HttpRequest):
                 phone=phone,
                 status=Status.PENDING,
                 is_active=True,
-                profile_image = image_url
+                profile_image=image_url,
             )
             user.set_password(password)  # 해시 저장
             # user.is_active = False

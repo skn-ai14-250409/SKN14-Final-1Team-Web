@@ -11,6 +11,7 @@ from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from uauth.aws_s3_service import S3Client
 
+
 @login_required
 def mypage(request):
     # [GET] 페이지 로딩
@@ -77,7 +78,7 @@ def mypage_edit(request):
             if profile_image:
                 s3_client = S3Client()
                 image_url = s3_client.upload(profile_image)
-                request.user.profile_image = image_url  
+                request.user.profile_image = image_url
 
             request.user.save()
 
