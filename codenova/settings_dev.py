@@ -1,5 +1,8 @@
 import os
 from .settings import *
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEBUG = False
 
@@ -8,27 +11,20 @@ ALLOWED_HOSTS = [
     ALLOWED_HOST,
 ]
 
+# 개발 db
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQL_DATABASE", "codenovadb"),
+        "USER": os.environ.get("MYSQL_USER", "django"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "django"),
+        "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
     }
 }
-
-# 개발 db
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": os.environ.get("MYSQL_DATABASE"),
-#         "USER": os.environ.get("MYSQL_USER"),
-#         "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
-#         "HOST": os.environ.get("MYSQL_HOST", "localhost"),
-#         "PORT": os.environ.get("MYSQL_PORT", "3306"),
-#         "OPTIONS": {
-#             "charset": "utf8mb4",
-#         },
-#     }
-# }
 
 LOGGING = {
     # 파이썬 로깅 설정 버전 항상 1로 고정.

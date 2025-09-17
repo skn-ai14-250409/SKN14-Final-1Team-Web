@@ -4,6 +4,12 @@ WORKDIR /app
 
 ENV PATH=/root/.local/bin:$PATH
 
+RUN apt-get update && apt-get install -y \
+    gcc \
+    default-libmysqlclient-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
 # requirements 설치
 COPY requirements-prod.txt .
 RUN pip install --user --no-cache-dir -r requirements-prod.txt
@@ -12,6 +18,12 @@ RUN pip install --user --no-cache-dir -r requirements-prod.txt
 FROM python:3.12-slim
 WORKDIR /app
 
+# 런타임에 필요한 mysqlclient 라이브러리 설치
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 환경 변수 설정
 # .pyc 파일 생성 방지
 ENV PYTHONDONTWRITEBYTECODE=1
 
