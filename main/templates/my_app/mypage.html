@@ -14,18 +14,23 @@
             <div class="profile-section-header">
                 <div class="profile-image-container">
                     {% if user.profile_image %}
-                        <img class="profile-image" src="{{ user.profile_image.url }}" alt="{{ user.name }} 프로필">
+                        <img class="profile-image" src="{{ user.profile_image }}" alt="{{ user.name }} 프로필">
                     {% else %}
-                        <img class="profile-image" src="{{ MEDIA_URL }}profile/default.png" alt="기본 프로필">
+                        <img class="profile-image" src="{{ user.profile_image }}" alt="기본 프로필">
                     {% endif %}
                 </div>
                 <div id="edit-buttons">
+                   <label for="profile_image" class="upload-label">프로필 이미지 변경</label>
+                   <input type="file" id="profile_image" name="profile_image" accept="image/*" form="profile-form">
+
                     <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
                     <button id="save-btn" form="profile-form" class="edit-button" type="submit" style="display:none;">저장</button>
+
+                   
                 </div>
             </div>
 
-            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}" data-rank="{{ user.rank }}">
+            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}" data-rank="{{ user.rank }}" enctype="multipart/form-data" >
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id">아이디</label>

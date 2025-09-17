@@ -73,6 +73,8 @@ function toggleEditMode() {
     genderSelect.style.display = 'none';
 
     accountSection.classList.remove('editing');
+
+  
   }
 }
 
@@ -208,3 +210,28 @@ async function deleteCard(cardId) {
     alert('삭제 중 오류가 발생했습니다..');
   }
 }
+
+/* 미리보기: 즉시/지연 모두 커버 */
+(function bindProfilePreview() {
+  function attach() {
+    const fileInput = document.getElementById('profile_image');
+    const previewImg = document.querySelector('.profile-image');
+    if (!fileInput || !previewImg) return;
+
+    fileInput.addEventListener('change', function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      // Object URL 방식이 FileReader보다 간단하고 안정적
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.onload = () => URL.revokeObjectURL(url);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attach, { once: true });
+  } else {
+    attach();
+  }
+})();

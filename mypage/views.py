@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
-
+from uauth.aws_s3_service import S3Client
 
 @login_required
 def mypage(request):
@@ -61,6 +61,8 @@ def mypage_edit(request):
             gender = request.POST.get("gender")
             phone = request.POST.get("phone")
             birthday = request.POST.get("birthday")
+            profile_image = request.FILES.get("profile_image")
+            print(type(profile_image))
 
             if name:
                 request.user.name = name
@@ -72,6 +74,10 @@ def mypage_edit(request):
                 request.user.phone = phone
             if birthday:
                 request.user.birthday = birthday
+            if profile_image:
+                s3_client = S3Client()
+                image_url = s3_client.upload(profile_image)
+                request.user.profile_image = image_url  
 
             request.user.save()
 
