@@ -107,8 +107,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic 결과물
 STATICFILES_DIRS = [BASE_DIR / "main" / "static"]  # 개발용 정적 소스
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -131,3 +129,4 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.environ.get(
     "AWS_S3_REGION_NAME", "ap-northeast-2"
 )  # 기본값 설정
+AWS_STORAGE_BUCKET_NAME2 = os.environ.get("AWS_STORAGE_BUCKET_NAME2")

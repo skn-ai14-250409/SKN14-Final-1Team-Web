@@ -82,8 +82,8 @@ body {
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
-    width: 96px;
-    height: 96px;
+    width: 120px;
+    height: 120px;
     overflow: hidden;
     display: inline-flex;
     justify-content: center;
@@ -91,8 +91,8 @@ body {
 }
 
 .profile-image-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     background-color: #007bff;
     border-radius: 50%;
     display: flex;
@@ -265,4 +265,54 @@ body {
     color: #fff;
     border-color: #333;
     cursor: default;
+}
+
+
+#edit-buttons {
+  display: flex;
+  gap: 10px; /* 버튼 사이 간격 */
+  align-items: center;
+}
+
+.upload-label {
+  padding: 6px 12px;
+  background-color: #eee;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.upload-label {
+  display: inline-block;       /* 버튼처럼 블록화 */
+  padding: 8px 14px;           /* 버튼 안쪽 여백 */
+  background-color: #4CAF50;   /* 버튼 배경색 */
+  color: white;                /* 글자색 */
+  border-radius: 6px;          /* 모서리 둥글게 */
+  cursor: pointer;             /* 마우스 올리면 손가락 모양 */
+  font-size: 14px;             /* 글자 크기 */
+  font-weight: 500;            /* 글자 굵기 */
+  transition: background-color 0.3s;
+  text-align: center;          /* 텍스트 가운데 정렬 */
+}
+
+.upload-label:hover {
+  background-color: #45a049;   /* hover 시 색상 진하게 */
+}
+
+/* 이걸로 바꾸면 label 클릭이 잘 동작합니다 */
+#profile_image {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+
+/* 기본: 숨김 */
+.upload-label { 
+  display: none;
+}
+
+/* 편집 모드일 때만 노출 */
+.account-section.editing .upload-label {
+  display: inline-block;
 }
