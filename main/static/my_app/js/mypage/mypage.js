@@ -235,3 +235,65 @@ async function deleteCard(cardId) {
     attach();
   }
 })();
+
+// === API 키 토글 (👁️ 버튼 클릭 시 password/text 전환) ===
+document.addEventListener('click', function (e) {
+  if (!e.target.classList.contains('btn-toggle-visibility')) return;
+
+  // 1) data-target 우선 (예: 생성 폼의 #api_key_value)
+  const targetSel = e.target.getAttribute('data-target');
+  let input = targetSel ? document.querySelector(targetSel) : null;
+
+  // 2) 없으면 같은 value-group 내의 input 자동 탐색 (예: 리스트의 .api-value)
+  if (!input) {
+    const vg = e.target.closest('.value-group');
+    input = vg ? vg.querySelector('input[type="password"], input[type="text"]') : null;
+  }
+
+  if (!input) return; // 안전 가드
+
+  // 토글
+  input.type = (input.type === 'password') ? 'text' : 'password';
+});
+
+// === 복사하기: navigator.clipboard 실패 시 execCommand 폴백 ===
+async function copyApiKey(btn) {
+  // 리스트 항목(li) 기준으로 해당 키 input 찾기
+  const li = btn.closest('li');
+  const input =
+    li?.querySelector('.api-value') ||
+    li?.querySelector('input[type="password"], input[type="text"]');
+
+  if (!input) {
+    alert('복사할 키를 찾지 못했습니다.');
+    return;
+  }
+
+  const textToCopy = input.value;
+
+  // 1차: 최신 API
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    alert('키가 복사되었습니다!');
+    return;
+  } catch (_) {
+    // 무시하고 폴백 시도
+  }
+
+  // 2차: execCommand 폴백
+  try {
+    const temp = document.createElement('textarea');
+    temp.value = textToCopy;
+    temp.setAttribute('readonly', '');
+    temp.style.position = 'fixed';
+    temp.style.top = '-9999px';
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    alert('키가 복사되었습니다!');
+  } catch (err) {
+    console.error('클립보드 복사 실패:', err);
+    alert('복사 실패');
+  }
+}

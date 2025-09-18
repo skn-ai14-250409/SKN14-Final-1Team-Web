@@ -172,31 +172,37 @@
                             <span id="api_key_message" class="api-key-message"></span>
                         </div>
 
-                        <div class="value-group">
-                            <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
-                        </div>
+                       <div class="value-group">
+                        <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
 
+                        </div>
+ 
                         <button type="submit" id="create_key_button" disabled>키 생성</button>
                     </div>
                 </form>
 
-                <ul class="item-list" id="apiKeysList">
+               <ul class="item-list" id="apiKeysList">
                 {% for key in api_keys %}
-                    <li>
+                <li>
                     <span>{{ key.name }}</span>
-                    <span class="api-value">{{ key.secret_key }}</span>
+                    <div class="value-group">
+                    <input type="password" class="api-value api-plain" value="{{ key.secret_key }}" disabled>
+                    <button type="button" class="btn-toggle-visibility">👁️</button>
+                    </div>
                     <div class="actions">
-                        <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
-                        <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
+                    <button class="copy-button" onclick="copyApiKey(this)">복사하기</button>
+                    <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="key_id" value="{{ key.id }}">
                         <button type="submit" class="delete-button">❌</button>
-                        </form>
-                    </div>
-                    </li>
+                    </form>
+                 </div>
+                </li>
                 {% empty %}
-                    <li>등록된 API 키가 없습니다.</li>
+                <li>등록된 API 키가 없습니다.</li>
                 {% endfor %}
+                </ul>
+
                 {% if api_keys.has_other_pages %}
                 <div class="pager">
                     {% if api_keys.has_previous %}
