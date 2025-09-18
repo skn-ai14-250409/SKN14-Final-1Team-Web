@@ -316,3 +316,75 @@ body {
 .account-section.editing .upload-label {
   display: inline-block;
 }
+
+/* mypage.css 제일 아래에 한 줄만 추가(선택) */
+.value-group { display:flex; align-items:center; gap:8px; }
+
+
+/* === API 키 입력칸과 토글 버튼 정렬 (최소 수정) === */
+
+/* 생성 폼: value-group을 가로 배치로 강제 */
+.api-key-form .value-group{
+  display: flex;
+  flex-direction: row;     /* ← column으로 잡혀 떨어지는 문제 해결 */
+  align-items: center;
+  gap: 8px;
+}
+
+/* 리스트(저장된 키)도 동일하게 가로 정렬 */
+#apiKeysList li .value-group{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 입력칸이 넓게 차고, 토글 버튼은 옆에 붙도록 */
+.api-key-form .value-group input,
+#apiKeysList li .value-group input{
+  flex: 1;
+  min-width: 0;
+}
+
+/* 생성 폼의 이름 입력칸과 '키 값' 입력칸 폭 통일 */
+.api-key-form input[type="password"]{
+  width: 250px;            /* 이름 입력칸(.api-key-form input[type="text"])과 동일 */
+}
+
+/* 토글 버튼 높이를 인풋과 맞춤(필요시 조정) */
+.btn-toggle-visibility{
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+/* API 키 이름, 값 입력칸을 동일한 폭으로 맞추기 */
+.api-key-form input[type="text"],
+.api-key-form input[type="password"] {
+  width: 250px;      /* 두 칸 모두 동일한 고정 폭 */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* 토글 버튼은 입력칸 크기에 영향 주지 않도록 */
+.api-key-form .value-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-key-form .btn-toggle-visibility {
+  flex: 0 0 auto;
+  height: 36px;      /* 입력칸 높이와 비슷하게 맞춤 */
+  padding: 0 10px;
+}
+
+/* 목록에 보이는 API 값 input을 텍스트처럼 */
+.api-plain{
+  border: 0;
+  background: transparent;
+  padding: 0;
+}

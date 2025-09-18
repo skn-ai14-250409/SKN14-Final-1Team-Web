@@ -201,11 +201,17 @@ def signup_view(request: HttpRequest):
     phone = form.data.get("phoneNumber", "").strip()
     profile_image = request.FILES.get("profile_image")
 
+    DEFAULT_IMAGE_URL = "https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png"
+    image_url = DEFAULT_IMAGE_URL
+
     if profile_image:
         s3_client = S3Client()
-        image_url = s3_client.upload(profile_image)
-        if not image_url:
-            print("image url 생성 오류")
+        uploaded_url = s3_client.upload(profile_image)
+        if uploaded_url:
+            image_url = uploaded_url
+        else:
+            # 업로드 실패 시 기본 이미지 유지 + 로깅
+            print("image url 생성 오류, 기본 이미지로 대체")
 
     # DB 저장 (중복 아이디 방어)
     try:
