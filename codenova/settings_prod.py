@@ -26,8 +26,15 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # 배포 DB 설정
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQL_DATABASE", "codenovadb"),
+        "USER": os.environ.get("MYSQL_USER", "django"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "django"),
+        "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
     }
 }
 
