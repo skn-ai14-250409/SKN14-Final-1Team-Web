@@ -95,11 +95,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    profile_image = models.ImageField(
-        upload_to="profile/",  # media/profile/ 폴더에 저장됨
-        blank=True,
-        null=True,
-        default="profile/default.png",
+    profile_image = models.URLField(
+        max_length=500,
+        default="https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png",
     )
 
     # 로그인 ID 필드 = id

@@ -1,6 +1,7 @@
 django
 django-cors-headers
 python-dotenv
+mysqlclient
 gunicorn
 uvicorn
 blacknoise

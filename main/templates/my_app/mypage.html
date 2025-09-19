@@ -14,18 +14,23 @@
             <div class="profile-section-header">
                 <div class="profile-image-container">
                     {% if user.profile_image %}
-                        <img class="profile-image" src="{{ user.profile_image.url }}" alt="{{ user.name }} 프로필">
+                        <img class="profile-image" src="{{ user.profile_image }}" alt="{{ user.name }} 프로필">
                     {% else %}
-                        <img class="profile-image" src="{{ MEDIA_URL }}profile/default.png" alt="기본 프로필">
+                        <img class="profile-image" src="{{ user.profile_image }}" alt="기본 프로필">
                     {% endif %}
                 </div>
                 <div id="edit-buttons">
+                   <label for="profile_image" class="upload-label">프로필 이미지 변경</label>
+                   <input type="file" id="profile_image" name="profile_image" accept="image/*" form="profile-form">
+
                     <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
                     <button id="save-btn" form="profile-form" class="edit-button" type="submit" style="display:none;">저장</button>
+
+                   
                 </div>
             </div>
 
-            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}" data-rank="{{ user.rank }}">
+            <form id="profile-form" method="post" action="{% url 'mypage:mypage_edit' %}" data-rank="{{ user.rank }}" enctype="multipart/form-data" >
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id">아이디</label>
@@ -129,7 +134,7 @@
                     <span>{{ card.title }}</span>
                     <div class="actions">
                         <button onclick="openCardDetail('{% url 'mypage:card_detail' card.id %}')">자세히 보기</button>
-                        <a href="{% url 'main:main-chatbot' %}?session_id={{ card.session_id }}">
+                        <a href="{% url 'main:internal-docs' %}?session_id={{ card.session_id }}">
                         <button>채팅 보러가기</button>
                         </a>
                         <button class="card-del" onclick="deleteCard({{ card.id }})">❌</button>
@@ -167,31 +172,37 @@
                             <span id="api_key_message" class="api-key-message"></span>
                         </div>
 
-                        <div class="value-group">
-                            <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
-                        </div>
+                       <div class="value-group">
+                        <input type="text" name="api_key_value" id="api_key_value" placeholder="API 키 값" required>
 
+                        </div>
+ 
                         <button type="submit" id="create_key_button" disabled>키 생성</button>
                     </div>
                 </form>
 
-                <ul class="item-list" id="apiKeysList">
+               <ul class="item-list" id="apiKeysList">
                 {% for key in api_keys %}
-                    <li>
+                <li>
                     <span>{{ key.name }}</span>
-                    <span class="api-value">{{ key.secret_key }}</span>
+                    <div class="value-group">
+                    <input type="password" class="api-value api-plain" value="{{ key.secret_key }}" disabled>
+                    <button type="button" class="btn-toggle-visibility">👁️</button>
+                    </div>
                     <div class="actions">
-                        <button class="copy-button" onclick="copyToClipboard('{{ key.secret_key }}')">복사하기</button>
-                        <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
+                    <button class="copy-button" onclick="copyApiKey(this)">복사하기</button>
+                    <form method="post" action="{% url 'mypage:api_key_delete' key.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="key_id" value="{{ key.id }}">
                         <button type="submit" class="delete-button">❌</button>
-                        </form>
-                    </div>
-                    </li>
+                    </form>
+                 </div>
+                </li>
                 {% empty %}
-                    <li>등록된 API 키가 없습니다.</li>
+                <li>등록된 API 키가 없습니다.</li>
                 {% endfor %}
+                </ul>
+
                 {% if api_keys.has_other_pages %}
                 <div class="pager">
                     {% if api_keys.has_previous %}

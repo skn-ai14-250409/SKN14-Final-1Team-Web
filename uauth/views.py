@@ -22,6 +22,7 @@ from .models import ApprovalLog
 from .models import Status
 from .models import User, Status
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from .aws_s3_service import S3Client
 
 
 from .models import User, Rank, Department, Gender
@@ -157,6 +158,7 @@ class SignUpEchoForm(forms.Form):
     birthDate = forms.DateField(required=True)
     gender = forms.CharField(required=True)
     phoneNumber = forms.CharField(required=True)
+    profile_image = forms.ImageField(required=False)
 
 
 def signup_context(form=None):
@@ -199,6 +201,18 @@ def signup_view(request: HttpRequest):
     phone = form.data.get("phoneNumber", "").strip()
     profile_image = request.FILES.get("profile_image")
 
+    DEFAULT_IMAGE_URL = "https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png"
+    image_url = DEFAULT_IMAGE_URL
+
+    if profile_image:
+        s3_client = S3Client()
+        uploaded_url = s3_client.upload(profile_image)
+        if uploaded_url:
+            image_url = uploaded_url
+        else:
+            # 업로드 실패 시 기본 이미지 유지 + 로깅
+            print("image url 생성 오류, 기본 이미지로 대체")
+
     # DB 저장 (중복 아이디 방어)
     try:
         with transaction.atomic():
@@ -213,10 +227,11 @@ def signup_view(request: HttpRequest):
                 phone=phone,
                 status=Status.PENDING,
                 is_active=True,
-                profile_image=profile_image,
+                profile_image=image_url,
             )
             user.set_password(password)  # 해시 저장
             # user.is_active = False
+
             user.save()
             ApprovalLog.objects.get_or_create(
                 user=user,

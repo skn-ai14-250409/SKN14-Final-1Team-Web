@@ -5,6 +5,9 @@ Django settings for codenova project.
 from django.urls import reverse_lazy
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -66,24 +69,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "codenova.wsgi.application"
 
 # --- Database ---
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-# MySQL 사용 시 아래 예시 사용
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'codenovadb',
-#         'USER': 'django',
-#         'PASSWORD': 'django',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#         'OPTIONS': {'charset': 'utf8mb4'},
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
+# MySQL 사용 시 아래 예시 사용
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQL_DATABASE", "codenovadb"),
+        "USER": os.environ.get("MYSQL_USER", "django"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "django"),
+        "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
+    }
+}
 
 # --- Auth password validators ---
 AUTH_PASSWORD_VALIDATORS = [
@@ -107,9 +112,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic 결과물
 STATICFILES_DIRS = [BASE_DIR / "main" / "static"]  # 개발용 정적 소스
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
 # --- Defaults ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -118,16 +120,10 @@ LOGIN_URL = reverse_lazy("uauth:login")  # 루트('/')로 resolve됨 (현 구조
 LOGIN_REDIRECT_URL = reverse_lazy("main:home")  # 실제 라우트 이름에 맞게
 LOGOUT_REDIRECT_URL = reverse_lazy("uauth:login")
 
-
-# S3 setting
-from dotenv import load_dotenv
-
-
-load_dotenv()  # local 실행 시 .env 사용
-
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.environ.get(
     "AWS_S3_REGION_NAME", "ap-northeast-2"
 )  # 기본값 설정
+AWS_STORAGE_BUCKET_NAME2 = os.environ.get("AWS_STORAGE_BUCKET_NAME2")

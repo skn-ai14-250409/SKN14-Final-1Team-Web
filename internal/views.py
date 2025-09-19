@@ -35,7 +35,7 @@ def chat(request):
 
             messages = ChatMessage.objects.filter(session=session).order_by(
                 "-created_at"
-            )[:6]
+            )[:4]
             db_chat_history = []
 
             for msg in messages:

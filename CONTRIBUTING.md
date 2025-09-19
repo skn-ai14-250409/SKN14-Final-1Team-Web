@@ -19,18 +19,31 @@ pre-commit install
 `.env` 설정하기
 
 ```
-# 개발용 환경변수
-OPENAI_API_KEY=
-DJANGO_SUPERUSER_PASSWORD=
-SLLM_API_URL=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_S3_REGION_NAME=
-AWS_STORAGE_BUCKET_NAME=
+# 장고 설정
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_key
+AWS_S3_REGION_NAME=your_aws_name
+AWS_STORAGE_BUCKET_NAME=your_aws_name
+AWS_STORAGE_BUCKET_NAME2_your_aws_name
+OPENAI_API_KEY=sk-xxxx
+SLLM_API_URL=custom
+DJANGO_SUPERUSER_PASSWORD=custom
 
-# 배포용 환경변수
-ALLOWED_HOST=
-DJANGO_SETTINGS_MODULE=
+# 장고 배포 설정
+ALLOWED_HOST=*
+DJANGO_SETTINGS_MODULE=codenova.settings_dev
+
+# MYSQL 도커 설정
+MYSQL_ROOT_PASSWORD=custom
+
+# MYSQL 도커 설정 및 장고 디비 설정
+MYSQL_DATABASE=custom
+MYSQL_USER=custom
+MYSQL_PASSWORD=custom
+
+# 장고 디비 설정
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
 ```
 
 # 로컬 실행 방법
@@ -45,6 +58,10 @@ python manage.py runserver 0.0.0.0:8000
 # 도커 실행방법
 
 ```bash
+docker run -d --name codenova-mysql --env-file .env -p 3306:3306 mysql:8.0 \
+  --bind-address=0.0.0.0 \
+  --lower_case_table_names=1
+
 docker build -t codenova-web .
 docker run -d --name codenova-web --env-file .env -p 8000:8000 codenova-web
 ```

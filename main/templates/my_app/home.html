@@ -3,82 +3,225 @@
 {% block title %}CodeNova: AI와 함께, 복잡함은 단순함으로{% endblock %}
 
 {% block content %}
-<div class="hero-container">
-    <canvas id="hero-canvas" class="hero-background"></canvas>
-    <div class="hero-content glass-card">
-        <img src="{% static 'my_app/image/image.png' %}" alt="CodeNova Logo" class="hero-logo">
-        <h1 class="hero-title">AI와 함께, 복잡함은 단순함으로</h1>
-        <p class="hero-subtitle">
-            CodeNova의 지능형 챗봇으로 복잡한 API 문서와 내부 자료를 손쉽게 탐색하세요.
-        </p>
-        <div class="hero-buttons">
-            <a href="{% url 'main:main-chatbot' %}" class="hero-btn primary">메인 챗봇 시작하기</a>
-            <a href="{% url 'main:internal-docs' %}" class="hero-btn secondary">사내 내부 문서 챗봇</a>
-            <a href="{% url 'main:community-board' %}" class="hero-btn secondary">커뮤니티 둘러보기</a>
+<style>
+    .home-container {
+        width: 100%;
+    }
+
+    .landing-section {
+        height: 100vh;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background-color: #0c0c1e;
+        background-image: url("{% static 'my_app/image/background.png' %}");
+        background-size: cover;
+        background-position: center;
+    }
+
+    .codename-title {
+        font-size: 6rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 1.5s ease-out 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .scroll-down-link {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 3rem;
+        text-decoration: none;
+        opacity: 0;
+        animation: fadeIn 1.5s ease-out 1s forwards, bounce 2s infinite 2s;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+        40% { transform: translate(-50%, -20px); }
+        60% { transform: translate(-50%, -10px); }
+    }
+
+    .main-content-section {
+        min-height: 100vh;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 5rem 2rem;
+        overflow: hidden;
+        background-color: #0c0c1e;
+        opacity: 0;
+        transition: opacity 0.5s ease-out;
+    }
+
+    .main-content-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("{% static 'my_app/image/background.png' %}");
+        background-size: cover;
+        background-position: center;
+        filter: blur(10px);
+        transform: scale(1.1);
+        z-index: 0;
+    }
+
+    .main-content-section.is-visible {
+        opacity: 1;
+    }
+
+    .glass-card {
+        position: relative;
+        z-index: 1;
+        background: rgba(12, 12, 30, 0.5);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        max-width: 800px;
+        width: 100%;
+        color: white;
+    }
+
+    .hero-title,
+    .hero-subtitle,
+    .hero-buttons {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .main-content-section.is-visible .hero-title {
+        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
+
+    .main-content-section.is-visible .hero-subtitle {
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+    }
+
+    .main-content-section.is-visible .hero-buttons {
+        animation: fadeInUp 0.8s ease-out 0.9s forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+        color: #c0c0c0;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .hero-btn {
+        text-decoration: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+
+    .hero-btn.primary {
+        background-color: #4a69bd;
+    }
+    .hero-btn.primary:hover {
+        background-color: #5c7ee0;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(74, 105, 189, 0.4);
+    }
+
+    .hero-btn.secondary {
+        background-color: #31384e;
+        border-color: transparent;
+    }
+    .hero-btn.secondary:hover {
+        background-color: #414a69;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(49, 56, 78, 0.4);
+    }
+
+</style>
+
+<div class="home-container">
+    <section class="landing-section" id="landing-section">
+        <h1 class="codename-title">CodeNova</h1>
+        <a href="#main-content-section" class="scroll-down-link" aria-label="Scroll down">
+            <span>&darr;</span>
+        </a>
+    </section>
+
+    <section class="main-content-section" id="main-content-section">
+        <div class="glass-card">
+            <h1 class="hero-title">AI와 함께, 복잡함은 단순함으로</h1>
+            <p class="hero-subtitle">
+                CodeNova의 지능형 챗봇으로 복잡한 API 문서와 내부 자료를 손쉽게 탐색하세요.
+            </p>
+            <div class="hero-buttons">
+                <a href="{% url 'main:main-chatbot' %}" class="hero-btn primary">메인 챗봇 시작하기</a>
+                <a href="{% url 'main:internal-docs' %}" class="hero-btn secondary">사내 내부 문서 챗봇</a>
+                <a href="{% url 'main:community-board' %}" class="hero-btn secondary">커뮤니티 둘러보기</a>
+            </div>
         </div>
-    </div>
+    </section>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.getElementById('hero-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let particles = [];
+    const mainContent = document.getElementById('main-content-section');
 
-    function resizeCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-    }
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 0.3;
-            this.vy = (Math.random() - 0.5) * 0.3;
-            this.size = Math.random() * 1.5 + 0.5;
-            this.opacity = Math.random() * 0.5 + 0.2;
-        }
-        update() {
-            this.x += this.vx;
-            this.y += this.vy;
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(150, 180, 255, ${this.opacity})`;
-            ctx.fill();
-        }
-    }
-
-    function createParticles() {
-        particles = [];
-        const particleCount = Math.floor(canvas.width * canvas.height / 10000);
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.update();
-            p.draw();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
         });
-        requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        createParticles();
+    }, {
+        threshold: 0.15
     });
 
-    resizeCanvas();
-    createParticles();
-    animate();
+    if (mainContent) {
+        observer.observe(mainContent);
+    }
 });
 </script>
-{% endblock %}```
+{% endblock %}
