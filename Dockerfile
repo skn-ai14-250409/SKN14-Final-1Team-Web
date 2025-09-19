@@ -41,6 +41,6 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # start gunicorn with custom config
-CMD ["sh", "-c", "python manage.py migrate && python manage.py create_superuser && gunicorn -c gunicorn.conf.py"]
+ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py"]
 
 EXPOSE 8000
