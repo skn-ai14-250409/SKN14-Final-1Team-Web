@@ -6,7 +6,8 @@ from django.db import models
 # from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-
+import boto3
+from urllib.parse import urlparse
 # User = get_user_model()
 
 
@@ -166,3 +167,41 @@ def sync_user_active_on_approval(sender, instance, created, **kwargs):
     elif instance.action == Status.PENDING and user.status != Status.PENDING:
         user.status = Status.PENDING
         user.save(update_fields=["status"])
+
+
+
+# 👇 추가된 부분 (맨 아래에 붙이세요)
+
+@receiver(pre_save, sender=User)
+def delete_old_profile_image(sender, instance, **kwargs):
+    """프로필 이미지 변경 시, 기존 S3 이미지 삭제"""
+    if not instance.pk:
+        return  # 새 유저 생성 시는 무시
+
+    try:
+        old_user = User.objects.get(pk=instance.pk)
+    except User.DoesNotExist:
+        return
+
+    old_url = old_user.profile_image
+    new_url = instance.profile_image
+
+    # 기본 이미지거나 같은 URL이면 삭제 안 함
+    default_url = "https://skn14-codenova-profile.s3.ap-northeast-2.amazonaws.com/profile_image/default2.png"
+    if old_url != new_url and old_url != default_url:
+        parsed = urlparse(old_url)
+        key = parsed.path.lstrip("/")  # ex) profile_image/20250101_120000_img.png
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME2  # ✅ 업로드 버킷과 동일하게 맞춤
+
+        try:
+            s3.delete_object(Bucket=bucket_name, Key=key)
+            print(f"[S3] Deleted old profile image: {key}")
+        except Exception as e:
+            print(f"[S3] Failed to delete old profile image: {e}")
