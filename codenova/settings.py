@@ -68,7 +68,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "codenova.wsgi.application"
 
+# # --- Database ---
 # --- Database ---
+
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
