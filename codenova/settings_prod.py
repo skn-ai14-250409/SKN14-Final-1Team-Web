@@ -13,9 +13,11 @@ ALLOWED_HOSTS = [
 # 클라이언트가 HTTPS를 통해 연결했음을 Django에 알리는 설정
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+USE_X_FORWARDED_HOST = True
+
 # 모든 HTTP 요청을 HTTPS로 강제 리디렉션(Redirection)시키는 설정
 SECURE_SSL_REDIRECT = True
-SECURE_REDIRECT_EXEMPT = [r"^health/?$"]   # 헬스 경로만 예외
+SECURE_REDIRECT_EXEMPT = [r"^lb-health$", r"^health/?$"]
 
 # # 쿠키 보안 설정
 SESSION_COOKIE_SECURE = True

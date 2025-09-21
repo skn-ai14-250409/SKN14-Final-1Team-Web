@@ -9,7 +9,7 @@ from .rag2 import (
     simple_chain_setting,
     impossable_chain_setting,
 )
-from .retriever import retriever_setting
+from .retriever import vs
 
 import openai
 from dotenv import load_dotenv
@@ -22,7 +22,6 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 basic_chain = basic_chain_setting()
-vs = retriever_setting()
 query_chain = query_setting()
 classification_chain = classify_chain_setting()
 simple_chain = simple_chain_setting()
