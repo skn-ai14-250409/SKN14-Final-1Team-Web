@@ -21,7 +21,7 @@ import multiprocessing
 bind = "0.0.0.0:8000"
 
 # 워커 2개로 줄임
-workers = min(2,multiprocessing.cpu_count())
+workers = 1
 
 # ASGI용 워커
 worker_class = "uvicorn.workers.UvicornWorker"
