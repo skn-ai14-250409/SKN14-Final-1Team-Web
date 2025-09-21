@@ -40,3 +40,5 @@ loglevel = "warning"
 accesslog = "-"
 errorlog = "-"
 
+# wsgi_app 실행한 모듈 application
+wsgi_app = "codenova.asgi:application"
