@@ -1,57 +1,78 @@
-import os
-from dotenv import load_dotenv
+# app/embedding_store.py  (기존 파일 대체/수정)
 
-import torch
+import os, threading
+from dotenv import load_dotenv
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-from .vector_db import create_chroma_db
 
-# .env 로드
 load_dotenv()
 
-# 경로/모델 설정
-# 경로/모델 설정
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB_DIR = os.path.join(HERE, "chroma_db")
 COLLECTION_NAME = "google_api_docs"
-EMBED_MODEL = "BAAI/bge-m3"
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
-embeddings = HuggingFaceEmbeddings(
-    model_name=EMBED_MODEL,
-    encode_kwargs={"normalize_embeddings": True},  # DB 생성 시 설정과 일치해야 함
-)
+# 싱글톤 캐시
+_embeddings = None
+_lock = threading.Lock()
+
+def get_embeddings():
+    """
+    최초 호출 때 한 번만 모델을 로드하고, 이후로는 재사용.
+    """
+    global _embeddings
+    if _embeddings is None:
+        with _lock:
+            if _embeddings is None:
+                encode_kwargs = {"normalize_embeddings": True}
+                # ↓ 가능한 한 가볍게: CPU/INT8 등
+                model_kwargs = {}
+                device = os.getenv("EMBED_DEVICE", "cpu")  # "cpu" | "cuda"
+                if device == "cpu":
+                    # CPU에서 속도/메모리 최적화(선택)
+                    model_kwargs.update({
+                        "device": "cpu",
+                        # bitsandbytes가 없다면 아래는 무시됨
+                        "model_kwargs": {"torch_dtype": "auto"},
+                    })
+                else:
+                    model_kwargs.update({"model_kwargs": {"torch_dtype": "auto"}})
+
+                # LangChain의 HuggingFaceEmbeddings는 model_kwargs/encode_kwargs 전달 가능
+                _embeddings = HuggingFaceEmbeddings(
+                    model_name=EMBED_MODEL,
+                    model_kwargs=model_kwargs.get("model_kwargs", {}),
+                    encode_kwargs=encode_kwargs,
+                )
+    return _embeddings
 
 
-def retriever_setting(force_download=False):
-    # 디렉토리 존재 및 내용 확인
+def retriever_setting(force_download: bool = False):
+    """
+    벡터 DB 로더. health 체크에서는 호출 금지!
+    """
     need_download = force_download
-
     if not os.path.isdir(DB_DIR):
         need_download = True
     else:
-        # 디렉토리는 있지만 내용이 불완전한지 확인
         chroma_file = os.path.join(DB_DIR, "chroma.sqlite3")
         folder_dir = os.path.join(DB_DIR, "8013b0ca-2294-4f8f-9494-65628bc6fc3f")
-
-        if not os.path.exists(chroma_file) or not os.path.exists(folder_dir):
+        if not (os.path.exists(chroma_file) and os.path.exists(folder_dir)):
             need_download = True
         else:
-            # 폴더 내부 내용도 확인
             try:
-                folder_contents = os.listdir(folder_dir)
-                if len(folder_contents) == 0:
+                if len(os.listdir(folder_dir)) == 0:
                     need_download = True
             except Exception:
                 need_download = True
 
     if need_download:
+        from .vector_db import create_chroma_db
         create_chroma_db()
 
-    # 기존 크로마 벡터스토어 로드
     vs = Chroma(
-        collection_name=COLLECTION_NAME,  # DB 생성 시 컬렉션명과 동일해야 함
+        collection_name=COLLECTION_NAME,
         persist_directory=DB_DIR,
-        embedding_function=embeddings,
+        embedding_function=get_embeddings(),  # ★ 여기서 최초 1회만 로드
     )
-
     return vs
