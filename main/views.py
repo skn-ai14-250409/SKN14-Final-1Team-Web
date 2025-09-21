@@ -189,7 +189,7 @@ BASE_DIR = getattr(settings, "BASE_DIR", os.getcwd())
 CHROMA_PERSIST_DIR = os.path.join(BASE_DIR, "apichat", "utils", "chroma_db")
 
 CHROMA_PERSIST_DIR = os.environ.get("CHROMA_PERSIST_DIR", CHROMA_PERSIST_DIR)
-COLLECTION_NAME = "qna_collection"
+COLLECTION_NAME = "google_api_docs"
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_NAME", "BAAI/bge-m3")
 
 # 초기화
