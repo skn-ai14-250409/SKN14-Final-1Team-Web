@@ -20,8 +20,8 @@ import multiprocessing
 # gunicorn.conf.py — 안전 기본값 (ASGI + 큰 모델)
 bind = "0.0.0.0:8000"
 
-# 워커 1개: 모델을 한 번만 로드
-workers = multiprocessing.cpu_count()
+# 워커 2개로 줄임
+workers = min(2,multiprocessing.cpu_count())
 
 # ASGI용 워커
 worker_class = "uvicorn.workers.UvicornWorker"
