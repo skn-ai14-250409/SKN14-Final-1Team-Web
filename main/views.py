@@ -183,190 +183,182 @@ def delete_post(request, post_id):
         return redirect("main:community-board")
     return HttpResponseForbidden()
 
+# apichat/utils/docsearch_view.py (현재 파일 대체해도 되고, 내용만 반영)
 
-# Chroma 설정
+import os, json, threading, re
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.conf import settings
+
+# -------- 설정 --------
 BASE_DIR = getattr(settings, "BASE_DIR", os.getcwd())
-CHROMA_PERSIST_DIR = os.path.join(BASE_DIR, "apichat", "utils", "chroma_db")
-
-CHROMA_PERSIST_DIR = os.environ.get("CHROMA_PERSIST_DIR", CHROMA_PERSIST_DIR)
-COLLECTION_NAME = "google_api_docs"
+CHROMA_PERSIST_DIR = os.environ.get(
+    "CHROMA_PERSIST_DIR",
+    os.path.join(BASE_DIR, "apichat", "utils", "chroma_db"),
+)
+COLLECTION_NAME = os.environ.get("COLLECTION_NAME", "google_api_docs")
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_NAME", "BAAI/bge-m3")
+EMBED_DEVICE = os.environ.get("EMBED_DEVICE", "cpu")
 
-# 초기화
-try:
-    import chromadb
-    from chromadb.utils import embedding_functions
+os.environ.setdefault("CHROMA_TELEMETRY_DISABLED", "1")
+os.makedirs(CHROMA_PERSIST_DIR, exist_ok=True)
 
-    CHROMA_OK = True
-except Exception as e:
-    CHROMA_OK = False
-    CHROMA_ERR = f"import error: {e}"
+# -------- Lazy state --------
+_client = None
+_collection = None
+_existing = []
+_lock = threading.Lock()
+_init_err = None
+_UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
 
-client = None
-collection = None
-existing = []
-TOTAL_COUNT = 0
-
-if CHROMA_OK:
+def _open_collection(client, maybe_name_or_id, emb):
+    """name 우선 → id 보조 → 목록 매칭 → 없으면 생성"""
+    # 1) 이름으로 우선 시도
     try:
-        emb = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name=EMBED_MODEL_NAME
-        )
-        client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
-        existing = [c.name for c in client.list_collections()]
+        return client.get_collection(name=maybe_name_or_id, embedding_function=emb)
+    except Exception:
+        pass
+    # 2) UUID처럼 보이면 id로 시도
+    if _UUID_RE.match(maybe_name_or_id or ""):
+        try:
+            return client.get_collection(id=maybe_name_or_id, embedding_function=emb)
+        except Exception:
+            pass
+    # 3) 목록에서 id 일치 찾기 → 해당 name으로 열기
+    for c in client.list_collections():
+        if getattr(c, "id", None) == maybe_name_or_id:
+            return client.get_collection(name=c.name, embedding_function=emb)
+    # 4) 최종: 없으면 생성
+    return client.get_or_create_collection(
+        name=(maybe_name_or_id or "docs"), embedding_function=emb
+    )
 
-        # 컬렉션 이름이 지정되지 않았다면 자동 선택
-        #  - 1개뿐이면 그걸 선택
-        #  - 여러개면 'docs' 포함 → 'apichat' 포함 → 첫 번째 순으로 선택
-        name = COLLECTION_NAME
-        if not name:
-            if len(existing) == 1:
-                name = existing[0]
-            else:
-                candidates = [n for n in existing if "docs" in n.lower()] or [
-                    n for n in existing if "apichat" in n.lower()
-                ]
-                name = (
-                    candidates[0]
-                    if candidates
-                    else (existing[0] if existing else "docs")
-                )
-        collection = client.get_collection(name=name, embedding_function=emb)
-        TOTAL_COUNT = collection.count()
-        COLLECTION_NAME = name
-    except Exception as e:
-        CHROMA_OK = False
-        CHROMA_ERR = f"init error: {e}"
+def _ensure_chroma():
+    """최초 요청 때 한 번만 초기화(헬스 방해 X)"""
+    global _client, _collection, _existing, _init_err
+    if _collection is not None or _init_err is not None:
+        return
+    with _lock:
+        if _collection is not None or _init_err is not None:
+            return
+        try:
+            import chromadb
+            from chromadb.utils import embedding_functions
 
+            emb = embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name=EMBED_MODEL_NAME,
+                device=EMBED_DEVICE,  # ★ CPU/GPU 명시
+            )
+            _client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
+            _existing = [c.name for c in _client.list_collections()]
+            name = COLLECTION_NAME
+            # 이름이 비어있다면 자동 선택 규칙
+            if not name:
+                if len(_existing) == 1:
+                    name = _existing[0]
+                else:
+                    prefer = [n for n in _existing if "docs" in n.lower()] \
+                          or [n for n in _existing if "apichat" in n.lower()]
+                    name = prefer[0] if prefer else (_existing[0] if _existing else "docs")
+            # name/id 모두 수용
+            col = _open_collection(_client, name, emb)
+            _collection = col
+        except Exception as e:
+            _init_err = f"{type(e).__name__}: {e}"
 
-def pick_source(meta: dict) -> str:
+def _pick_source(meta: dict) -> str:
     v = (meta or {}).get("source") or (meta or {}).get("url")
-    if not v:
-        return ""
-    if isinstance(v, list):
-        return (v[0] or "").strip()
+    if not v: return ""
+    if isinstance(v, list): return (v[0] or "").strip()
     if isinstance(v, str):
         s = v.strip()
-        if s.startswith("[") or s.startswith("{"):
+        if s[:1] in "[{":
             try:
                 data = json.loads(s)
-                if isinstance(data, list) and data:
-                    return str(data[0]).strip()
-                if isinstance(data, dict) and "url" in data:
-                    return str(data["url"]).strip()
+                if isinstance(data, list) and data: return str(data[0]).strip()
+                if isinstance(data, dict) and "url" in data: return str(data["url"]).strip()
             except Exception:
                 pass
         return s
     return str(v).strip()
 
-
-def to_similarity(dist):
-    # distance → similarity 보수 변환
-    try:
-        d = float(dist)
-    except Exception:
-        return None
-    if 0.0 <= d <= 1.0:  # 이미 0~1 코사인 distance인 경우
-        return 1.0 - d
-    if 0.0 <= d <= 2.0:  # 0~2 범위로 나오는 구현에 대한 완화 변환
-        return 1.0 - (d / 2.0)
+def _to_similarity(dist):
+    try: d = float(dist)
+    except Exception: return None
+    if 0.0 <= d <= 1.0: return 1.0 - d
+    if 0.0 <= d <= 2.0: return 1.0 - (d / 2.0)
     return 1.0 / (1.0 + d)
-
 
 @require_GET
 def docsearch(request):
+    # ★ 여기서야 초기화 (임포트 시점 로딩 제거)
+    _ensure_chroma()
+
     q = (request.GET.get("q") or "").strip()
     threshold = float(request.GET.get("threshold") or 0.6)
     k = int(request.GET.get("k") or 10)
 
     if not q:
-        return JsonResponse(
-            {
-                "results": [],
-                "meta": {
-                    "persist_dir": CHROMA_PERSIST_DIR,
-                    "collection": COLLECTION_NAME,
-                    "existing": existing,
-                    "count": TOTAL_COUNT,
-                },
-            }
-        )
+        return JsonResponse({
+            "results": [],
+            "meta": {
+                "persist_dir": CHROMA_PERSIST_DIR,
+                "collection": getattr(_collection, "name", COLLECTION_NAME),
+                "existing": _existing,
+            },
+        })
 
-    if not CHROMA_OK or collection is None:
-        return JsonResponse(
-            {
-                "results": [],
-                "warning": f"vector backend unavailable: {CHROMA_ERR}",
-                "meta": {
-                    "persist_dir": CHROMA_PERSIST_DIR,
-                    "existing": existing,
-                    "collection": COLLECTION_NAME,
-                },
-            }
-        )
+    if _init_err or _collection is None:
+        return JsonResponse({
+            "results": [],
+            "warning": f"vector backend unavailable: {_init_err or 'not initialized'}",
+            "meta": {"persist_dir": CHROMA_PERSIST_DIR, "existing": _existing},
+        })
 
     try:
-        res = collection.query(
+        res = _collection.query(
+            # 임베딩을 외부에서 계산한다면: query_embeddings=[vectors]
             query_texts=[q],
             n_results=max(k, 10),
             include=["documents", "metadatas", "distances"],
         )
     except Exception as e:
-        return JsonResponse(
-            {
-                "results": [],
-                "warning": f"query error: {e}",
-                "collection": COLLECTION_NAME,
-            }
-        )
+        return JsonResponse({
+            "results": [],
+            "warning": f"query error: {e}",
+            "collection": getattr(_collection, "name", COLLECTION_NAME),
+        })
 
-    docs = (res.get("documents") or [[]])[0]
-    metas = (res.get("metadatas") or [[]])[0]
-    dists = (res.get("distances") or [[]])[0]
+    docs  = (res.get("documents")  or [[]])[0]
+    metas = (res.get("metadatas")  or [[]])[0]
+    dists = (res.get("distances")  or [[]])[0]
 
     rows = []
     for doc, meta, dist in zip(docs, metas, dists):
-        sim = to_similarity(dist)
-        rows.append(
-            {
-                "source": pick_source(meta or {}),
-                "title": (meta or {}).get("title")
-                or (meta or {}).get("source_file")
-                or "",
-                "score": round(sim, 4) if sim is not None else None,
-                "snippet": (doc or "")[:220],
-            }
-        )
+        sim = _to_similarity(dist)
+        rows.append({
+            "source": _pick_source(meta or {}),
+            "title": (meta or {}).get("title") or (meta or {}).get("source_file") or "",
+            "score": round(sim, 4) if sim is not None else None,
+            "snippet": (doc or "")[:220],
+        })
 
-    # 임계값 필터
     filtered = [r for r in rows if (r["score"] is None or r["score"] >= threshold)]
-    out = filtered
-    warning = None
-    if not out:
-        warning = f"임계값 {threshold:.2f} 이상 결과가 없습니다. 값을 낮춰보세요!"
-
-    # URL 중복 제거 + 상위 k
     seen, dedup = set(), []
-    for r in out:
+    for r in filtered:
         key = r["source"] or (r["title"], r["snippet"])
-        if key in seen:
-            continue
-        seen.add(key)
-        dedup.append(r)
-        if len(dedup) >= k:
-            break
+        if key in seen: continue
+        seen.add(key); dedup.append(r)
+        if len(dedup) >= k: break
 
-    return JsonResponse(
-        {
-            "results": dedup,
-            "meta": {
-                "persist_dir": CHROMA_PERSIST_DIR,
-                "collection": COLLECTION_NAME,
-                "existing": existing,
-                "count": TOTAL_COUNT,
-                "returned": len(dedup),
-                "threshold": threshold,
-            },
-            "warning": warning,
-        }
-    )
+    return JsonResponse({
+        "results": dedup,
+        "meta": {
+            "persist_dir": CHROMA_PERSIST_DIR,
+            "collection": getattr(_collection, "name", COLLECTION_NAME),
+            "existing": _existing,
+            "returned": len(dedup),
+            "threshold": threshold,
+        },
+        "warning": None if dedup else f"임계값 {threshold:.2f} 이상 결과가 없습니다. 값을 낮춰보세요!",
+    })

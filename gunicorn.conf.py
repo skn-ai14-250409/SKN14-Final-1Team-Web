@@ -3,7 +3,7 @@ import multiprocessing
 
 
 # workers 워커프로세스 개수
-workers = 1
+workers = multiprocessing.cpu_count()
 print("workers =", workers)
 
 # bind 주소/포트
