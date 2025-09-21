@@ -15,6 +15,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # 모든 HTTP 요청을 HTTPS로 강제 리디렉션(Redirection)시키는 설정
 SECURE_SSL_REDIRECT = True
+SECURE_REDIRECT_EXEMPT = [r"^health/?$"]   # 헬스 경로만 예외
 
 # # 쿠키 보안 설정
 SESSION_COOKIE_SECURE = True
