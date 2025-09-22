@@ -18,7 +18,7 @@ body {
 /* 컨테이너 */
 .container {
     width: 100%;
-    max-width: 400px;
+    max-width: 600px; /* 좀 더 넓게 */
 }
 
 /* 폼 래퍼 */
@@ -57,7 +57,8 @@ body {
     border-radius: 8px;
     padding: 20px;
     display: flex;
-    align-items: flex-start;
+    align-items: center; /* 아이콘과 텍스트 수평 정렬 */
+    gap: 12px;
     text-align: left;
 }
 
@@ -68,9 +69,7 @@ body {
 
 .status-icon {
     font-size: 24px;
-    margin-right: 12px;
     flex-shrink: 0;
-    margin-top: 2px;
 }
 
 .status-content {
@@ -116,50 +115,24 @@ body {
     margin: 0;
 }
 
-/* 거절 사유 섹션 */
-.reason-section {
-    margin-bottom: 30px;
-}
-
-.reason-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 12px;
-}
-
-.reason-box {
-    background: #fef7f7;
-    border: 1px solid #fca5a5;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.reason-text {
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* 정보 섹션 */
+/* 정보 섹션 (옆으로 퍼지게 수정) */
 .info-section {
     background: #fafafa;
     border: 1px solid #e5e5e5;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
+
+    display: flex; /* 가로 배치 */
+    justify-content: space-between;
+    gap: 20px;
 }
 
 .info-item {
+    flex: 1; /* 두 칸을 균등하게 */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-}
-
-.info-item:last-child {
-    border-bottom: none;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .info-label {
@@ -185,11 +158,13 @@ body {
 
 /* 액션 버튼 */
 .action-buttons {
+    display: flex;
+    gap: 12px;
     margin-bottom: 25px;
 }
 
 .login-btn {
-    width: 100%;
+    flex: 1; /* 버튼들이 균등하게 */
     background: #1a1a1a;
     color: white;
     border: none;
@@ -245,19 +220,20 @@ body {
     
     .status-box {
         flex-direction: column;
+        align-items: flex-start;
         text-align: left;
         padding: 16px;
     }
     
     .status-icon {
-        margin-right: 0;
         margin-bottom: 8px;
     }
     
-    .info-item {
+    .info-section {
+        flex-direction: column; /* 모바일에서는 다시 세로 */
+    }
+    
+    .action-buttons {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        padding: 10px 0;
     }
 }
