@@ -4,201 +4,474 @@
 
 {% block content %}
 <style>
-    .home-container {
-        width: 100%;
+    /* Material Design 3 Variables */
+    :root {
+        /* Primary colors - Material You Blue */
+        --md-primary: #1976d2;
+        --md-on-primary: #ffffff;
+        --md-primary-container: #d1e4ff;
+        --md-on-primary-container: #001c3b;
+        
+        /* Secondary colors - Material You Green */
+        --md-secondary: #2e7d32;
+        --md-on-secondary: #ffffff;
+        --md-secondary-container: #a8f5a8;
+        --md-on-secondary-container: #00210a;
+        
+        /* Tertiary colors */
+        --md-tertiary: #6750a4;
+        --md-on-tertiary: #ffffff;
+        --md-tertiary-container: #eaddff;
+        --md-on-tertiary-container: #21005d;
+        
+        /* Error colors */
+        --md-error: #ba1a1a;
+        --md-on-error: #ffffff;
+        
+        /* Surface colors */
+        --md-surface: #fefbff;
+        --md-on-surface: #1c1b1f;
+        --md-surface-variant: #e7e0ec;
+        --md-on-surface-variant: #49454f;
+        --md-surface-container: #f3edf7;
+        
+        /* Outline */
+        --md-outline: #79747e;
+        --md-outline-variant: #cac4d0;
+        
+        /* Shadow/Elevation */
+        --md-shadow: #000000;
+        --md-elevation-1: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+        --md-elevation-2: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+        --md-elevation-3: 0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+        --md-elevation-4: 0px 2px 3px 0px rgba(0, 0, 0, 0.3), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+        
+        /* Motion tokens */
+        --md-motion-emphasized: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+        --md-motion-standard: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+        
+        /* Shape tokens */
+        --md-shape-corner-none: 0px;
+        --md-shape-corner-xs: 4px;
+        --md-shape-corner-sm: 8px;
+        --md-shape-corner-md: 12px;
+        --md-shape-corner-lg: 16px;
+        --md-shape-corner-xl: 28px;
+        
+        /* State layer opacity */
+        --md-state-hover: 0.08;
+        --md-state-focus: 0.12;
+        --md-state-pressed: 0.12;
     }
 
+    .home-container {
+        width: 100%;
+        font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Landing Section */
     .landing-section {
-        height: 100vh;
+        height: 90vh;
         position: relative;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        background-color: #0c0c1e;
-        background-image: url("{% static 'my_app/image/background.png' %}");
-        background-size: cover;
-        background-position: center;
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
     }
 
-    .codename-title {
-        font-size: 6rem;
-        font-weight: bold;
-        color: white;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeIn 1.5s ease-out 0.5s forwards;
-    }
-
-    @keyframes fadeIn {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .scroll-down-link {
+    /* Starfield Animation */
+    .starfield {
         position: absolute;
-        bottom: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 3rem;
-        text-decoration: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .star {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        animation: twinkle 2s infinite;
+    }
+
+    .star.small { width: 1px; height: 1px; }
+    .star.medium { width: 2px; height: 2px; }
+    .star.large { width: 3px; height: 3px; }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .star:nth-child(2n) { animation-delay: 0.5s; animation-duration: 3s; }
+    .star:nth-child(3n) { animation-delay: 1s; animation-duration: 2.5s; }
+    .star:nth-child(4n) { animation-delay: 1.5s; animation-duration: 4s; }
+    .star:nth-child(5n) { animation-delay: 2s; animation-duration: 1.8s; }
+
+    /* Material Design Typography Scale */
+    .display-large {
+        font-family: 'Roboto', sans-serif;
+        font-size: 100px;
+        font-weight: 400;
+        line-height: 64px;
+        letter-spacing: -0.25px;
+    }
+
+    .display-medium {
+        font-family: 'Roboto', sans-serif;
+        font-size: 45px;
+        font-weight: 400;
+        line-height: 52px;
+        letter-spacing: 0px;
+    }
+
+    .headline-large {
+        font-family: 'Roboto', sans-serif;
+        font-size: 32px;
+        font-weight: 400;
+        line-height: 40px;
+        letter-spacing: 0px;
+    }
+
+    .body-large {
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: 0.5px;
+    }
+
+    .label-large {
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+        letter-spacing: 0.1px;
+    }
+
+    /* Landing Content */
+    .codename-title {
+        position: relative;
+        z-index: 2;
+        color: var(--md-on-primary);
+        text-align: center;
         opacity: 0;
-        animation: fadeIn 1.5s ease-out 1s forwards, bounce 2s infinite 2s;
+        transform: translateY(32px);
+        animation: materialFadeInUp 1s var(--md-motion-emphasized) 0.3s forwards;
     }
 
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-        40% { transform: translate(-50%, -20px); }
-        60% { transform: translate(-50%, -10px); }
+    .landing-subtitle {
+        position: relative;
+        z-index: 2;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        margin-top: 16px;
+        max-width: 600px;
+        padding: 0 24px;
+        opacity: 0;
+        transform: translateY(32px);
+        animation: materialFadeInUp 1s var(--md-motion-emphasized) 0.6s forwards;
     }
 
+    /* Main Content Section */
     .main-content-section {
         min-height: 100vh;
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 5rem 2rem;
-        overflow: hidden;
-        background-color: #0c0c1e;
+        padding: 80px 24px;
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
         opacity: 0;
-        transition: opacity 0.5s ease-out;
-    }
-
-    .main-content-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("{% static 'my_app/image/background.png' %}");
-        background-size: cover;
-        background-position: center;
-        filter: blur(10px);
-        transform: scale(1.1);
-        z-index: 0;
+        transition: opacity 0.6s var(--md-motion-standard);
     }
 
     .main-content-section.is-visible {
         opacity: 1;
     }
 
-    .glass-card {
+    /* Material Design 3 Surface */
+    .material-surface {
         position: relative;
         z-index: 1;
-        background: rgba(12, 12, 30, 0.5);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        padding: 40px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: var(--md-shape-corner-xl);
+        padding: 48px;
         text-align: center;
         max-width: 800px;
         width: 100%;
-        color: white;
+        color: var(--md-on-primary);
+        box-shadow: var(--md-elevation-3);
+        transform: translateY(32px);
+        transition: all 0.3s var(--md-motion-standard);
     }
 
-    .hero-title,
-    .hero-subtitle,
-    .hero-buttons {
+    .main-content-section.is-visible .material-surface {
+        transform: translateY(0);
+    }
+
+    /* Content Typography */
+    .hero-title {
+        margin-bottom: 16px;
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(24px);
+        color: var(--md-on-primary);
     }
 
+    .hero-subtitle {
+        margin: 0 auto 40px;
+        max-width: 600px;
+        color: rgba(255, 255, 255, 0.8);
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    /* Material Design 3 Button Components */
+    .md-filled-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 24px;
+        border-radius: var(--md-shape-corner-lg);
+        background-color: var(--md-primary);
+        color: var(--md-on-primary);
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s var(--md-motion-standard);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--md-elevation-1);
+        min-width: 180px;
+    }
+
+    .md-filled-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 0.2s var(--md-motion-standard);
+    }
+
+    .md-filled-button:hover {
+        box-shadow: var(--md-elevation-2);
+        transform: translateY(-1px);
+    }
+
+    .md-filled-button:hover::before {
+        opacity: var(--md-state-hover);
+    }
+
+    .md-outlined-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 24px;
+        border-radius: var(--md-shape-corner-lg);
+        background-color: transparent;
+        color: var(--md-on-primary);
+        text-decoration: none;
+        border: 1px solid var(--md-outline-variant);
+        cursor: pointer;
+        transition: all 0.2s var(--md-motion-standard);
+        position: relative;
+        overflow: hidden;
+        min-width: 180px;
+    }
+
+    .md-outlined-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 0.2s var(--md-motion-standard);
+    }
+
+    .md-outlined-button:hover::before {
+        opacity: var(--md-state-hover);
+    }
+
+    .md-outlined-button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Secondary Color Variant */
+    .md-filled-button.secondary {
+        background-color: var(--md-secondary);
+        color: var(--md-on-secondary);
+    }
+
+    /* Animation Sequences */
     .main-content-section.is-visible .hero-title {
-        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        animation: materialSlideUp 0.8s var(--md-motion-emphasized) 0.2s forwards;
     }
 
     .main-content-section.is-visible .hero-subtitle {
-        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+        animation: materialSlideUp 0.8s var(--md-motion-emphasized) 0.4s forwards;
     }
 
     .main-content-section.is-visible .hero-buttons {
-        animation: fadeInUp 0.8s ease-out 0.9s forwards;
+        animation: materialSlideUp 0.8s var(--md-motion-emphasized) 0.6s forwards;
     }
 
-    @keyframes fadeInUp {
+    /* Material Design Animations */
+    @keyframes materialFadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(32px);
+        }
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .hero-title {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+    @keyframes materialSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .hero-subtitle {
-        font-size: 1.2rem;
-        margin-left: auto;
-        margin-right: auto;
-        margin-bottom: 2.5rem;
-        max-width: 600px;
-        color: #c0c0c0;
-        line-height: 1.6;
+    @keyframes materialBounce {
+        0%, 20%, 50%, 80%, 100% { 
+            transform: translateY(0); 
+        }
+        40% { 
+            transform: translateY(-8px); 
+        }
+        60% { 
+            transform: translateY(-4px); 
+        }
     }
 
-    .hero-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .material-surface {
+            padding: 32px 24px;
+            margin: 0 16px;
+            border-radius: var(--md-shape-corner-lg);
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .md-filled-button, .md-outlined-button {
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .landing-subtitle {
+            font-size: 14px;
+        }
+
+        .main-content-section {
+            padding: 40px 16px;
+        }
+
+        .codename-title {
+            font-size: 36px;
+        }
     }
 
-    .hero-btn {
-        text-decoration: none;
-        color: white;
-        padding: 12px 25px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        border: 1px solid transparent;
+    @media (max-width: 480px) {
+        .material-surface {
+            padding: 24px 16px;
+        }
     }
 
-    .hero-btn.primary {
-        background-color: #4a69bd;
-    }
-    .hero-btn.primary:hover {
-        background-color: #5c7ee0;
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(74, 105, 189, 0.4);
-    }
-
-    .hero-btn.secondary {
-        background-color: #31384e;
-        border-color: transparent;
-    }
-    .hero-btn.secondary:hover {
-        background-color: #414a69;
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(49, 56, 78, 0.4);
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
     }
 
+    /* Focus States */
+    .md-filled-button:focus-visible,
+    .md-outlined-button:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+    }
+
+    /* Ripple Effect */
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
 </style>
 
 <div class="home-container">
     <section class="landing-section" id="landing-section">
-        <h1 class="codename-title">CodeNova</h1>
-        <a href="#main-content-section" class="scroll-down-link" aria-label="Scroll down">
-            <span>&darr;</span>
-        </a>
+        <div class="starfield" id="starfield"></div>
+        
+        <h1 class="codename-title display-large">CodeNova</h1>
+
     </section>
 
     <section class="main-content-section" id="main-content-section">
-        <div class="glass-card">
-            <h1 class="hero-title">AI와 함께, 복잡함은 단순함으로</h1>
-            <p class="hero-subtitle">
-                CodeNova의 지능형 챗봇으로 복잡한 API 문서와 내부 자료를 손쉽게 탐색하세요.
+        <div class="material-surface">
+            <h1 class="hero-title headline-large">AI와 함께, 복잡함은 단순함으로</h1>
+            <p class="hero-subtitle body-large">
+                CodeNova의 지능형 챗봇으로 복잡한 API 문서와 내부 자료를 손쉽게 탐색하세요.<br/>
+                개발 생산성을 높이고 협업을 강화하는 새로운 방법을 경험해보세요.
             </p>
             <div class="hero-buttons">
-                <a href="{% url 'main:main-chatbot' %}" class="hero-btn primary">메인 챗봇 시작하기</a>
-                <a href="{% url 'main:internal-docs' %}" class="hero-btn secondary">사내 내부 문서 챗봇</a>
-                <a href="{% url 'main:community-board' %}" class="hero-btn secondary">커뮤니티 둘러보기</a>
+                <a href="{% url 'main:main-chatbot' %}" class="md-filled-button label-large" role="button">
+                    메인 챗봇 시작하기
+                </a>
+                <a href="{% url 'main:internal-docs' %}" class="md-filled-button secondary label-large" role="button">
+                    사내 문서 챗봇
+                </a>
+                <a href="{% url 'main:community-board' %}" class="md-outlined-button label-large" role="button">
+                    커뮤니티 둘러보기
+                </a>
             </div>
         </div>
     </section>
@@ -206,8 +479,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const mainContent = document.getElementById('main-content-section');
+    // Create animated starfield
+    function createStarfield() {
+        const starfield = document.getElementById('starfield');
+        const numberOfStars = 150;
 
+        for (let i = 0; i < numberOfStars; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            const sizes = ['small', 'medium', 'large'];
+            const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            star.classList.add(randomSize);
+            
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            
+            starfield.appendChild(star);
+        }
+    }
+
+    createStarfield();
+
+    // Intersection Observer
+    const mainContent = document.getElementById('main-content-section');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -216,12 +513,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, {
-        threshold: 0.15
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     });
 
     if (mainContent) {
         observer.observe(mainContent);
     }
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Material Design ripple effect
+    function createRipple(event) {
+        const button = event.currentTarget;
+        const circle = document.createElement('span');
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+
+        const rect = button.getBoundingClientRect();
+        circle.style.width = circle.style.height = `${diameter}px`;
+        circle.style.left = `${event.clientX - rect.left - radius}px`;
+        circle.style.top = `${event.clientY - rect.top - radius}px`;
+        circle.classList.add('ripple');
+
+        const existingRipple = button.getElementsByClassName('ripple')[0];
+        if (existingRipple) {
+            existingRipple.remove();
+        }
+
+        button.appendChild(circle);
+    }
+
+    document.querySelectorAll('.md-filled-button, .md-outlined-button').forEach(btn => {
+        btn.addEventListener('click', createRipple);
+    });
 });
 </script>
 {% endblock %}
