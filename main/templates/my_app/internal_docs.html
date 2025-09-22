@@ -3,6 +3,99 @@
 {% block title %}사내 내부문서{% endblock %} 
 {% block content %}
 <link rel="stylesheet" href="{% static 'my_app/css/chat/chat.css' %}">
+<style>
+/* 말투 선택 모달 스타일 */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.5em;
+}
+
+.modal-content p {
+  margin: 0 0 25px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.tone-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tone-btn {
+  padding: 12px 24px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.tone-btn:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.formal-btn {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.formal-btn:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.informal-btn {
+  border-color: #ffc107;
+  color: #ffc107;
+}
+
+.informal-btn:hover {
+  background-color: #ffc107;
+  color: white;
+}
+
+.close-btn {
+  padding: 8px 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  background-color: #e9ecef;
+}
+</style>
 
 <div class="content-header header-split">
   <div class="left-group">
@@ -11,8 +104,20 @@
     <span id="selCount" style="margin-left:8px;color:#666;display:none;">0개 선택</span>
   </div>
   <div class="right-group">
-    <button class="formal-button">공손 말투</button>
-    <button class="informal-button">친구 말투</button>
+    <span id="currentTone" style="color:#666; margin-right:10px;">말투: 선택되지 않음</span>
+  </div>
+</div>
+
+<!-- 말투 선택 모달 -->
+<div id="toneModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>말투를 선택해주세요</h3>
+    <p>새 채팅 세션의 말투를 선택하세요. 선택한 말투는 이 세션에서 계속 사용됩니다.</p>
+    <div class="tone-buttons">
+      <button id="selectFormal" class="tone-btn formal-btn">공손 말투</button>
+      <button id="selectInformal" class="tone-btn informal-btn">친구 말투</button>
+    </div>
+    <button id="closeModal" class="close-btn">취소</button>
   </div>
 </div>
 

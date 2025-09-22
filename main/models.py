@@ -41,6 +41,11 @@ class Comment(models.Model):
         return self.likers.count()
 
 
+class TextMode(models.TextChoices):
+    FORMAL = "formal", "FORMAL"
+    INFORMAL = "informal", "INFORMAL"
+
+
 class ChatMode(models.TextChoices):
     API = "api", "API"
     INTERNAL = "internal", "Internal"
@@ -55,6 +60,7 @@ class ChatSession(models.Model):
     )
     title = models.CharField(max_length=200)
     mode = models.CharField(max_length=20, choices=ChatMode.choices)
+    text_mode = models.CharField(max_length=20, choices=TextMode.choices, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
