@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Count
 from .models import Post, Comment
+from .models import Post, Comment, Card, ChatMessage
 from .forms import CommentForm, PostForm
 import json
 import os
@@ -183,6 +184,7 @@ def delete_post(request, post_id):
         return redirect("main:community-board")
     return HttpResponseForbidden()
 
+
 # apichat/utils/docsearch_view.py (현재 파일 대체해도 되고, 내용만 반영)
 
 import os, json, threading, re
@@ -211,6 +213,7 @@ _lock = threading.Lock()
 _init_err = None
 _UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
 
+
 def _open_collection(client, maybe_name_or_id, emb):
     """name 우선 → id 보조 → 목록 매칭 → 없으면 생성"""
     # 1) 이름으로 우선 시도
@@ -232,6 +235,7 @@ def _open_collection(client, maybe_name_or_id, emb):
     return client.get_or_create_collection(
         name=(maybe_name_or_id or "docs"), embedding_function=emb
     )
+
 
 def _ensure_chroma():
     """최초 요청 때 한 번만 초기화(헬스 방해 X)"""
@@ -257,37 +261,51 @@ def _ensure_chroma():
                 if len(_existing) == 1:
                     name = _existing[0]
                 else:
-                    prefer = [n for n in _existing if "docs" in n.lower()] \
-                          or [n for n in _existing if "apichat" in n.lower()]
-                    name = prefer[0] if prefer else (_existing[0] if _existing else "docs")
+                    prefer = [n for n in _existing if "docs" in n.lower()] or [
+                        n for n in _existing if "apichat" in n.lower()
+                    ]
+                    name = (
+                        prefer[0] if prefer else (_existing[0] if _existing else "docs")
+                    )
             # name/id 모두 수용
             col = _open_collection(_client, name, emb)
             _collection = col
         except Exception as e:
             _init_err = f"{type(e).__name__}: {e}"
 
+
 def _pick_source(meta: dict) -> str:
     v = (meta or {}).get("source") or (meta or {}).get("url")
-    if not v: return ""
-    if isinstance(v, list): return (v[0] or "").strip()
+    if not v:
+        return ""
+    if isinstance(v, list):
+        return (v[0] or "").strip()
     if isinstance(v, str):
         s = v.strip()
         if s[:1] in "[{":
             try:
                 data = json.loads(s)
-                if isinstance(data, list) and data: return str(data[0]).strip()
-                if isinstance(data, dict) and "url" in data: return str(data["url"]).strip()
+                if isinstance(data, list) and data:
+                    return str(data[0]).strip()
+                if isinstance(data, dict) and "url" in data:
+                    return str(data["url"]).strip()
             except Exception:
                 pass
         return s
     return str(v).strip()
 
+
 def _to_similarity(dist):
-    try: d = float(dist)
-    except Exception: return None
-    if 0.0 <= d <= 1.0: return 1.0 - d
-    if 0.0 <= d <= 2.0: return 1.0 - (d / 2.0)
+    try:
+        d = float(dist)
+    except Exception:
+        return None
+    if 0.0 <= d <= 1.0:
+        return 1.0 - d
+    if 0.0 <= d <= 2.0:
+        return 1.0 - (d / 2.0)
     return 1.0 / (1.0 + d)
+
 
 @require_GET
 def docsearch(request):
@@ -299,21 +317,25 @@ def docsearch(request):
     k = int(request.GET.get("k") or 10)
 
     if not q:
-        return JsonResponse({
-            "results": [],
-            "meta": {
-                "persist_dir": CHROMA_PERSIST_DIR,
-                "collection": getattr(_collection, "name", COLLECTION_NAME),
-                "existing": _existing,
-            },
-        })
+        return JsonResponse(
+            {
+                "results": [],
+                "meta": {
+                    "persist_dir": CHROMA_PERSIST_DIR,
+                    "collection": getattr(_collection, "name", COLLECTION_NAME),
+                    "existing": _existing,
+                },
+            }
+        )
 
     if _init_err or _collection is None:
-        return JsonResponse({
-            "results": [],
-            "warning": f"vector backend unavailable: {_init_err or 'not initialized'}",
-            "meta": {"persist_dir": CHROMA_PERSIST_DIR, "existing": _existing},
-        })
+        return JsonResponse(
+            {
+                "results": [],
+                "warning": f"vector backend unavailable: {_init_err or 'not initialized'}",
+                "meta": {"persist_dir": CHROMA_PERSIST_DIR, "existing": _existing},
+            }
+        )
 
     try:
         res = _collection.query(
@@ -323,42 +345,71 @@ def docsearch(request):
             include=["documents", "metadatas", "distances"],
         )
     except Exception as e:
-        return JsonResponse({
-            "results": [],
-            "warning": f"query error: {e}",
-            "collection": getattr(_collection, "name", COLLECTION_NAME),
-        })
+        return JsonResponse(
+            {
+                "results": [],
+                "warning": f"query error: {e}",
+                "collection": getattr(_collection, "name", COLLECTION_NAME),
+            }
+        )
 
-    docs  = (res.get("documents")  or [[]])[0]
-    metas = (res.get("metadatas")  or [[]])[0]
-    dists = (res.get("distances")  or [[]])[0]
+    docs = (res.get("documents") or [[]])[0]
+    metas = (res.get("metadatas") or [[]])[0]
+    dists = (res.get("distances") or [[]])[0]
 
     rows = []
     for doc, meta, dist in zip(docs, metas, dists):
         sim = _to_similarity(dist)
-        rows.append({
-            "source": _pick_source(meta or {}),
-            "title": (meta or {}).get("title") or (meta or {}).get("source_file") or "",
-            "score": round(sim, 4) if sim is not None else None,
-            "snippet": (doc or "")[:220],
-        })
+        rows.append(
+            {
+                "source": _pick_source(meta or {}),
+                "title": (meta or {}).get("title")
+                or (meta or {}).get("source_file")
+                or "",
+                "score": round(sim, 4) if sim is not None else None,
+                "snippet": (doc or "")[:220],
+            }
+        )
 
     filtered = [r for r in rows if (r["score"] is None or r["score"] >= threshold)]
     seen, dedup = set(), []
     for r in filtered:
         key = r["source"] or (r["title"], r["snippet"])
-        if key in seen: continue
-        seen.add(key); dedup.append(r)
-        if len(dedup) >= k: break
+        if key in seen:
+            continue
+        seen.add(key)
+        dedup.append(r)
+        if len(dedup) >= k:
+            break
 
-    return JsonResponse({
-        "results": dedup,
-        "meta": {
-            "persist_dir": CHROMA_PERSIST_DIR,
-            "collection": getattr(_collection, "name", COLLECTION_NAME),
-            "existing": _existing,
-            "returned": len(dedup),
-            "threshold": threshold,
-        },
-        "warning": None if dedup else f"임계값 {threshold:.2f} 이상 결과가 없습니다. 값을 낮춰보세요!",
-    })
+    return JsonResponse(
+        {
+            "results": dedup,
+            "meta": {
+                "persist_dir": CHROMA_PERSIST_DIR,
+                "collection": getattr(_collection, "name", COLLECTION_NAME),
+                "existing": _existing,
+                "returned": len(dedup),
+                "threshold": threshold,
+            },
+            "warning": (
+                None
+                if dedup
+                else f"임계값 {threshold:.2f} 이상 결과가 없습니다. 값을 낮춰보세요!"
+            ),
+        }
+    )
+
+
+@login_required
+def card_detail(request, card_id):
+    card = get_object_or_404(Card, id=card_id, user=request.user)
+    messages = ChatMessage.objects.filter(session_id=card.session_id).order_by(
+        "created_at"
+    )
+
+    context = {
+        "card": card,
+        "messages": messages,
+    }
+    return render(request, "my_app/card_detail.html", context)
