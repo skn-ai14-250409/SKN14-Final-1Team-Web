@@ -38,15 +38,23 @@ def chat(request):
             messages = ChatMessage.objects.filter(session=session).order_by(
                 "-created_at"
             )[:4]
+            messages = reversed(messages)  # 최신 메시지부터 가져와서 시간순으로 정렬
             db_chat_history = []
 
             for msg in messages:
+                # 모든 메시지 타입을 채팅 히스토리에 포함
                 if msg.role == "user":
                     db_chat_history.append({"role": "user", "content": msg.content})
-                else:
+                elif msg.role == "assistant":
                     db_chat_history.append(
                         {"role": "assistant", "content": msg.content}
                     )
+                elif msg.role == "tool_calls":
+                    db_chat_history.append(
+                        {"role": "assistant", "content": msg.content}
+                    )
+                elif msg.role == "tool_responses":
+                    db_chat_history.append({"role": "user", "content": msg.content})
 
             # 현재 사용자 메시지를 대화 기록에 추가
             db_chat_history.append({"role": "user", "content": user_message})
@@ -57,7 +65,7 @@ def chat(request):
                 permission = department
 
             # RAG 봇 호출
-            response, title = run_sllm(
+            response, title, tool_calls, tool_responses = run_sllm(
                 db_chat_history, permission=permission, tone=tone
             )
 
@@ -65,6 +73,18 @@ def chat(request):
             ChatMessage.objects.create(
                 session=session, role="user", content=user_message
             )
+
+            # tool_calls 저장 (있는 경우)
+            if tool_calls:
+                ChatMessage.objects.create(
+                    session=session, role="tool_calls", content=tool_calls
+                )
+
+            # tool_responses 저장 (있는 경우)
+            if tool_responses:
+                ChatMessage.objects.create(
+                    session=session, role="tool_responses", content=tool_responses
+                )
 
             # 봇 응답 저장
             ChatMessage.objects.create(
@@ -97,7 +117,7 @@ def get_chat_history(request, session_id):
         # 해당 세션의 모든 메시지 조회
         messages = ChatMessage.objects.filter(session=session).order_by("created_at")
 
-        # JSON 형태로 변환
+        # JSON 형태로 변환 (tool_calls, tool_responses 제외)
         data = [
             {
                 "id": msg.id,
@@ -106,6 +126,7 @@ def get_chat_history(request, session_id):
                 "created_at": msg.created_at.isoformat(),
             }
             for msg in messages
+            if msg.role in ["user", "assistant"]  # tool_calls, tool_responses 제외
         ]
 
         return JsonResponse({"messages": data})

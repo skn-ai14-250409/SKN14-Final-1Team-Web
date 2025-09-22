@@ -79,7 +79,13 @@ class ChatMessage(models.Model):
         related_name="messages",
     )
     role = models.CharField(
-        max_length=20, choices=[("user", "User"), ("assistant", "Assistant")]
+        max_length=20,
+        choices=[
+            ("user", "User"),
+            ("assistant", "Assistant"),
+            ("tool_calls", "Tool Calls"),
+            ("tool_responses", "Tool Responses"),
+        ],
     )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
