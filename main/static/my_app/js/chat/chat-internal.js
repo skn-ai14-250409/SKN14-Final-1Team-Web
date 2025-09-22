@@ -30,6 +30,7 @@ async function initializeFirstSession() {
       sessionTitle.textContent = sessionLink.textContent.trim();
       sessionLink.parentElement.classList.add('is-active');
       await loadChatHistory(selectedSessionId);
+      await loadSessionTone(selectedSessionId);
       return; 
     }
   }
@@ -44,6 +45,7 @@ async function initializeFirstSession() {
     sessionTitle.textContent = firstSession.textContent.trim();
     firstSession.parentElement.classList.add("is-active");
     await loadChatHistory(selectedSessionId);
+    await loadSessionTone(selectedSessionId);
   }
 }
 
@@ -74,6 +76,9 @@ sessionList.addEventListener("click", async (e) => {
 
   // 채팅 히스토리 로드
   await loadChatHistory(selectedSessionId);
+
+  // 세션의 말투 정보 가져오기
+  await loadSessionTone(selectedSessionId);
 
   // 추가: URL 변경======
   const newUrl = new URL(window.location.href);
@@ -160,7 +165,114 @@ async function loadChatHistory(sessionId) {
 // 초기 실행 (새로고침 시, 가장 첫번째 채팅세션을 선택하도록)
 initializeFirstSession();
 
+// 모달 관련 변수
+let selectedTone = null;
+
+// 모달 이벤트 리스너 추가
+document.addEventListener('DOMContentLoaded', function() {
+  const toneModal = document.getElementById('toneModal');
+  const selectFormal = document.getElementById('selectFormal');
+  const selectInformal = document.getElementById('selectInformal');
+  const closeModal = document.getElementById('closeModal');
+  const currentTone = document.getElementById('currentTone');
+
+  // 공손 말투 선택
+  if (selectFormal) {
+    selectFormal.addEventListener('click', function() {
+      selectedTone = 'formal';
+      hideToneModal();
+      createSessionWithTone('formal');
+    });
+  }
+
+  // 친구 말투 선택
+  if (selectInformal) {
+    selectInformal.addEventListener('click', function() {
+      selectedTone = 'informal';
+      hideToneModal();
+      createSessionWithTone('informal');
+    });
+  }
+
+  // 모달 닫기
+  if (closeModal) {
+    closeModal.addEventListener('click', hideToneModal);
+  }
+
+  // 모달 외부 클릭 시 닫기
+  if (toneModal) {
+    toneModal.addEventListener('click', function(e) {
+      if (e.target === toneModal) {
+        hideToneModal();
+      }
+    });
+  }
+});
+
+// 모달 표시
+function showToneModal() {
+  const toneModal = document.getElementById('toneModal');
+  if (toneModal) {
+    toneModal.style.display = 'flex';
+  }
+}
+
+// 모달 숨기기
+function hideToneModal() {
+  const toneModal = document.getElementById('toneModal');
+  if (toneModal) {
+    toneModal.style.display = 'none';
+  }
+}
+
+// 현재 말투 표시 업데이트
+function updateCurrentTone(tone) {
+  const currentTone = document.getElementById('currentTone');
+  if (currentTone) {
+    if (tone === 'formal') {
+      currentTone.textContent = '말투: 공손 말투';
+      currentTone.style.color = '#28a745';
+    } else if (tone === 'informal') {
+      currentTone.textContent = '말투: 친구 말투';
+      currentTone.style.color = '#ffc107';
+    } else {
+      currentTone.textContent = '말투: 선택되지 않음';
+      currentTone.style.color = '#666';
+    }
+  }
+}
+
+// 세션의 말투 정보 가져오기
+async function loadSessionTone(sessionId) {
+  try {
+    const response = await fetch(`/internal-chat/session_info/${sessionId}/`, {
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+      },
+      credentials: 'same-origin',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      updateCurrentTone(data.text_mode);
+    } else {
+      console.warn('세션 말투 정보를 가져올 수 없습니다.');
+      updateCurrentTone(null);
+    }
+  } catch (err) {
+    console.error('세션 말투 정보 로드 실패:', err);
+    updateCurrentTone(null);
+  }
+}
+
+// 새 채팅 버튼 클릭 시 모달 표시
 async function session_create() {
+  showToneModal();
+}
+
+// 선택한 말투로 세션 생성
+async function createSessionWithTone(tone) {
   try {
     const csrfToken = getCSRFToken();
 
@@ -172,7 +284,10 @@ async function session_create() {
         "X-Requested-With": "XMLHttpRequest",
       },
       credentials: "same-origin",
-      body: JSON.stringify({ title: "title" }),
+      body: JSON.stringify({ 
+        title: "title",
+        text_mode: tone 
+      }),
     });
 
     if (!response.ok) {
@@ -211,7 +326,10 @@ async function session_create() {
     // 채팅창 초기화 (새 세션이므로 빈 상태)
     chatLog.innerHTML = "";
 
-    console.log("새 세션 생성 및 선택 완료:", selectedSessionId);
+    // 현재 말투 표시 업데이트
+    updateCurrentTone(tone);
+
+    console.log("새 세션 생성 및 선택 완료:", selectedSessionId, "말투:", tone);
   } catch (err) {
     console.error("요청 실패:", err);
   }
@@ -240,36 +358,7 @@ function addMessage(text, role = "user", id = null) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-let selectedTone = "formal"; // 기본값: 공손 말투
-
-// 버튼 선택 처리
-document.addEventListener("DOMContentLoaded", () => {
-  const formalBtn = document.querySelector(".formal-button");
-  const informalBtn = document.querySelector(".informal-button");
-
-  // 스타일 초기화 및 토글 함수
-  function updateToneSelection() {
-    if (selectedTone === "formal") {
-      formalBtn.classList.add("active");
-      informalBtn.classList.remove("active");
-    } else {
-      informalBtn.classList.add("active");
-      formalBtn.classList.remove("active");
-    }
-  }
-
-  formalBtn.addEventListener("click", () => {
-    selectedTone = "formal";
-    updateToneSelection();
-  });
-
-  informalBtn.addEventListener("click", () => {
-    selectedTone = "informal";
-    updateToneSelection();
-  });
-
-  updateToneSelection(); // 처음 로딩 시 기본 적용
-});
+// 기존 말투 선택 버튼 코드는 제거됨 (모달 방식으로 변경)
 
 // 메시지 전송 공통 함수
 async function sendMessage() {
@@ -304,7 +393,6 @@ async function sendMessage() {
       credentials: "same-origin", // 쿠키 포함 (csrftoken 사용 시 필요)
       body: JSON.stringify({
         message: message,
-        tone: selectedTone, // 선택된 tone 값
         session_id: selectedSessionId,
       }),
     });

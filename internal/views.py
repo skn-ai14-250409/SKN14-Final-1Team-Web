@@ -18,7 +18,6 @@ def chat(request):
         try:
             data = json.loads(request.body)
             user_message = data.get("message")
-            tone = data.get("tone")
             session_id = data.get("session_id")
             rank = request.user.rank
             department = request.user.department
@@ -32,6 +31,9 @@ def chat(request):
                 session = ChatSession.objects.get(id=session_id, user=request.user)
             except ChatSession.DoesNotExist:
                 return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
+
+            # 세션의 말투를 자동으로 사용
+            tone = session.text_mode or "formal"  # 기본값은 formal
 
             messages = ChatMessage.objects.filter(session=session).order_by(
                 "-created_at"
@@ -135,8 +137,14 @@ def create_session(request):
     """새 채팅 세션 생성"""
     if request.method == "POST":
         try:
+            data = json.loads(request.body)
+            text_mode = data.get("text_mode", "formal")  # 기본값은 formal
+
             session = ChatSession.objects.create(
-                user=request.user, mode="internal", title="새로운 대화"
+                user=request.user,
+                mode="internal",
+                title="새로운 대화",
+                text_mode=text_mode,
             )
 
             return JsonResponse(
@@ -145,6 +153,7 @@ def create_session(request):
                         "id": session.id,
                         "session_id": session.id,
                         "title": session.title,
+                        "text_mode": session.text_mode,
                         "created_at": session.created_at.isoformat(),
                     }
                 }
@@ -153,6 +162,25 @@ def create_session(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+
+@login_required
+def session_info(request, session_id):
+    """세션 정보 조회 (말투 정보 포함)"""
+    try:
+        session = ChatSession.objects.get(id=session_id, user=request.user)
+        return JsonResponse(
+            {
+                "id": session.id,
+                "title": session.title,
+                "text_mode": session.text_mode,
+                "created_at": session.created_at.isoformat(),
+            }
+        )
+    except ChatSession.DoesNotExist:
+        return JsonResponse({"error": "세션을 찾을 수 없습니다."}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 @login_required
