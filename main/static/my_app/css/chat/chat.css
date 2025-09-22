@@ -12,14 +12,15 @@
   overflow: hidden;
 }
 
-/* === 채팅창 === */
+/* === START: 채팅창 UI 개선 사항 === */
+
 #chatLog {
   flex: 1 1 auto;
   overflow-y: auto;
   margin: 0;
-  padding: 20px;
+  padding: 20px; /* 내부 여백을 추가해 메시지가 가장자리에 닿지 않도록 함 */
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* 메시지를 세로로 쌓음 */
 }
 
 .chat-log {
@@ -28,39 +29,42 @@
   margin: 0;
 }
 
+/* 모든 메시지 아이템(li)에 대한 공통 스타일 */
 .chat-log li {
-  width: fit-content;
-  max-width: 70%;
-  padding: 10px 16px;
-  border-radius: 18px;
-  margin-bottom: 12px;
-  line-height: 1.5;
+  width: fit-content; /* 내용의 길이에 맞게 너비 조절 */
+  max-width: 70%; /* 말풍선 최대 너비 */
+  padding: 10px 16px; /* 내부 여백 */
+  border-radius: 18px; /* 모서리를 둥글게 처리 */
+  margin-bottom: 12px; /* 메시지 간의 세로 간격 */
+  line-height: 1.5; /* 줄 간격 */
 }
 
 .chat-log li:last-child {
   margin-bottom: 0;
 }
 
-/* 사용자 메시지 */
+/* 사용자 메시지 말풍선 */
 .chat-log .msg--user {
-  background-color: #111;
-  color: #fff;
-  align-self: flex-end;
-  text-align: left;
+  background-color: #e0f2fe; /* 기존 색상 유지 */
+  align-self: flex-end; /* 오른쪽 정렬 */
+  text-align: left; /* 텍스트는 왼쪽부터 시작 (가독성) */
+  /* 오른쪽 위 모서리를 뾰족하게 만들어 말풍선 꼬리 느낌 */
   border-top-right-radius: 4px;
 }
 
-/* 어시스턴트 메시지 */
+/* 어시스턴트(봇) 메시지 말풍선 */
 .chat-log .msg--assistant,
 .chat-log .msg--bot {
-  background-color: #f5f5f5;
-  color: #111;
-  align-self: flex-start;
+  background-color: #f3f4f6; /* 기존 색상 유지 */
+  align-self: flex-start; /* 왼쪽 정렬 */
   text-align: left;
+  /* 왼쪽 위 모서리를 뾰족하게 만들어 말풍선 꼬리 느낌 */
   border-top-left-radius: 4px;
 }
 
-/* === 사이드바 === */
+/* === END: 채팅창 UI 개선 사항 === */
+
+
 .right-sidebar {
   display: flex;
   flex-direction: column;
@@ -72,30 +76,39 @@
   min-height: 0;
 }
 
-/* 기존 잘못된 부분 제거하고 */
 .session-item.is-active {
-  background: transparent !important;
-  color: inherit !important;
+  background-color: #4e6e92;
+  color: white;
 }
 
+.formal-button.active {
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+}
 
+.informal-button.active {
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
 
-.suggest-row {
+}
+
+.suggest-row{
   margin: 8px 0 0 0;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.suggest-chip {
+.suggest-chip{
   font-size: 12px;
   padding: 6px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #e5e7eb;
   border-radius: 999px;
   background: #fff;
-  color: #111;
   cursor: pointer;
 }
-.suggest-chip:hover {
+.suggest-chip:hover{
   background: #f5f5f5;
 }
 
@@ -108,12 +121,27 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .content-header--split .left-group button,
 .content-header--split .right-group button {
   margin-right: 6px;
 }
 
-/* === 세션 리스트 === */
+.header-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-split .left-group button {
+  margin-right: 6px;
+}
+
+.header-split .right-group button {
+  margin-left: 6px;
+}
+
 #sessionList {
   display: grid;
   grid-template-columns: 1fr;
@@ -124,20 +152,23 @@
   max-height: 400px;
   overflow-y: auto;
 }
+
+
 #sessionList .session-item {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
 }
+
 #sessionList .session-link {
   display: inline-flex;
   align-items: center;
   max-width: 100%;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #111;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
   font-size: 13px;
   line-height: 1.2;
   white-space: nowrap;
@@ -147,17 +178,19 @@
   transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .03s ease;
   cursor: pointer;
 }
+
 #sessionList .session-link:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
+  background: #f8fafc;
+  border-color: #dbe3ef;
   box-shadow: 0 4px 10px rgba(0,0,0,.06);
   transform: translateY(-1px);
 }
+
 #sessionList .is-active .session-link {
-  background: #eee;
-  border-color: #bbb;
-  color: #111;
-  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  background: #e7f1ff;
+  border-color: #b9d0ff;
+  color: #0b3aa7;
+  box-shadow: 0 6px 16px rgba(30,64,175,.12);
 }
 
 #sessionList .delete-btn {
@@ -165,17 +198,21 @@
   padding: 6px 10px;
   font-size: 14px;
   line-height: 1;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #666;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
   border-radius: 999px;
   cursor: pointer;
   transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
+
+#sessionList .delete-btn { opacity: .75; }
+#sessionList .session-item:hover .delete-btn { opacity: 1; }
+
 #sessionList .delete-btn:hover {
-  background: #eee;
-  border-color: #ccc;
-  color: #111;
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
 }
 
 .session-section-title {
@@ -195,36 +232,53 @@
   padding: 2px 6px;
   font-size: 11px;
   border-radius: 999px;
-  background: #f5f5f5;
-  color: #111;
+  background: #eef2ff;
+  color: #3730a3;
 }
 
-/* --- 카드 선택 UX --- */
-:root {
-  --card-hover-bg: #f5f5f5;
-  --card-hover-ring: #111;
+.session-item.is-active {
+  background: transparent !important;
+  color: inherit !important;
 }
+
+/* --- 카드 선택 UX (기존 기능 유지) --- */
+:root{
+  --card-hover-bg: #e9f2ff;
+  --card-hover-ring: #7fb0ff;
+}
+
 .chat-log li.msg {
   position: relative;
   transition: background .15s ease, box-shadow .15s ease, transform .03s ease;
 }
+
+/* 선택 모드일 때, 말풍선 전체에 상호작용 힌트 */
 .chat-log li.msg.msg--selecting {
   cursor: pointer;
   box-shadow: inset 0 0 0 2px var(--card-hover-ring);
   background: var(--card-hover-bg);
 }
+
+/* 선택됨(체크) 상태 - 말풍선 전체 하이라이트 */
 .chat-log li.msg.msg--chosen {
   background: var(--card-hover-bg);
   box-shadow: inset 0 0 0 2px var(--card-hover-ring);
 }
-.select-mark {
+
+.bubble { /* bubble 클래스가 있다면 해당 스타일도 유지 */
+  position: relative;
+  border-radius: 10px;
+}
+
+/* 체크마크: 말풍선 아이템 내부 우상단 고정 */
+.select-mark{
   position: absolute;
   top: 6px;
   right: 6px;
   width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: #111;
+  background: #2563eb;   /* primary */
   color: #fff;
   font-weight: 700;
   font-size: 13px;
@@ -235,105 +289,43 @@
   pointer-events: none;
 }
 
-/* === 버튼 공통 스타일 === */
-button {
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #111;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 8px 14px;
+/* 이미지가 있는 메시지는 이미지도 자연스럽게 묶이도록 간격 통일 */
+.chat-log li.msg .image-preview { margin-top: 8px; }
+
+/* (안전장치) 브라우저 기본 포커스 외곽선 제거 */
+#sessionList .session-link, .chat-log li.msg {
+  outline: none !important;
 }
-button:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
-}
-/* 활성 버튼 */
-.formal-button.active,
-.informal-button.active,
-.cn-btn--primary {
-  background: #111;
-  color: #fff;
-  border-color: #111;
-}
-.formal-button.active:hover,
-.informal-button.active:hover,
-.cn-btn--primary:hover {
-  background: #222;
-  border-color: #222;
-}
-/* 입력창 전송 버튼 */
-#sendBtn {
-  background: #111 !important;
-  color: #fff !important;
-  border-color: #111 !important;
-}
-#sendBtn:hover {
-  background: #222 !important;
-  border-color: #222 !important;
+#sessionList .session-link:focus,
+#sessionList .session-link:focus-visible,
+#sessionList .session-link:active {
+  box-shadow: none !important;
 }
 
-/* === 이미지 업로드 영역 === */
-#imagePreview {
-  margin: 10px 20px;
-  padding: 12px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  background: #fafafa;
-  color: #666;
-  font-size: 13px;
+/* 미니 모달(제목 입력) */
+.cn-dialog__backdrop{
+  position: fixed; inset: 0;
+  background: rgba(17,24,39,.45);
   display: none;
+  align-items: center; justify-content: center;
+  z-index: 9999;
 }
-#imagePreview.active { display: block; }
-
-/* === 입력창 === */
-.chat-input-area {
-  padding: 16px 20px;
-  border-top: 1px solid #ddd;
+.cn-dialog{
+  width: min(480px, 92vw);
   background: #fff;
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.2);
+  padding: 16px;
 }
-#chatInput {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s ease;
+.cn-dialog h3{ margin: 0 0 10px; font-size: 16px; }
+.cn-dialog .row{ display:flex; gap:8px; }
+.cn-dialog input{
+  flex:1; padding:10px 12px; border:1px solid #e5e7eb; border-radius: 8px;
 }
-#chatInput:focus {
-  border-color: #111;
-  box-shadow: 0 0 0 3px rgba(17,17,17,0.1);
+.cn-dialog .actions{ margin-top:12px; display:flex; gap:8px; justify-content:flex-end; }
+.cn-btn{
+  padding:8px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; cursor:pointer;
 }
-
-/* === 새 채팅 버튼 === */
-.new-chat-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  color: #111;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.new-chat-btn:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
-}
-
-/* === 카드 선택 시 글씨 흐려지는 문제 방지 === */
-.chat-log li.msg.msg--selecting,
-.chat-log li.msg.msg--chosen {
-  color: inherit !important;   /* 기존 글자색 유지 */
-  opacity: 1 !important;       /* 투명도 제거 */
+.cn-btn--primary{
+  background:#2563eb; color:#fff; border-color:#2563eb;
 }

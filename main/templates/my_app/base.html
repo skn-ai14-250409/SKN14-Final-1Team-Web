@@ -25,7 +25,6 @@
             {% if request.resolver_match.url_name == 'main-chatbot' or request.resolver_match.url_name == 'internal-docs' %}
             <div class="chat-history">
                 <div class="chat-history__header">
-                    <p>채팅 메시지 영역</p>
                     <button class="btn-new-chat" type="button">새 채팅</button>
                 </div>
 
@@ -53,7 +52,7 @@
                     <img src="{{ request.user.profile_image }}" alt="기본 프로필" class="avatar" >
                 {% endif %}
             {% endif %}
-                    <span class="btn-header">
+                    <span>
                         {{ request.user.name }} / {{ request.user.get_rank_display }}
                         {% if request.user.department %}
                         / {{ request.user.get_department_display }}

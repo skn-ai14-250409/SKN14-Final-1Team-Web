@@ -20,4 +20,8 @@ def run_sllm(history, permission="none", tone="formal"):
     response = requests.post(url, headers=headers, json=data)
     res = response.json()
 
-    return res["response"], res["title"]
+    # tool_calls와 tool_responses가 없을 경우 빈 문자열 반환
+    tool_calls = res.get("tool_calls", "")
+    tool_responses = res.get("tool_responses", "")
+
+    return res["response"], res["title"], tool_calls, tool_responses
