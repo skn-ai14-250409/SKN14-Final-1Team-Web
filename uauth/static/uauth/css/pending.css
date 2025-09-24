@@ -128,6 +128,8 @@ body {
     border-radius: 16px;
     font-size: 12px;
     font-weight: 500;
+    display: inline-block; /* 추가: 글자 길이만큼만 배경 표시 */
+    width: fit-content;    /* 추가: 내용에 맞는 너비로 설정 */
 }
 
 /* 진행 상태 */
