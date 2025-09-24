@@ -34,6 +34,7 @@ body {
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .subtitle {
@@ -41,6 +42,7 @@ body {
     color: #8e8e8e;
     margin-bottom: 40px;
     line-height: 1.5;
+    text-align: center;
 }
 
 /* 상태 섹션 */
