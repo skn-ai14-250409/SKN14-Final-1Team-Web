@@ -131,7 +131,7 @@ body {
 }
 
 .info-item {
-    flex: 1; /* 두 칸을 균등하게 */
+    flex: initial;   /* ✅ flex:1 때문에 강제로 늘어나는 거 해제 */
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -144,12 +144,16 @@ body {
 }
 
 .info-value {
+    display: inline-block; /* ✅ block이 아니라 inline-block으로 */
+    width: auto;           /* ✅ 남은 공간 다 차지하지 않도록 */
     font-size: 14px;
     color: #111827;
     font-weight: 400;
 }
 
 .status-rejected {
+    display: inline-block;  /* ✅ 글자 길이만큼만 차지 */
+    width: auto;            /* ✅ 혹시 상속된 폭 해제 */
     color: #dc2626 !important;
     background: #fef2f2;
     padding: 4px 12px;
