@@ -362,6 +362,16 @@
   cursor: pointer;
 }
 
+/* 업로드/음성 버튼 높이를 보내기 버튼과 일치 */
+#uploadBtn,
+#voiceBtn {
+  height: 46px;
+  padding: 0 12px;
+  font-size: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 /* 말투 표시 버튼 전용 크기 (작게 + 위치 조정 + 아래로 이동) */
 #toneSelectBtn {
   padding: 5px 12px;   
