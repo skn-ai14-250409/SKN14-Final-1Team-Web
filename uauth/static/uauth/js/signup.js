@@ -21,16 +21,32 @@
   })();
 
   // ===============================
-  // 2) 비밀번호 보기/숨기기 토글
+  // 2) 비밀번호 보기/숨기기 토글 (로그인과 동일한 아이콘 토글)
   // ===============================
   document.querySelectorAll('.toggle').forEach(button => {
     button.addEventListener('click', () => {
       const target = document.getElementById(button.dataset.target);
       if (!target) return;
-      target.type = target.type === 'password' ? 'text' : 'password';
-      // 접근성: 토글 상태를 스크린리더에 전달
-      const pressed = button.getAttribute('aria-pressed') === 'true';
-      button.setAttribute('aria-pressed', (!pressed).toString());
+
+      const isVisible = target.type === 'text';
+      target.type = isVisible ? 'password' : 'text';
+
+      // 아이콘 토글: .eye-on / .eye-off
+      const eyeOn  = button.querySelector('.eye-on');
+      const eyeOff = button.querySelector('.eye-off');
+      if (eyeOn && eyeOff) {
+        eyeOn.style.display  = isVisible ? 'block' : 'none';
+        eyeOff.style.display = isVisible ? 'none' : 'block';
+      }
+
+      // 접근성 상태 업데이트
+      button.setAttribute('aria-pressed', (!isVisible).toString());
+      const isPw = button.dataset.target === 'password' || button.dataset.target === 'confirmPassword';
+      if (isPw) {
+        button.setAttribute('aria-label', isVisible ? '비밀번호 표시' : '비밀번호 숨김');
+      }
+
+      target.focus();
     });
   });
 
