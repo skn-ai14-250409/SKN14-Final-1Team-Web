@@ -4,13 +4,43 @@
 {% block title %}댓글 수정{% endblock %}
 
 {% block content %}
+<style>
+    textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        margin-bottom: 1rem;
+    }
+    .button {
+        display: inline-block;
+        padding: 10px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .save-btn {
+        background-color: #007bff;
+    }
+    .cancel-btn {
+        background-color: #6c757d;
+    }
+</style>
+
 <div style="padding: 24px; background-color: #fff; border-radius: 8px;">
     <h2>댓글 수정하기</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.content }}
-        <button type="submit">저장하기</button>
-        <a href="{% url 'main:post-detail' post_id=comment.post.id %}">취소</a>
+        <button type="submit" class="button save-btn">저장하기</button>
+        <a href="{% url 'main:post-detail' post_id=comment.post.id %}" class="button cancel-btn">취소</a>
     </form>
 </div>
 {% endblock %}
