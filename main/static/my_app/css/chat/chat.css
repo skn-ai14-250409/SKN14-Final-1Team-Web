@@ -328,3 +328,49 @@
 .cn-btn--primary{
   background:#2563eb; color:#fff; border-color:#2563eb;
 }
+
+#btnCardSelect,
+#btnCardSave {
+  margin-left: 10px;  /* 오른쪽으로 살짝 이동 */
+  margin-top: 5px;    /* 아래로 살짝 이동 */
+}
+
+
+.chat-input-area {
+  position: relative;
+  top: -10px;          /* 위로 살짝 이동 */
+  display: flex;       /* 가로 정렬 */
+  align-items: center;
+  gap: 8px;            /* input과 버튼 사이 여백 */
+  width: 98%;          /* 영역 전체 폭 */
+  margin: 0 auto;      /* 가운데 정렬 */
+}
+
+#chatInput {
+  flex: 1;             /* 남는 공간 다 차지 → 입력창을 넓힘 */
+  height: 46px;        /* 입력창 박스 높이 ↑ */
+  padding: 0 12px;     /* 세로 padding은 제거하고 좌우만 */
+  font-size: 15px;     /* 글자도 약간 키움 */
+  box-sizing: border-box;
+}
+
+#sendBtn {
+  height: 46px;        /* 입력창과 같은 높이로 맞춤 */
+  padding: 0 20px;     /* 좌우 여백 */
+  font-size: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* 말투 표시 버튼 전용 크기 (작게 + 위치 조정 + 아래로 이동) */
+#toneSelectBtn {
+  padding: 5px 12px;   
+  font-size: 17px;     
+  min-width: 125px;    
+  border-radius: 6px;  
+
+  margin-right: 20px;  /* 오른쪽 여백 */
+  margin-top: 6px;     /* 위쪽 여백 → 아래로 이동 */
+  border: 1px solid #333;  /* 두께 2px, 색상은 #333 */
+}
+
