@@ -372,6 +372,9 @@
   cursor: pointer;
 }
 
+/* 버튼 내부 SVG 아이콘 크기 정규화 */
+#voiceBtn svg { display: block; width: 20px; height: 20px; }
+
 /* 말투 표시 버튼 전용 크기 (작게 + 위치 조정 + 아래로 이동) */
 #toneSelectBtn {
   padding: 5px 12px;   
