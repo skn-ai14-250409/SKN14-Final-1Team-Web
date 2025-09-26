@@ -31,7 +31,13 @@
         <button id="uploadBtn">사진 업로드</button>
         <input type="file" id="imageInput" accept="image/*" style="display: none;">
         <input id="chatInput" type="text" placeholder="질문하는 INPUT 영역">
-        <button id="voiceBtn">🎤</button>
+        <button id="voiceBtn" aria-label="음성 녹음">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 1.75a3.25 3.25 0 0 0-3.25 3.25v6a3.25 3.25 0 1 0 6.5 0v-6A3.25 3.25 0 0 0 12 1.75z"/>
+            <path d="M5 11.5a7 7 0 0 0 14 0"/>
+            <path d="M12 18.5v3"/>
+          </svg>
+        </button>
         <button id="sendBtn">보내기</button>
     </div>
   </div>

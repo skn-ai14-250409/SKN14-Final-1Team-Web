@@ -131,23 +131,34 @@ input:focus, select:focus, button.date-trigger:focus{
 
 .toggle{
   position:absolute; 
-  right:8px; 
+  right:12px; 
   top:50%; 
   transform:translateY(-50%);
-  width:30px; 
-  height:30px; 
-  border-radius:9999px;
-  border:1px solid var(--border); 
-  background:#eef0f4; 
-  color:#374151;
+  width:28px; 
+  height:28px; 
+  border-radius:6px;
+  border:none; 
+  background:transparent; 
+  color:#6b7280;
   cursor:pointer; 
-  font-size:12px; 
   display:grid; 
   place-items:center;
+  padding:2px;
 }
 
 .toggle:hover{ 
-  filter:brightness(0.98); 
+  background-color:#f1f3f4; 
+}
+
+/* 로그인과 동일한 아이콘 크기/색 */
+.eye-icon{ 
+  width:16px; 
+  height:16px; 
+}
+
+/* 비밀번호 input 우측 패딩 확보 */
+.password-wrap input{ 
+  padding-right:44px; 
 }
 
 /* 오류 */

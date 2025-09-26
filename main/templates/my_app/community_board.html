@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="community-container">
-    <div class="community-header">
+    <div class="community-header" style="text-align: right; padding-right: 40px; margin-bottom: 10px;">
         <a href="{% url 'main:create-post' %}" class="btn-create-post">글쓰기</a>
     </div>
     <table class="community-table">
@@ -31,8 +31,7 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <!-- 이 부분을 {{ post.author }} 로 수정합니다. -->
-                <td class="col-author">{{ post.author }}</td>
+                <td class="col-author">{{ post.author.id }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>
@@ -49,8 +48,7 @@
                         <span class="comment-count">[{{ post.comments.count }}]</span>
                     </a>
                 </td>
-                <!-- 이 부분도 {{ post.author }} 로 수정합니다. -->
-                <td class="col-author">{{ post.author }}</td>
+                <td class="col-author">{{ post.author.id }}</td>
                 <td class="col-date">{{ post.created_at|date:"Y.m.d" }}</td>
                 <td class="col-views">{{ post.views }}</td>
                 <td class="col-likes">{{ post.likes }}</td>

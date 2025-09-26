@@ -2,6 +2,38 @@
 {% block title %}게시글 수정{% endblock %}
 
 {% block content %}
+<style>
+    #id_title, #id_content {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+    #id_content {
+        min-height: 300px;
+        resize: vertical;
+    }
+    .button {
+        display: inline-block;
+        padding: 10px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .save-btn {
+        background-color: #007bff;
+    }
+    .cancel-btn {
+        background-color: #6c757d;
+    }
+</style>
+
 <div style="padding: 24px; background-color: #fff; border-radius: 8px;">
     <h2>게시글 수정하기</h2>
     <form method="post">
@@ -14,8 +46,8 @@
             <label for="id_content">내용:</label>
             {{ form.content }}
         </div>
-        <button type="submit">저장하기</button>
-        <a href="{% url 'main:post-detail' post_id=post.id %}">취소</a>
+        <button type="submit" class="button save-btn">저장하기</button>
+        <a href="{% url 'main:post-detail' post_id=post.id %}" class="button cancel-btn">취소</a>
     </form>
 </div>
 {% endblock %}
