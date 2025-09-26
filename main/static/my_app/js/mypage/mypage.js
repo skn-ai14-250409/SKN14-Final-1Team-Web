@@ -1,5 +1,11 @@
 function openCardDetail(cardUrl) {
-  window.open(cardUrl, 'CardDetail', 'width=500,height=300');
+  const popupWidth = 600;
+  const popupHeight = 400;
+
+  const screenWidth = window.screen.width;
+  const left = (screenWidth / 2) - (popupWidth / 2);
+
+  window.open(cardUrl, 'CardDetail', `width=${popupWidth},height=${popupHeight},left=${left},top=0`);
 }
 
 async function copyToClipboard(textToCopy) {
@@ -12,25 +18,6 @@ async function copyToClipboard(textToCopy) {
   }
 }
 
-// 키 복사 수정 : navigator.clipboard -> document.execCommand('copy')
-// -> 배포환경에서 복붙되는지 확인 필
-// async function copyToClipboard(textToCopy) {
-//   try {
-//     const tempInput = document.createElement('textarea');
-//     tempInput.value = textToCopy;
-//     tempInput.style.position = 'fixed';
-//     tempInput.style.top = '-9999px';
-//     document.body.appendChild(tempInput);
-//     tempInput.focus();
-//     tempInput.select();
-//     document.execCommand('copy');
-//     document.body.removeChild(tempInput);
-//     alert('키가 복사되었습니다!');
-//   } catch (err) {
-//     console.error('클립보드 복사 실패:', err);
-//     alert('클립보드 복사에 실패했습니다.');
-//   }
-// }
 
 function toggleEditMode() {
   const editBtn = document.getElementById('edit-btn');
@@ -73,8 +60,6 @@ function toggleEditMode() {
     genderSelect.style.display = 'none';
 
     accountSection.classList.remove('editing');
-
-  
   }
 }
 

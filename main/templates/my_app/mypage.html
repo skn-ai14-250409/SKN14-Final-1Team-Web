@@ -25,8 +25,6 @@
 
                     <button id="edit-btn" class="edit-button" onclick="toggleEditMode()">편집</button>
                     <button id="save-btn" form="profile-form" class="edit-button" type="submit" style="display:none;">저장</button>
-
-                   
                 </div>
             </div>
 
@@ -110,7 +108,7 @@
                         </div>
                     </li>
                     {% empty %}
-                    <li>card가 없습니다.</li>
+                    <li>카드가 없습니다.</li>
                     {% endfor %}
                     {% if api_cards.has_other_pages %}
                     <div class="pager">
@@ -141,7 +139,7 @@
                     </div>
                     </li>
                 {% empty %}
-                    <li>card가 없습니다.</li>
+                    <li>카드가 없습니다.</li>
                 {% endfor %}
                 </ul>
 
@@ -247,7 +245,6 @@
         </section>
     </div>
 
-    <!-- 리다이렉트 타겟 URL 주입 -->
     <div id="mypageCtx" data-refresh-url="{% url 'mypage:mypage' %}"></div>
 
     <script src="{% static 'my_app/js/mypage/mypage.js' %}"></script>

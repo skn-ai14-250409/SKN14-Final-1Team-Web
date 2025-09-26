@@ -5,9 +5,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from .langgraph_node2 import *
 
 
-basic_chain = basic_chain_setting()
-vs = retriever_setting()
-
 
 # 그래프 설정
 def graph_setting():
@@ -35,6 +32,8 @@ def graph_setting():
     graph.add_node("simple", simple)
     graph.add_node("impossible", impossible)
     graph.add_node("tool", tool_based_search_node)
+    graph.add_node("evaluate", evaluate_answer_node)
+    graph.add_node("generate_queries", generate_alternative_queries)
 
     # 시작 노드 정의
     graph.set_entry_point("analyze_image")
@@ -44,7 +43,19 @@ def graph_setting():
     graph.add_edge("extract_queries", "split_queries")  # 질문 추출 후 분리
     graph.add_edge("split_queries", "tool")  # 쿼리 분리 후 벡터 db tool노드로 넘어감
     graph.add_edge("tool", "basic")  # tool노드에서 벡터 db 검색 후 답변 노드로 넘어감
-    graph.add_edge("basic", END)  # 기본 답변 후 종료
+    graph.add_edge("basic", "evaluate")
+
+    graph.add_conditional_edges(
+        "evaluate",
+        lambda state: state["answer_quality"],   # good / bad
+        {
+            "good": END,
+            "bad": "generate_queries",
+            "final": END,
+        },
+    )
+
+    graph.add_edge("generate_queries", "tool")
 
     graph.add_edge("simple", END)  # 일상 질문 시 답변 후 종료
     graph.add_edge("impossible", END)
