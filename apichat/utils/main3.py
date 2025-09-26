@@ -14,11 +14,15 @@ def run_langraph(user_input, config_id, image, chat_history=None):
         print(f"run_langraph 호출 - 입력: {user_input}, 이미지: {bool(image)}")
 
         result = graph.invoke(
-            {"messages": chat_history, "question": user_input, "image": image},
+            {"messages": chat_history, 
+             "question": user_input, 
+             "image": image,
+             "retry": False
+             },
             config=config,
         )
 
-        print(f"그래프 실행 결과: {result}")
+        # print(f"그래프 실행 결과: {result}")
         return result["answer"]
     except Exception as e:
         print(f"run_langraph 에러: {str(e)}")
