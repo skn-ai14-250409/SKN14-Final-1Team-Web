@@ -60,8 +60,8 @@ main {
 }
 
 .chat-message img {
-    max-width: 460px; 
-    max-height: 250px; 
+    max-width: 400px; 
+    max-height: 200px; 
     width: auto; 
     height: auto; 
     display: block;
