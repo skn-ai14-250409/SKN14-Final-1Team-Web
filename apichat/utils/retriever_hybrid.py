@@ -7,9 +7,7 @@ from .retriever_qa import retriever_setting2
 from .retriever_bm25 import bm25_retrievers_by_tag, bm25_retrievers_by_tag_qa
 
 _vs = retriever_setting()
-
 _vs_qa = retriever_setting2()
-
 
 
 def hybrid_retriever_setting(api_tags,k=5):
@@ -26,8 +24,8 @@ def hybrid_retriever_setting(api_tags,k=5):
 
     # 태그별 BM25 retrievers
     # bm25_retrievers = 요청된 태그들(api_tags)에 해당하는 BM25Retriever 객체들의 리스트
-    _bm25_dict = bm25_retrievers_by_tag(k=k)
-    bm25_retrievers = [_bm25_dict[tag] for tag in api_tags if tag in _bm25_dict]
+    bm25_dict = bm25_retrievers_by_tag(k=k)
+    bm25_retrievers = [bm25_dict[tag] for tag in api_tags if tag in bm25_dict]
 
     if not bm25_retrievers:
         return chroma_retriever  # BM25 retriever가 없으면 Chroma만 반환
@@ -49,7 +47,7 @@ def hybrid_retriever_setting(api_tags,k=5):
     )
 
 
-def hybrid_retriever_setting_qa(api_tags,k=10):
+def hybrid_retriever_setting_qa(api_tags,k=20):
     """
     특정 태그 리스트에 맞는 QA 하이브리드 retriever 생성
     """
@@ -59,9 +57,8 @@ def hybrid_retriever_setting_qa(api_tags,k=10):
 
     chroma_retriever = _vs_qa.as_retriever(search_kwargs={"k": 5}, filter=filters)
 
-    _bm25_dict_qa = bm25_retrievers_by_tag_qa(k=k)
-
-    bm25_retrievers = [_bm25_dict_qa[tag] for tag in api_tags if tag in _bm25_dict_qa]
+    bm25_dict = bm25_retrievers_by_tag_qa(k=k)
+    bm25_retrievers = [bm25_dict[tag] for tag in api_tags if tag in bm25_dict]
 
     if not bm25_retrievers:
         return chroma_retriever
