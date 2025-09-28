@@ -196,7 +196,7 @@ def classify_chain_setting():
 
 
 def simple_chain_setting():
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.4)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.4)
     simple_prompt = PromptTemplate.from_template(
         """
     너는 사용자의 **일상적인 질문**에만 답변하는 도우미야.  
@@ -223,7 +223,7 @@ def simple_chain_setting():
 
 
 def impossable_chain_setting():
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.4)
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.4)
     imp_prompt = PromptTemplate.from_template(
         """
     너는 사용자의 **사용자의 질문**에 대한 내용을 몰라서 답변할 수 없는 챗봇이야.  
