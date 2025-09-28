@@ -406,7 +406,10 @@ function startRecording() {
             
             mediaRecorder.start();
             isRecording = true;
-            document.getElementById('voiceBtn').textContent = '⏹️';
+            const vb = document.getElementById('voiceBtn');
+            if (vb) {
+                vb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+            }
         })
         .catch(error => {
             console.error('마이크 접근 오류:', error);
@@ -418,7 +421,10 @@ function stopRecording() {
     if (mediaRecorder && isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-        document.getElementById('voiceBtn').textContent = '🎤';
+        const vb = document.getElementById('voiceBtn');
+        if (vb) {
+            vb.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1.75a3.25 3.25 0 0 0-3.25 3.25v6a3.25 3.25 0 1 0 6.5 0v-6A3.25 3.25 0 0 0 12 1.75z"/><path d="M5 11.5a7 7 0 0 0 14 0"/><path d="M12 18.5v3"/></svg>';
+        }
     }
 }
 

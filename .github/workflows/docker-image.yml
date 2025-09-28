@@ -39,5 +39,8 @@ jobs:
           application_name: ${{ secrets.AWS_EB_APPLICATION_NAME }}
           environment_name: ${{ secrets.AWS_EB_ENVIRONMENT_NAME }}
           region: ap-northeast-2
-          version_label: "app-${{ github.sha }}"
+          # 매 실행마다 고유해지는 라벨 (commit+run)
+          version_label: "app-${{ github.sha }}-${{ github.run_id }}"
+          # 같은 라벨이 이미 있으면 그 버전을 재사용
+          use_existing_version_if_available: true
           deployment_package: Dockerrun.aws.json

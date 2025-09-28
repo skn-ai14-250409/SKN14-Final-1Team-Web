@@ -1,16 +1,18 @@
 import os
 from dotenv import load_dotenv
+
+import torch
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-from .vector_db import create_chroma_db
+from .vector_db_qa import create_chroma_db
 
 # .env 로드
 load_dotenv()
 
 # 경로/모델 설정
 HERE = os.path.dirname(os.path.abspath(__file__))
-DB_DIR = os.path.join(HERE, "chroma_db")
-COLLECTION_NAME = "google_api_docs"
+DB_DIR = os.path.join(HERE, "qa_chroma_db")
+COLLECTION_NAME = "qna_collection"
 EMBED_MODEL = "BAAI/bge-m3"
 
 embeddings = HuggingFaceEmbeddings(
@@ -19,7 +21,7 @@ embeddings = HuggingFaceEmbeddings(
 )
 
 
-def retriever_setting(force_download=False):
+def retriever_setting2(force_download=False):
     # 디렉토리 존재 및 내용 확인
     need_download = force_download
 
@@ -28,7 +30,7 @@ def retriever_setting(force_download=False):
     else:
         # 디렉토리는 있지만 내용이 불완전한지 확인
         chroma_file = os.path.join(DB_DIR, "chroma.sqlite3")
-        folder_dir = os.path.join(DB_DIR, "8013b0ca-2294-4f8f-9494-65628bc6fc3f")
+        folder_dir = os.path.join(DB_DIR, "66c170c0-0369-4132-a6c5-19f6643bf942")
 
         if not os.path.exists(chroma_file) or not os.path.exists(folder_dir):
             need_download = True

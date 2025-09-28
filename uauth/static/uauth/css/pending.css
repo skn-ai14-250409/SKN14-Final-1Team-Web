@@ -34,6 +34,7 @@ body {
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .subtitle {
@@ -41,6 +42,7 @@ body {
     color: #8e8e8e;
     margin-bottom: 40px;
     line-height: 1.5;
+    text-align: center;
 }
 
 /* 상태 섹션 */
@@ -126,6 +128,8 @@ body {
     border-radius: 16px;
     font-size: 12px;
     font-weight: 500;
+    display: inline-block; /* 추가: 글자 길이만큼만 배경 표시 */
+    width: fit-content;    /* 추가: 내용에 맞는 너비로 설정 */
 }
 
 /* 진행 상태 */

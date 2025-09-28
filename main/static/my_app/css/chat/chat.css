@@ -18,9 +18,10 @@
   flex: 1 1 auto;
   overflow-y: auto;
   margin: 0;
-  padding: 20px; /* 내부 여백을 추가해 메시지가 가장자리에 닿지 않도록 함 */
+  padding: 20px;
   display: flex;
-  flex-direction: column; /* 메시지를 세로로 쌓음 */
+  flex-direction: column;
+  width: 100%; /* 너비를 100%로 설정하여 항상 좌/우 정렬되도록 수정 */
 }
 
 .chat-log {
@@ -31,12 +32,12 @@
 
 /* 모든 메시지 아이템(li)에 대한 공통 스타일 */
 .chat-log li {
-  width: fit-content; /* 내용의 길이에 맞게 너비 조절 */
-  max-width: 70%; /* 말풍선 최대 너비 */
-  padding: 10px 16px; /* 내부 여백 */
-  border-radius: 18px; /* 모서리를 둥글게 처리 */
-  margin-bottom: 12px; /* 메시지 간의 세로 간격 */
-  line-height: 1.5; /* 줄 간격 */
+  width: fit-content;
+  max-width: 70%;
+  padding: 10px 16px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+  line-height: 1.5;
 }
 
 .chat-log li:last-child {
@@ -45,20 +46,18 @@
 
 /* 사용자 메시지 말풍선 */
 .chat-log .msg--user {
-  background-color: #e0f2fe; /* 기존 색상 유지 */
-  align-self: flex-end; /* 오른쪽 정렬 */
-  text-align: left; /* 텍스트는 왼쪽부터 시작 (가독성) */
-  /* 오른쪽 위 모서리를 뾰족하게 만들어 말풍선 꼬리 느낌 */
+  background-color: #e0f2fe;
+  align-self: flex-end;
+  text-align: left;
   border-top-right-radius: 4px;
 }
 
 /* 어시스턴트(봇) 메시지 말풍선 */
 .chat-log .msg--assistant,
 .chat-log .msg--bot {
-  background-color: #f3f4f6; /* 기존 색상 유지 */
-  align-self: flex-start; /* 왼쪽 정렬 */
+  background-color: #f3f4f6;
+  align-self: flex-start;
   text-align: left;
-  /* 왼쪽 위 모서리를 뾰족하게 만들어 말풍선 꼬리 느낌 */
   border-top-left-radius: 4px;
 }
 
@@ -329,3 +328,62 @@
 .cn-btn--primary{
   background:#2563eb; color:#fff; border-color:#2563eb;
 }
+
+#btnCardSelect,
+#btnCardSave {
+  margin-left: 10px;  /* 오른쪽으로 살짝 이동 */
+  margin-top: 5px;    /* 아래로 살짝 이동 */
+}
+
+
+.chat-input-area {
+  position: relative;
+  top: -10px;          /* 위로 살짝 이동 */
+  display: flex;       /* 가로 정렬 */
+  align-items: center;
+  gap: 8px;            /* input과 버튼 사이 여백 */
+  width: 98%;          /* 영역 전체 폭 */
+  margin: 0 auto;      /* 가운데 정렬 */
+}
+
+#chatInput {
+  flex: 1;             /* 남는 공간 다 차지 → 입력창을 넓힘 */
+  height: 46px;        /* 입력창 박스 높이 ↑ */
+  padding: 0 12px;     /* 세로 padding은 제거하고 좌우만 */
+  font-size: 15px;     /* 글자도 약간 키움 */
+  box-sizing: border-box;
+}
+
+#sendBtn {
+  height: 46px;        /* 입력창과 같은 높이로 맞춤 */
+  padding: 0 20px;     /* 좌우 여백 */
+  font-size: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* 업로드/음성 버튼 높이를 보내기 버튼과 일치 */
+#uploadBtn,
+#voiceBtn {
+  height: 46px;
+  padding: 0 12px;
+  font-size: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* 버튼 내부 SVG 아이콘 크기 정규화 */
+#voiceBtn svg { display: block; width: 20px; height: 20px; }
+
+/* 말투 표시 버튼 전용 크기 (작게 + 위치 조정 + 아래로 이동) */
+#toneSelectBtn {
+  padding: 5px 12px;   
+  font-size: 17px;     
+  min-width: 125px;    
+  border-radius: 6px;  
+
+  margin-right: 20px;  /* 오른쪽 여백 */
+  margin-top: 6px;     /* 위쪽 여백 → 아래로 이동 */
+  border: 1px solid #333;  /* 두께 2px, 색상은 #333 */
+}
+

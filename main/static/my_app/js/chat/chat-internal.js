@@ -174,12 +174,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const selectFormal = document.getElementById('selectFormal');
   const selectInformal = document.getElementById('selectInformal');
   const closeModal = document.getElementById('closeModal');
-  const currentTone = document.getElementById('currentTone');
+  
 
   // 공손 말투 선택
   if (selectFormal) {
     selectFormal.addEventListener('click', function() {
       selectedTone = 'formal';
+      updateCurrentTone('formal');
       hideToneModal();
       createSessionWithTone('formal');
     });
@@ -189,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (selectInformal) {
     selectInformal.addEventListener('click', function() {
       selectedTone = 'informal';
+      updateCurrentTone('informal');
       hideToneModal();
       createSessionWithTone('informal');
     });
@@ -227,7 +229,7 @@ function hideToneModal() {
 
 // 현재 말투 표시 업데이트
 function updateCurrentTone(tone) {
-  const currentTone = document.getElementById('currentTone');
+  const currentTone = document.getElementById('toneSelectBtn');
   if (currentTone) {
     if (tone === 'formal') {
       currentTone.textContent = '말투: 공손 말투';
