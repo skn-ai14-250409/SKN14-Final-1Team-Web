@@ -273,6 +273,7 @@ def tool_based_search_node(state: ChatState) -> ChatState:
     state['tool_calls'] = tool_calls
 
     # print(f"[tool_based_search_node] 실행 - state['search_results']={state['search_results']}")
+    # print(f"[tool_based_search_node] 실행 - state['qa_search_results']={state['qa_search_results']}")
 
     return state
 
