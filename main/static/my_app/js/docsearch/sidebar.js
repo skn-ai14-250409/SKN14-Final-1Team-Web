@@ -180,6 +180,11 @@ const layout = document.querySelector(".layout");
 const sidebar = document.getElementById("docSearchSidebar");
 const toggleBtn = document.getElementById("toggleSidebarBtn");
 
+toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <polyline points="9 18 15 12 9 6" />
+       </svg>`;
+
 toggleBtn.addEventListener("click", () => {
   layout.classList.toggle("sidebar-closed");
   sidebar.classList.toggle("closed");
@@ -188,11 +193,11 @@ toggleBtn.addEventListener("click", () => {
     ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <polyline points="15 18 9 12 15 6" />
-       </svg>`  // <
+       </svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
          <polyline points="9 18 15 12 9 6" />
-       </svg>`; // >
+       </svg>`;
 });
 
   });
