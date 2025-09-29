@@ -244,6 +244,45 @@ function addMessage(text, role = 'user', id = null, imageData = null) {
   chatLog.scrollTop = chatLog.scrollHeight;
   return li;
 }
+// 로딩 메시지 표시 함수
+function showLoadingMessage() {
+    const loadingLi = document.createElement('li');
+    loadingLi.className = 'msg msg--assistant loading-message';
+    loadingLi.id = 'loading-message';
+    loadingLi.innerHTML = `
+        <div class="bubble loading-bubble">
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="loading-text">답변을 생성하고 있습니다...</span>
+        </div>
+    `;
+    chatLog.appendChild(loadingLi);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    
+    // 보내기 버튼 비활성화
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '처리 중...';
+    }
+}
+
+// 로딩 메시지 제거 함수
+function hideLoadingMessage() {
+    const loadingMessage = document.getElementById('loading-message');
+    if (loadingMessage) {
+        loadingMessage.remove();
+    }
+    
+    // 보내기 버튼 활성화
+    if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '보내기';
+    }
+}
+
 // 메시지 전송 함수 수정
 async function sendMessage() {
     const messageInput = document.getElementById('chatInput');
@@ -264,10 +303,23 @@ async function sendMessage() {
     }
     
     // 사용자 메시지 표시 (임시 Object URL)
-    addMessage(message || '[이미지]', 'user', null, tempImageUrl);
+    const displayText = message || (selectedImage ? '' : '');
+    addMessage(displayText, 'user', null, tempImageUrl);
     
     // 입력 필드 초기화
     messageInput.value = '';
+    
+    // 이미지 미리보기 즉시 숨기기
+    if (selectedImage) {
+        const preview = document.getElementById('imagePreview');
+        if (preview) {
+            preview.style.display = 'none';
+            preview.innerHTML = '';
+        }
+    }
+    
+    // 로딩 메시지 표시
+    showLoadingMessage();
     
     try {
         const csrfToken = getCSRFToken();
@@ -296,6 +348,9 @@ async function sendMessage() {
         const data = await response.json();
         
         if (data.success) {
+            // 로딩 메시지 제거
+            hideLoadingMessage();
+            
             // 서버에서 S3 URL을 받아서 메시지 업데이트
             if (data.image_url) {
                 // 마지막 사용자 메시지의 이미지를 S3 URL로 업데이트
@@ -324,6 +379,7 @@ async function sendMessage() {
         }
     } catch (err) {
         console.error('요청 실패:', err);
+        hideLoadingMessage(); // 에러 시에도 로딩 메시지 제거
         addMessage('죄송합니다. 요청 처리 중 오류가 발생했습니다.', 'assistant');
     } finally {
         // 임시 Object URL 정리
@@ -446,11 +502,21 @@ async function sendAudioToServer(audioBlob) {
         const data = await response.json();
         
         if (data.success) {
+            // 1. 먼저 변환된 텍스트를 사용자 메시지로 표시
             addMessage(data.transcribed_text, 'user');
-            addMessage(data.bot_response, 'bot');
+            
+            // 2. 그 다음 봇 응답을 위한 로딩 메시지 표시
+            showLoadingMessage();
+            
+            // 3. 봇 응답 표시 (로딩 메시지 제거 후)
+            setTimeout(() => {
+                hideLoadingMessage();
+                addMessage(data.bot_response, 'bot');
+            }, 1000); // 1초 후 봇 응답 표시 (실제로는 서버 응답에 따라 조정)
         }
     } catch (error) {
         console.error('음성 전송 에러:', error);
+        addMessage('음성 처리 중 오류가 발생했습니다.', 'assistant');
     }
 }
 

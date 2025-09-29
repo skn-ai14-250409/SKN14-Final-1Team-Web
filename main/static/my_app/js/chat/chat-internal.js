@@ -362,6 +362,45 @@ function addMessage(text, role = "user", id = null) {
 
 // 기존 말투 선택 버튼 코드는 제거됨 (모달 방식으로 변경)
 
+// 로딩 메시지 표시 함수
+function showLoadingMessage() {
+    const loadingLi = document.createElement('li');
+    loadingLi.className = 'msg msg--assistant loading-message';
+    loadingLi.id = 'loading-message';
+    loadingLi.innerHTML = `
+        <div class="bubble loading-bubble">
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="loading-text">답변을 생성하고 있습니다...</span>
+        </div>
+    `;
+    chatLog.appendChild(loadingLi);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    
+    // 보내기 버튼 비활성화
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '처리 중...';
+    }
+}
+
+// 로딩 메시지 제거 함수
+function hideLoadingMessage() {
+    const loadingMessage = document.getElementById('loading-message');
+    if (loadingMessage) {
+        loadingMessage.remove();
+    }
+    
+    // 보내기 버튼 활성화
+    if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '보내기';
+    }
+}
+
 // 메시지 전송 공통 함수
 async function sendMessage() {
   const message = chatInput.value.trim();
@@ -378,6 +417,9 @@ async function sendMessage() {
 
   // 입력창 비우기
   chatInput.value = "";
+
+  // 로딩 메시지 표시
+  showLoadingMessage();
 
   // 서버 전송 (추후 API 연동 가능)
   console.log("사용자 질문 전송:", message, "세션 ID:", selectedSessionId);
@@ -409,6 +451,9 @@ async function sendMessage() {
 
     // 성공 여부에 따라 처리 (서버 스키마에 맞게 조정)
     if (data.success) {
+      // 로딩 메시지 제거
+      hideLoadingMessage();
+      
       // 실제 응답 텍스트 키가 있으면 그걸 사용 (예: data.reply)
       addMessage(
         data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`,
@@ -426,6 +471,7 @@ async function sendMessage() {
     }
   } catch (err) {
     console.error("요청 실패:", err);
+    hideLoadingMessage(); // 에러 시에도 로딩 메시지 제거
     addMessage("서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "bot");
   } finally {
     // 필요 시 로딩 인디케이터 끄기 등 후처리
