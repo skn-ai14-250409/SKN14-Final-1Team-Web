@@ -122,7 +122,9 @@
 .community-header {
    display: flex;
    justify-content: flex-end;
-   margin-bottom: 16px;
+   align-items: center;
+   padding: 10px 40px 10px 0;
+   margin-bottom: 10px;
 }
 .btn-create-post {
    background-color: #007bff;
