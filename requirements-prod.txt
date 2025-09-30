@@ -16,3 +16,4 @@ sentence-transformers
 gdown
 boto3
 rank_bm25
+konlpy

@@ -393,6 +393,8 @@ staticfiles
 /**/chroma_db
 /**/qa_chroma_db
 
+*.pkl
+
 # media/profile 안의 모든 파일 무시
 media/profile/*
 
