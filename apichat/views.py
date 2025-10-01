@@ -1,16 +1,20 @@
+import json
+import os, re, textwrap
+from difflib import SequenceMatcher
+
 from django.http import JsonResponse
+from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
-import json
-import os
-import re, textwrap
-import requests
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 
-from main.models import ChatMessage, ChatSession, ChatMode, ChatImage
+from main.models import Card, ChatMessage
+from main.models import ChatSession, CardMessage, ChatImage
 from uauth.models import *
 from .utils.main3 import run_langraph
 from .utils.whisper import call_whisper_api
@@ -89,16 +93,6 @@ suggest_chain = suggest_prompt | suggest_llm | StrOutputParser()
 
 OPENAI_TITLE_MODEL = os.getenv("OPENAI_TITLE_MODEL", "gpt-4o-mini")
 
-# def extract_meta(text: str):
-#     def _m(p):
-#         m = re.search(p, text, re.IGNORECASE)
-#         return m.group(0) if m else None
-#     product = _m(PRODUCTS)
-#     api = _m(r"\b\w+\s?API\b") or (f"{product} API" if product else None)
-#     error = _m(r"\b(4\d{2}|5\d{2}|invalid[A-Za-z]+|PERMISSION_DENIED|NOT_FOUND)\b")
-#     keyword = _m(KEYWORDS)
-#     return {"product": product, "api": api, "error": error, "keyword": keyword}
-
 
 def rule_title_fallback(text: str) -> str:
     """
@@ -116,10 +110,6 @@ def sanitize_title(s: str) -> str:
     """
     s = re.sub(r"[^\w\s\-\:\.\,\[\]\(\)ㄱ-ㅎ가-힣A-Za-z0-9/]", "", s)
     return s.strip()[:60] or "General"
-
-
-# ---------- 에코 가드 ---------- #
-from difflib import SequenceMatcher
 
 
 def norm(s: str) -> str:
@@ -150,9 +140,6 @@ def is_echo_like(
     if A and B and len(A & B) / len(A | B) >= token_ratio:
         return True
     return False
-
-
-# --------------------------------------- #
 
 
 def initial_title_with_llm(first_question: str) -> str:
@@ -547,14 +534,6 @@ def session_list(request):
     return JsonResponse({"results": data})
 
 
-from django.views.decorators.http import require_POST
-from django.db import transaction
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from main.models import Card, CardMessage, ChatSession, ChatMessage
-import json
-
-
 @csrf_exempt
 @login_required
 @require_POST
@@ -648,8 +627,6 @@ def delete_card(request, card_id):
 
 
 # 추천 질문 생성
-
-
 def generate_suggestions(user_q: str, answer: str, k: int = 5) -> list[str]:
     """
     LangChain 기반 후속 질문 생성 함수

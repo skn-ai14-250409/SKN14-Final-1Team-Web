@@ -287,7 +287,7 @@ def alternative_queries_chain_setting():
     llm = ChatOpenAI(
         model="gpt-4o",
         temperature=0,
-        model_kwargs={"response_format": {"type": "json_object"}}
+        model_kwargs={"response_format": {"type": "json_object"}},
     )
 
     alt_prompt = PromptTemplate.from_template(

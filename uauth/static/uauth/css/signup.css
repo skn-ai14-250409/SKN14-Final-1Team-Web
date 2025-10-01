@@ -1,213 +1,219 @@
-:root{
+:root {
   /* 라이트 테마 */
-  --bg:#ffffff;
-  --text:#111827;             /* 거의 검정 */
-  --muted:#6b7280;            /* 회색 설명 */
-  --card:#ffffff;
-  --border:#e5e7eb;           /* 연한 테두리 */
-  --input:#f3f4f6;            /* 입력창 배경 */
-  --ring:#1f4fff;             /* 포커스 파란 링 */
-  --danger:#ef4444;
-  --primary:#0b0d19;          /* 제출 버튼 */
+  --bg: #ffffff;
+  --text: #111827; /* 거의 검정 */
+  --muted: #6b7280; /* 회색 설명 */
+  --card: #ffffff;
+  --border: #e5e7eb; /* 연한 테두리 */
+  --input: #f3f4f6; /* 입력창 배경 */
+  --ring: #1f4fff; /* 포커스 파란 링 */
+  --danger: #ef4444;
+  --primary: #0b0d19; /* 제출 버튼 */
 }
 
-*{
-  box-sizing:border-box
+* {
+  box-sizing: border-box;
 }
 
-html,body{
-  height:100%
+html,
+body {
+  height: 100%;
 }
 
-body{
-  margin:0; 
-  background:var(--bg); 
-  color:var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, "Apple SD Gothic Neo","맑은 고딕", Arial;
-  display:flex; 
-  flex-direction:column; 
-  align-items:center;
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Noto Sans KR, "Apple SD Gothic Neo", "맑은 고딕", Arial;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* 상단 페이지 타이틀 */
-.page{
-  width:100%; 
-  max-width:920px; 
-  padding:40px 16px 24px;
-  text-align:center;
+.page {
+  width: 100%;
+  max-width: 920px;
+  padding: 40px 16px 24px;
+  text-align: center;
 }
 
-.page h1{
-  margin:0 0 8px; 
-  font-size:28px; 
-  font-weight:800; 
-  letter-spacing:.2px;
+.page h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
-.page p{ 
-  margin:0; 
-  color:var(--muted); 
-  font-size:15px; 
+.page p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
 }
 
 /* 카드 */
-.card{
-  width:100%; 
-  max-width:920px; 
-  background:var(--card);
-  border:1px solid var(--border); 
-  border-radius:16px;
-  box-shadow:0 2px 10px rgba(17,24,39,.04);
-  padding:24px;
+.card {
+  width: 100%;
+  max-width: 920px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(17, 24, 39, 0.04);
+  padding: 24px;
 }
 
-.section-title{ 
-  font-weight:700; 
-  font-size:18px; 
+.section-title {
+  font-weight: 700;
+  font-size: 18px;
 }
 
-.section-desc{ 
-  color:var(--muted); 
-  margin-top:6px; 
-  font-size:14px; 
+.section-desc {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 14px;
 }
 
 /* 그리드 */
-.grid{ 
-  display:grid; 
-  grid-template-columns:1fr; 
-  gap:16px; 
-  margin-top:20px; 
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 20px;
 }
 
-@media(min-width:768px){ 
-  .grid{ 
-    grid-template-columns:1fr 1fr; 
-  } 
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.full{ 
-  grid-column:1 / -1; 
+.full {
+  grid-column: 1 / -1;
 }
 
 /* 필드 */
-.form-item{ 
-  display:flex; 
-  flex-direction:column; 
-  gap:8px; 
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-label{ 
-  font-size:13px; 
-  color:#374151; 
+label {
+  font-size: 13px;
+  color: #374151;
 }
 
-input,select,button.date-trigger{
-  width:100%; 
-  padding:12px 14px; 
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--input); 
-  color:var(--text);
-  font-size:14px; 
-  outline:none; 
-  transition:box-shadow .15s,border-color .15s;
+input,
+select,
+button.date-trigger {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
 
-input::placeholder{ 
-  color:#9ca3af; 
+input::placeholder {
+  color: #9ca3af;
 }
 
-input:focus, select:focus, button.date-trigger:focus{
-  border-color:#cdd9ff; 
-  box-shadow:0 0 0 3px rgba(56,116,255,.18);
-  background:#fafafa;
+input:focus,
+select:focus,
+button.date-trigger:focus {
+  border-color: #cdd9ff;
+  box-shadow: 0 0 0 3px rgba(56, 116, 255, 0.18);
+  background: #fafafa;
 }
 
 /* 비밀번호 보기 토글을 원형 아이콘처럼 */
-.password-wrap{ 
-  position:relative; 
+.password-wrap {
+  position: relative;
 }
 
-.toggle{
-  position:absolute; 
-  right:12px; 
-  top:50%; 
-  transform:translateY(-50%);
-  width:28px; 
-  height:28px; 
-  border-radius:6px;
-  border:none; 
-  background:transparent; 
-  color:#6b7280;
-  cursor:pointer; 
-  display:grid; 
-  place-items:center;
-  padding:2px;
+.toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 2px;
 }
 
-.toggle:hover{ 
-  background-color:#f1f3f4; 
+.toggle:hover {
+  background-color: #f1f3f4;
 }
 
 /* 로그인과 동일한 아이콘 크기/색 */
-.eye-icon{ 
-  width:16px; 
-  height:16px; 
+.eye-icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* 비밀번호 input 우측 패딩 확보 */
-.password-wrap input{ 
-  padding-right:44px; 
+.password-wrap input {
+  padding-right: 44px;
 }
 
 /* 오류 */
-.error{ 
-  color:var(--danger); 
-  font-size:12px; 
-  min-height:16px; 
+.error {
+  color: var(--danger);
+  font-size: 12px;
+  min-height: 16px;
 }
 
 /* 제출 버튼 */
-.submit{
-  width:100%; 
-  padding:14px 16px; 
-  border-radius:12px; 
-  margin-top:8px;
-  background:var(--primary); 
-  color:#fff; 
-  border:1px solid #0b0d19; 
-  font-weight:700; 
-  letter-spacing:.2px;
-  cursor:pointer;
+.submit {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-top: 8px;
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid #0b0d19;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
 }
 
-.submit:hover{ 
-  filter:brightness(1.04); 
+.submit:hover {
+  filter: brightness(1.04);
 }
 
 /* 토스트 */
-.toast{
-  position:fixed; 
-  bottom:24px; 
-  left:50%; 
-  transform:translateX(-50%);
-  background:#111827; 
-  color:#fff; 
-  border:1px solid #0b0d19;
-  padding:12px 14px; 
-  border-radius:12px; 
-  box-shadow:0 8px 24px rgba(0,0,0,.18);
-  opacity:0; 
-  translate:0 8px; 
-  animation: toast-in .22s ease forwards;
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  border: 1px solid #0b0d19;
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  translate: 0 8px;
+  animation: toast-in 0.22s ease forwards;
 }
 
-@keyframes toast-in{ 
-  to{ 
-    opacity:1; 
-    translate:0 0 
-  } 
+@keyframes toast-in {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 /* 파일 업로드 버튼 스타일 */
@@ -220,7 +226,7 @@ input[type="file"]::file-selector-button {
   color: #374151;
   font-size: 14px;
   cursor: pointer;
-  transition: filter .15s;
+  transition: filter 0.15s;
 }
 input[type="file"]::file-selector-button:hover {
   filter: brightness(0.98);
@@ -230,7 +236,7 @@ input[type="file"]::file-selector-button:hover {
 .profile-flex {
   display: flex;
   align-items: center; /* 세로 가운데 정렬 */
-  gap: 16px;           /* 사이 간격 */
+  gap: 16px; /* 사이 간격 */
 }
 
 /* 미리보기 박스 (네모) */
@@ -239,7 +245,6 @@ input[type="file"]::file-selector-button:hover {
   height: 160px;
   border: 1px solid var(--border);
   background: #fafafa;
-  /* border-radius: 12px;  ⬅️ 이 줄 삭제 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -250,5 +255,4 @@ input[type="file"]::file-selector-button:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* border-radius 제거해서 이미지도 네모로 */
 }

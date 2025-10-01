@@ -1,31 +1,22 @@
-# uauth/views.py
+import re
+import json
+
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
-from .models import User
-import json
-import re
-from datetime import date
-from .models import User
-from .models import User, ApprovalLog, Status
-
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import ApprovalLog
-from .models import Status
-from .models import User, Status
-from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+
+from .models import User, Rank, Department, Gender, ApprovalLog, Status
 from .aws_s3_service import S3Client
-
-
-from .models import User, Rank, Department, Gender
 
 
 # -----------------------------
@@ -94,7 +85,6 @@ def login_view(request):
 
     user = authenticate(request, username=username, password=password)
 
-    # ▼▼▼ 여기부터 교체 ▼▼▼
     if user is None:
         # 아이디/비밀번호 오류
         msg = "아이디 또는 비밀번호가 올바르지 않습니다."
@@ -137,7 +127,6 @@ def login_view(request):
             {"success": True, "state": "approved", "redirect_url": reverse("main:home")}
         )
     return redirect("main:home")
-    # ▲▲▲ 여기까지 교체 ▲▲▲
 
 
 # -----------------------------
@@ -307,5 +296,5 @@ def reject_view(request):
             .first()
         )
 
-    # ✅ 템플릿에 넘겨야 화면에 보임
+    # 템플릿에 넘겨야 화면에 보임
     return render(request, "uauth/reject.html", {"approval_log": approval_log})

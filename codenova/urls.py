@@ -12,7 +12,7 @@ def health_check(request):
 
 urlpatterns = [
     path("health/", health_check),
-    path("health", health_check),   # 슬래시 없음
+    path("health", health_check),
     path("admin/", admin.site.urls),
     path("", include("uauth.urls")),
     path("main/", include("main.urls")),

@@ -28,7 +28,7 @@
             <ul class="chat-messages">
                 {% for message in messages %}
                     <li class="chat-message">
-                        {# |linebreaksbr 필터를 제거하여 순수한 마크다운 텍스트를 전달합니다. #}
+                        {# |linebreaksbr 필터를 제거하여 순수한 마크다운 텍스트를 전달 #}
                         <div class="markdown-content">{{ message.content }}</div>
                         {% if message.images.all %}
                             <div class="message-images">
@@ -55,11 +55,11 @@
             });
 
             document.querySelectorAll('.markdown-content').forEach(elem => {
-                // Django가 전달한 순수 텍스트를 파싱하여 HTML로 변환합니다.
+                // Django가 전달한 순수 텍스트를 파싱하여 HTML로 변환
                 elem.innerHTML = marked.parse(elem.textContent);
             });
 
-            // 변환된 HTML 내의 코드 블록에 하이라이팅을 적용합니다.
+            // 변환된 HTML 내의 코드 블록에 하이라이팅을 적용
             hljs.highlightAll();
         });
     </script>

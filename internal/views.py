@@ -1,14 +1,11 @@
+import json
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
-import json
-
 from main.models import ChatMessage, ChatSession
 from uauth.models import *
 from .utils.sllm import run_sllm
-
-# Create your views here.
 
 
 @csrf_exempt
@@ -74,13 +71,13 @@ def chat(request):
                 session=session, role="user", content=user_message
             )
 
-            # tool_calls 저장 (있는 경우)
+            # tool_calls 저장
             if tool_calls:
                 ChatMessage.objects.create(
                     session=session, role="tool_calls", content=tool_calls
                 )
 
-            # tool_responses 저장 (있는 경우)
+            # tool_responses 저장
             if tool_responses:
                 ChatMessage.objects.create(
                     session=session, role="tool_responses", content=tool_responses

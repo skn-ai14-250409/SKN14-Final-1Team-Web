@@ -19,7 +19,7 @@
     <form id="registerForm" class="form" method="post" action="{% url 'uauth:signup' %}" novalidate enctype="multipart/form-data">
       {% csrf_token %}
 
-      {# 🔧 추가: 전체(non-field) 에러 표시 #}
+      {# 추가: 전체(non-field) 에러 표시 #}
       {% if form and form.non_field_errors %}
         <div class="error nonfield">
           {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
@@ -39,8 +39,8 @@
             <div class="file-input">
               <input id="profile_image" name="profile_image" type="file" accept="image/*" aria-describedby="profileImageErr">
               <div id="profileImageErr" class="error"></div>
-            </div> <!-- ⬅️ file-input 닫기 -->
-          </div>   <!-- ⬅️ profile-flex 닫기 -->
+            </div>
+          </div> 
         </div> 
    
         <!-- 아이디 -->
@@ -49,11 +49,11 @@
           <input id="userId" name="userId" type="text" placeholder="아이디를 입력하세요"
                  required minlength="4" maxlength="20"
                  pattern="^[a-zA-Z0-9_]{4,20}$" autocomplete="username" aria-describedby="userIdErr"
-                 {# 🔧 추가: 값 유지 & 에러시 aria-invalid #}
+                 {# 추가: 값 유지 & 에러시 aria-invalid #}
                  value="{{ form.userId.value|default:'' }}"
                  {% if form.userId.errors %}aria-invalid="true"{% endif %}>
           <div id="userIdErr" class="error">
-            {# 🔧 추가: 필드 에러 출력 (중복 아이디 메시지가 여기로 옴) #}
+            {# 추가: 필드 에러 출력 (중복 아이디 메시지가 여기로 옴) #}
             {% for err in form.userId.errors %}<p>{{ err }}</p>{% endfor %}
           </div>
         </div>

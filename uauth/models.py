@@ -1,14 +1,11 @@
+import boto3
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-
-# from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-import boto3
 from urllib.parse import urlparse
-# User = get_user_model()
 
 
 class Status(models.TextChoices):
@@ -157,7 +154,7 @@ class ApiKey(models.Model):
 def sync_user_active_on_approval(sender, instance, created, **kwargs):
     user = instance.user
 
-    # ✅ is_active는 더 이상 변경하지 않음 (로그인 가능 유지)
+    # is_active는 더 이상 변경하지 않음 (로그인 가능 유지)
     if instance.action == Status.APPROVED and user.status != Status.APPROVED:
         user.status = Status.APPROVED
         user.save(update_fields=["status"])
@@ -169,8 +166,8 @@ def sync_user_active_on_approval(sender, instance, created, **kwargs):
         user.save(update_fields=["status"])
 
 
-
 # 👇 추가된 부분 (맨 아래에 붙이세요)
+
 
 @receiver(pre_save, sender=User)
 def delete_old_profile_image(sender, instance, **kwargs):
@@ -198,7 +195,7 @@ def delete_old_profile_image(sender, instance, **kwargs):
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             region_name=settings.AWS_S3_REGION_NAME,
         )
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME2  # ✅ 업로드 버킷과 동일하게 맞춤
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME2  # 업로드 버킷과 동일하게 맞춤
 
         try:
             s3.delete_object(Bucket=bucket_name, Key=key)

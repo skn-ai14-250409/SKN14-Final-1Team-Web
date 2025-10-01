@@ -13,6 +13,7 @@ QA_INDEX_FILE_PATH = os.path.join(HERE, "bm25_qa_index.pkl")
 BM25_INDEX = None
 BM25_QA_INDEX = None
 
+
 # 전역에서 한 번만 로드
 def _load_bm25_index(path, retriever_func):
     if os.path.exists(path):
@@ -31,21 +32,26 @@ def _load_bm25_index(path, retriever_func):
             if tag:
                 tag_docs[tag].append(Document(page_content=doc, metadata=meta))
 
-        bm25_dict = {tag: BM25Retriever.from_documents(dlist) for tag, dlist in tag_docs.items()}
+        bm25_dict = {
+            tag: BM25Retriever.from_documents(dlist) for tag, dlist in tag_docs.items()
+        }
 
         with open(path, "wb") as f:
             pickle.dump(bm25_dict, f)
 
         return bm25_dict
 
+
 # 시작 시 로드
 BM25_INDEX = _load_bm25_index(INDEX_FILE_PATH, retriever_setting)
 BM25_QA_INDEX = _load_bm25_index(QA_INDEX_FILE_PATH, retriever_setting2)
+
 
 def bm25_retrievers_by_tag(k=5):
     for r in BM25_INDEX.values():
         r.k = k
     return BM25_INDEX
+
 
 def bm25_retrievers_by_tag_qa(k=20):
     for r in BM25_QA_INDEX.values():

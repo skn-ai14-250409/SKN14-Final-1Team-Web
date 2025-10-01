@@ -9,7 +9,7 @@ from .rag2 import (
     simple_chain_setting,
     impossable_chain_setting,
     answer_quality_chain_setting_rag,
-    alternative_queries_chain_setting
+    alternative_queries_chain_setting,
 )
 from .retriever import retriever_setting
 from .retriever_qa import retriever_setting2
@@ -42,7 +42,7 @@ class ChatState(TypedDict, total=False):
     rewritten: str  # 통합된 질문
     queries: List[str]  # 쿼리(질문들)
     search_results: List[str]  # 벡터 DB 검색 결과들
-    qa_search_results: List[str] # qa 벡터 db 검색 결과들
+    qa_search_results: List[str]  # qa 벡터 db 검색 결과들
     messages: List[Dict[str, str]]  # 사용자 및 모델의 대화 히스토리
     image: str  # 원본 이미지 데이터
     image_analysis: str  # 이미지 분석 결과
@@ -54,7 +54,6 @@ class ChatState(TypedDict, total=False):
     hyde_qa_results: List[str]
     hyde_text_results: List[str]
     search_results_final: List[str]
-
 
 
 # [QA] Google API 선택 옵션 정의
@@ -69,7 +68,7 @@ GOOGLE_API_OPTIONS = {
     "bigquery": "Google BigQuery API (구글 빅쿼리 API)",
     "sheets": "Google Sheets API (구글 시트 API)",
     "people": "Google People API (구글 피플 API)",
-    "youtube": "YouTube API (구글 유튜브 API)"
+    "youtube": "YouTube API (구글 유튜브 API)",
 }
 
 
@@ -144,7 +143,6 @@ def analyze_image(state: ChatState) -> ChatState:
         return state
 
 
-
 # (1) 사용자 질문 + 히스토리 통합 → 통합된 질문과 쿼리 추출
 def extract_queries(state: ChatState) -> ChatState:
     user_text = state["question"]
@@ -187,7 +185,9 @@ def split_queries(state: ChatState) -> ChatState:
 
 
 @tool
-def vector_search_tool(query: str, api_tags: List[str], text_k:int = 5, qa_k:int = 20):
+def vector_search_tool(
+    query: str, api_tags: List[str], text_k: int = 5, qa_k: int = 20
+):
     """
     태그 기반 원문 하이브리드 검색 (Chroma + BM25, 다중 태그 지원)
     """
@@ -201,10 +201,14 @@ def vector_search_tool(query: str, api_tags: List[str], text_k:int = 5, qa_k:int
     print(f"[vector_search_tool] hybrid 검색 완료: '{query}', tags={api_tags}")
 
     # 각 결과에서 page_content만 추출하여 반환
-    return {'text': [result.page_content for result in results_text], 'qa': [result.page_content for result in results_qa]}
+    return {
+        "text": [result.page_content for result in results_text],
+        "qa": [result.page_content for result in results_qa],
+    }
 
 
 llm = ChatOpenAI(model="gpt-4.1", temperature=0)
+
 
 def tool_based_search_node(state: ChatState) -> ChatState:
     """LLM이 툴을 사용해서 벡터 DB 검색을 수행하는 노드"""
@@ -213,7 +217,7 @@ def tool_based_search_node(state: ChatState) -> ChatState:
     options_str = "\n".join([f"- {k}: {v}" for k, v in GOOGLE_API_OPTIONS.items()])
 
     print(f"[tool_based_search_node] 실행 - queries={queries}")
-    
+
     # LLM에게 명시적으로 "각 질문마다 툴 호출"을 요구
     search_instruction = f"""
     다음의 Google API 관련 **검색 쿼리**들에 대해, 각 쿼리마다 반드시 한 번씩
@@ -243,34 +247,36 @@ def tool_based_search_node(state: ChatState) -> ChatState:
     qa_search_results = []
     tool_calls = []
 
-    if hasattr(response, 'tool_calls') and response.tool_calls:
+    if hasattr(response, "tool_calls") and response.tool_calls:
         for tool_call in response.tool_calls:
-            if tool_call['name'] == 'vector_search_tool':
+            if tool_call["name"] == "vector_search_tool":
                 # 툴 실행
-                args = tool_call['args']
-                if state['retry']:
-                    args['text_k'] = 15
-                    args['qa_k'] = 30
+                args = tool_call["args"]
+                if state["retry"]:
+                    args["text_k"] = 15
+                    args["qa_k"] = 30
                 result = vector_search_tool.invoke(args)
-                qa_results = result['qa']
-                text_results = result['text']
+                qa_results = result["qa"]
+                text_results = result["text"]
                 search_results.extend(text_results)
                 qa_search_results.extend(qa_results)
-                tool_calls.append({
-                    'tool': 'vector_search_tool',
-                    'args': tool_call['args'],
-                    'result': result
-                })
+                tool_calls.append(
+                    {
+                        "tool": "vector_search_tool",
+                        "args": tool_call["args"],
+                        "result": result,
+                    }
+                )
 
     # state['search_results'] = search_results
-    if not state['retry']:
-        state['search_results'] = list(dict.fromkeys(search_results))
-        state['qa_search_results'] = list(dict.fromkeys(qa_search_results))
+    if not state["retry"]:
+        state["search_results"] = list(dict.fromkeys(search_results))
+        state["qa_search_results"] = list(dict.fromkeys(qa_search_results))
     else:
-        state['hyde_text_results'] = list(dict.fromkeys(search_results))
-        state['hyde_qa_results'] = list(dict.fromkeys(qa_search_results))
+        state["hyde_text_results"] = list(dict.fromkeys(search_results))
+        state["hyde_qa_results"] = list(dict.fromkeys(qa_search_results))
 
-    state['tool_calls'] = tool_calls
+    state["tool_calls"] = tool_calls
 
     # print(f"[tool_based_search_node] 실행 - state['search_results']={state['search_results']}")
     # print(f"[tool_based_search_node] 실행 - state['qa_search_results']={state['qa_search_results']}")
@@ -278,30 +284,27 @@ def tool_based_search_node(state: ChatState) -> ChatState:
     return state
 
 
-
 # (4) 기본 답변 생성 노드
 def basic_langgraph_node(state: ChatState) -> Dict[str, Any]:
     """질문에 대한 기본 답변 생성"""
-    search_results_text = state['search_results']
-    search_results_qa = state['qa_search_results']
+    search_results_text = state["search_results"]
+    search_results_qa = state["qa_search_results"]
 
     search_results_text2 = []
     search_results_qa2 = []
-    if state['retry']:
-        search_results_text2 = state['hyde_text_results']
-        search_results_qa2 = state['hyde_qa_results']
+    if state["retry"]:
+        search_results_text2 = state["hyde_text_results"]
+        search_results_qa2 = state["hyde_qa_results"]
 
-
-    history = state['messages'][-4:]
-    question = state['question']
-
+    history = state["messages"][-4:]
+    question = state["question"]
 
     # 이미지 분석 결과가 있으면 질문에 포함시킴
     if state.get("image_analysis"):
         question = (
-                f"사용자의 이번 질문:{question}"
-                + "\n"
-                + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
+            f"사용자의 이번 질문:{question}"
+            + "\n"
+            + f'사용자가 이번에 혹은 이전에 첨부한 이미지에 대한 설명: {state.get("image_analysis")}'
         )
 
     # 검색된 결과를 바탕으로 답변 생성
@@ -311,18 +314,22 @@ def basic_langgraph_node(state: ChatState) -> Dict[str, Any]:
             "context_text": "\n".join([str(res) for res in search_results_text]),
             "context_qa": "\n".join([str(res) for res in search_results_qa]),
             "context_text2": "\n".join([str(res) for res in search_results_text2]),
-            "context_qa2":"\n".join([str(res) for res in search_results_qa2]),
+            "context_qa2": "\n".join([str(res) for res in search_results_qa2]),
             "history": history,
         }
     ).strip()
 
-    state['search_results_final'] = search_results_text + search_results_qa + search_results_qa2 + search_results_text2
-    state['answer'] = answer
+    state["search_results_final"] = (
+        search_results_text
+        + search_results_qa
+        + search_results_qa2
+        + search_results_text2
+    )
+    state["answer"] = answer
 
     print(f"[basic_langgraph_node] 생성된 답변: {answer}")
 
     return state  # 답변을 반환
-
 
 
 # (5) 일상 질문 답변 노드
@@ -392,15 +399,17 @@ def evaluate_answer_node(state: ChatState) -> str:
     question = state["question"]
 
     context = "\n".join(state.get("search_results", []))  # 원본 문서
-    context_qa = "\n".join(state.get("qa_search_results", []))      # QA 문서
+    context_qa = "\n".join(state.get("qa_search_results", []))  # QA 문서
 
-    result = quality_chain.invoke({
-        "history": history[-4:],
-        "question": question,
-        "context": context, 
-        "context_qa": context_qa,
-        "answer": answer,
-    }).strip()
+    result = quality_chain.invoke(
+        {
+            "history": history[-4:],
+            "question": question,
+            "context": context,
+            "context_qa": context_qa,
+            "answer": answer,
+        }
+    ).strip()
 
     state["answer_quality"] = result
 
@@ -409,13 +418,14 @@ def evaluate_answer_node(state: ChatState) -> str:
     elif result == "good":
         state["answer_quality"] = "good"
     elif state.get("retry", False):
-        state["answer_quality"] = "final" 
+        state["answer_quality"] = "final"
     else:
         state["answer_quality"] = "bad"
-        
+
     print(f"[evaluate_answer_node] 최종 : {state['answer_quality']}")
 
-    return state 
+    return state
+
 
 def generate_alternative_queries(state: ChatState) -> ChatState:
     """
@@ -428,13 +438,15 @@ def generate_alternative_queries(state: ChatState) -> ChatState:
         # 이미 한 번 fallback을 돌았다면 재실행하지 않음
         return state
 
-    question = state['question']
+    question = state["question"]
     history = state.get("messages", [])[-4:]
 
-    response = alt_query_chain.invoke({
-        "history": history,
-        "question": question,
-    })
+    response = alt_query_chain.invoke(
+        {
+            "history": history,
+            "question": question,
+        }
+    )
 
     new_queries = response.get("docs", [])
 

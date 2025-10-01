@@ -12,8 +12,6 @@
   overflow: hidden;
 }
 
-/* === START: 채팅창 UI 개선 사항 === */
-
 #chatLog {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -60,9 +58,6 @@
   text-align: left;
   border-top-left-radius: 4px;
 }
-
-/* === END: 채팅창 UI 개선 사항 === */
-
 
 .right-sidebar {
   display: flex;
@@ -240,7 +235,6 @@
   color: inherit !important;
 }
 
-/* --- 카드 선택 UX (기존 기능 유지) --- */
 :root{
   --card-hover-bg: #e9f2ff;
   --card-hover-ring: #7fb0ff;
@@ -331,13 +325,13 @@
 
 #btnCardSelect,
 #btnCardSave {
-  margin: 6px 0 4px 10px;  /* 위쪽 6px, 아래쪽 4px로 균형 조정 */
+  margin: 6px 0 4px 10px; 
 }
 
 /* 사내 내부 문서 챗봇의 카드 버튼들도 동일한 여백 적용 */
 .header-split .left-group #btnCardSelect,
 .header-split .left-group #btnCardSave {
-  margin: 6px 0 4px 10px;  /* 위쪽 6px, 아래쪽 4px로 균형 조정 */
+  margin: 6px 0 4px 10px; 
 }
 
 

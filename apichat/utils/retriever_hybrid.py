@@ -10,7 +10,7 @@ _vs = retriever_setting()
 _vs_qa = retriever_setting2()
 
 
-def hybrid_retriever_setting(api_tags,k=5):
+def hybrid_retriever_setting(api_tags, k=5):
     """
     특정 태그 리스트에 맞는 원문 하이브리드 retriever 생성
     - api_tags: ["drive"], ["gmail"], ["drive","calendar"] 등
@@ -30,24 +30,20 @@ def hybrid_retriever_setting(api_tags,k=5):
     if not bm25_retrievers:
         return chroma_retriever  # BM25 retriever가 없으면 Chroma만 반환
 
-    
-    if len(bm25_retrievers) == 1: # 태그가 하나라면 단일 BM25
+    if len(bm25_retrievers) == 1:  # 태그가 하나라면 단일 BM25
         bm25 = bm25_retrievers[0]
     else:
         # 여러 태그 BM25 합치기 -> 앙상블
         bm25 = EnsembleRetriever(
             retrievers=bm25_retrievers,
-            weights=[1 / len(bm25_retrievers)] * len(bm25_retrievers) # 동일한 가중치
+            weights=[1 / len(bm25_retrievers)] * len(bm25_retrievers),  # 동일한 가중치
         )
 
     # 최종 하이브리드 (Chroma + BM25)
-    return EnsembleRetriever(
-        retrievers=[chroma_retriever, bm25],
-        weights=[0.8, 0.2]
-    )
+    return EnsembleRetriever(retrievers=[chroma_retriever, bm25], weights=[0.8, 0.2])
 
 
-def hybrid_retriever_setting_qa(api_tags,k=20):
+def hybrid_retriever_setting_qa(api_tags, k=20):
     """
     특정 태그 리스트에 맞는 QA 하이브리드 retriever 생성
     """
@@ -68,10 +64,7 @@ def hybrid_retriever_setting_qa(api_tags,k=20):
     else:
         bm25 = EnsembleRetriever(
             retrievers=bm25_retrievers,
-            weights=[1 / len(bm25_retrievers)] * len(bm25_retrievers)
+            weights=[1 / len(bm25_retrievers)] * len(bm25_retrievers),
         )
 
-    return EnsembleRetriever(
-        retrievers=[chroma_retriever, bm25],
-        weights=[0.8, 0.2]
-    )
+    return EnsembleRetriever(retrievers=[chroma_retriever, bm25], weights=[0.8, 0.2])

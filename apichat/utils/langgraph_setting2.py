@@ -5,7 +5,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from .langgraph_node2 import *
 
 
-
 # 그래프 설정
 def graph_setting():
     # LangGraph 정의
@@ -47,7 +46,7 @@ def graph_setting():
 
     graph.add_conditional_edges(
         "evaluate",
-        lambda state: state["answer_quality"],   # good / bad
+        lambda state: state["answer_quality"],  # good / bad
         {
             "good": END,
             "bad": "generate_queries",

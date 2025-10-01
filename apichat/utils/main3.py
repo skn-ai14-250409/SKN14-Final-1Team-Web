@@ -14,11 +14,12 @@ def run_langraph(user_input, config_id, image, chat_history=None):
         print(f"run_langraph 호출 - 입력: {user_input}, 이미지: {bool(image)}")
 
         result = graph.invoke(
-            {"messages": chat_history, 
-             "question": user_input, 
-             "image": image,
-             "retry": False
-             },
+            {
+                "messages": chat_history,
+                "question": user_input,
+                "image": image,
+                "retry": False,
+            },
             config=config,
         )
 

@@ -1,18 +1,16 @@
+import json
+import chromadb
+from chromadb.utils import embedding_functions
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 from django.http import JsonResponse, HttpResponseForbidden
-from django.db.models import Count
-from .models import Post, Comment
+from django.core.paginator import Paginator
+
 from .models import Post, Comment, Card, ChatMessage
 from .forms import CommentForm, PostForm
-from django.conf import settings
-from django.core.paginator import Paginator
-import os, json, threading, re
-from konlpy.tag import Okt
-import numpy as np
-import chromadb
-from chromadb.utils import embedding_functions
+
 
 @login_required
 def home_view(request):
@@ -186,10 +184,12 @@ def delete_post(request, post_id):
         return redirect("main:community-board")
     return HttpResponseForbidden()
 
+
 collection = None
 doc_ids = []
 doc_texts = []
 okt = None
+
 
 def ensure_search_initialized():
     global collection
@@ -202,13 +202,10 @@ def ensure_search_initialized():
         model_name="BAAI/bge-m3",
         device="cpu",
     )
-    collection = client.get_collection(
-        name="google_api_docs",
-        embedding_function=emb
-    )
+    collection = client.get_collection(name="google_api_docs", embedding_function=emb)
 
 
-def normalize_meta(meta, default_doc=""): # Chroma 메타데이터 정리
+def normalize_meta(meta, default_doc=""):  # Chroma 메타데이터 정리
     raw_file = meta.get("source_file", "")
     if raw_file.endswith(".txt"):
         title = raw_file[:-4]
@@ -240,6 +237,7 @@ def normalize_meta(meta, default_doc=""): # Chroma 메타데이터 정리
         "snippet": snippet,
     }
 
+
 def search_dense(q, k):
     ensure_search_initialized()
     res = collection.query(
@@ -259,12 +257,14 @@ def search_dense(q, k):
             continue
         seen.add(key)
 
-        rows.append({
-            "id": ids[i],
-            "title": norm["title"],
-            "source": norm["source"],
-            "snippet": norm["snippet"],
-        })
+        rows.append(
+            {
+                "id": ids[i],
+                "title": norm["title"],
+                "source": norm["source"],
+                "snippet": norm["snippet"],
+            }
+        )
         if len(rows) >= k:
             break
     return rows
@@ -285,10 +285,7 @@ def docsearch(request):
 
     print("Dense rows: ", dense_rows[:3])
 
-    return JsonResponse({
-        "results": dense_rows,
-        "meta": {"k": k}
-    })
+    return JsonResponse({"results": dense_rows, "meta": {"k": k}})
 
 
 @login_required

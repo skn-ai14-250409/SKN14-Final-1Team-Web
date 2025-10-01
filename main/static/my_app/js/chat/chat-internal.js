@@ -1,5 +1,3 @@
-console.log("internal-docs 페이지 JavaScript 시작!");
-
 let selectedSessionId = null; // 현재 선택된 세션 id
 
 // 요소 선택
@@ -18,23 +16,24 @@ if (newsessionBtn) {
 
 // 초기 세션 선택 (Django 템플릿으로 렌더링된 첫 번째 세션 선택)
 async function initializeFirstSession() {
-  // 추가=======
   const urlParams = new URLSearchParams(window.location.search);
-  const sessionIdFromUrl = urlParams.get('session_id');
+  const sessionIdFromUrl = urlParams.get("session_id");
 
   if (sessionIdFromUrl) {
     // URL에서 세션 ID를 찾았다면 해당 세션을 선택
-    const sessionLink = document.querySelector(`[data-session-id="${sessionIdFromUrl}"]`);
+    const sessionLink = document.querySelector(
+      `[data-session-id="${sessionIdFromUrl}"]`
+    );
     if (sessionLink) {
       selectedSessionId = sessionIdFromUrl;
       sessionTitle.textContent = sessionLink.textContent.trim();
-      sessionLink.parentElement.classList.add('is-active');
+      sessionLink.parentElement.classList.add("is-active");
       await loadChatHistory(selectedSessionId);
       await loadSessionTone(selectedSessionId);
-      return; 
+      return;
     }
   }
-  //=====================
+
   if (!sessionList) {
     console.warn("#sessionList 가 없어 초기 선택을 건너뜀");
     return;
@@ -80,11 +79,10 @@ sessionList.addEventListener("click", async (e) => {
   // 세션의 말투 정보 가져오기
   await loadSessionTone(selectedSessionId);
 
-  // 추가: URL 변경======
+  // URL 변경
   const newUrl = new URL(window.location.href);
-  newUrl.searchParams.set('session_id', selectedSessionId);
-  window.history.pushState({ sessionId: selectedSessionId }, '', newUrl.href);
-  //=====================
+  newUrl.searchParams.set("session_id", selectedSessionId);
+  window.history.pushState({ sessionId: selectedSessionId }, "", newUrl.href);
 });
 
 // 세션 삭제 함수
@@ -169,41 +167,40 @@ initializeFirstSession();
 let selectedTone = null;
 
 // 모달 이벤트 리스너 추가
-document.addEventListener('DOMContentLoaded', function() {
-  const toneModal = document.getElementById('toneModal');
-  const selectFormal = document.getElementById('selectFormal');
-  const selectInformal = document.getElementById('selectInformal');
-  const closeModal = document.getElementById('closeModal');
-  
+document.addEventListener("DOMContentLoaded", function () {
+  const toneModal = document.getElementById("toneModal");
+  const selectFormal = document.getElementById("selectFormal");
+  const selectInformal = document.getElementById("selectInformal");
+  const closeModal = document.getElementById("closeModal");
 
   // 공손 말투 선택
   if (selectFormal) {
-    selectFormal.addEventListener('click', function() {
-      selectedTone = 'formal';
-      updateCurrentTone('formal');
+    selectFormal.addEventListener("click", function () {
+      selectedTone = "formal";
+      updateCurrentTone("formal");
       hideToneModal();
-      createSessionWithTone('formal');
+      createSessionWithTone("formal");
     });
   }
 
   // 친구 말투 선택
   if (selectInformal) {
-    selectInformal.addEventListener('click', function() {
-      selectedTone = 'informal';
-      updateCurrentTone('informal');
+    selectInformal.addEventListener("click", function () {
+      selectedTone = "informal";
+      updateCurrentTone("informal");
       hideToneModal();
-      createSessionWithTone('informal');
+      createSessionWithTone("informal");
     });
   }
 
   // 모달 닫기
   if (closeModal) {
-    closeModal.addEventListener('click', hideToneModal);
+    closeModal.addEventListener("click", hideToneModal);
   }
 
   // 모달 외부 클릭 시 닫기
   if (toneModal) {
-    toneModal.addEventListener('click', function(e) {
+    toneModal.addEventListener("click", function (e) {
       if (e.target === toneModal) {
         hideToneModal();
       }
@@ -213,33 +210,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 모달 표시
 function showToneModal() {
-  const toneModal = document.getElementById('toneModal');
+  const toneModal = document.getElementById("toneModal");
   if (toneModal) {
-    toneModal.style.display = 'flex';
+    toneModal.style.display = "flex";
   }
 }
 
 // 모달 숨기기
 function hideToneModal() {
-  const toneModal = document.getElementById('toneModal');
+  const toneModal = document.getElementById("toneModal");
   if (toneModal) {
-    toneModal.style.display = 'none';
+    toneModal.style.display = "none";
   }
 }
 
 // 현재 말투 표시 업데이트
 function updateCurrentTone(tone) {
-  const currentTone = document.getElementById('toneSelectBtn');
+  const currentTone = document.getElementById("toneSelectBtn");
   if (currentTone) {
-    if (tone === 'formal') {
-      currentTone.textContent = '말투: 공손 말투';
-      currentTone.style.color = '#28a745';
-    } else if (tone === 'informal') {
-      currentTone.textContent = '말투: 친구 말투';
-      currentTone.style.color = '#ffc107';
+    if (tone === "formal") {
+      currentTone.textContent = "말투: 공손 말투";
+      currentTone.style.color = "#28a745";
+    } else if (tone === "informal") {
+      currentTone.textContent = "말투: 친구 말투";
+      currentTone.style.color = "#ffc107";
     } else {
-      currentTone.textContent = '말투: 선택되지 않음';
-      currentTone.style.color = '#666';
+      currentTone.textContent = "말투: 선택되지 않음";
+      currentTone.style.color = "#666";
     }
   }
 }
@@ -248,22 +245,22 @@ function updateCurrentTone(tone) {
 async function loadSessionTone(sessionId) {
   try {
     const response = await fetch(`/internal-chat/session_info/${sessionId}/`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'X-CSRFToken': getCSRFToken(),
+        "X-CSRFToken": getCSRFToken(),
       },
-      credentials: 'same-origin',
+      credentials: "same-origin",
     });
 
     if (response.ok) {
       const data = await response.json();
       updateCurrentTone(data.text_mode);
     } else {
-      console.warn('세션 말투 정보를 가져올 수 없습니다.');
+      console.warn("세션 말투 정보를 가져올 수 없습니다.");
       updateCurrentTone(null);
     }
   } catch (err) {
-    console.error('세션 말투 정보 로드 실패:', err);
+    console.error("세션 말투 정보 로드 실패:", err);
     updateCurrentTone(null);
   }
 }
@@ -286,9 +283,9 @@ async function createSessionWithTone(tone) {
         "X-Requested-With": "XMLHttpRequest",
       },
       credentials: "same-origin",
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         title: "title",
-        text_mode: tone 
+        text_mode: tone,
       }),
     });
 
@@ -364,10 +361,10 @@ function addMessage(text, role = "user", id = null) {
 
 // 로딩 메시지 표시 함수
 function showLoadingMessage() {
-    const loadingLi = document.createElement('li');
-    loadingLi.className = 'msg msg--assistant loading-message';
-    loadingLi.id = 'loading-message';
-    loadingLi.innerHTML = `
+  const loadingLi = document.createElement("li");
+  loadingLi.className = "msg msg--assistant loading-message";
+  loadingLi.id = "loading-message";
+  loadingLi.innerHTML = `
         <div class="bubble loading-bubble">
             <div class="loading-dots">
                 <span></span>
@@ -377,28 +374,28 @@ function showLoadingMessage() {
             <span class="loading-text">답변을 생성하고 있습니다...</span>
         </div>
     `;
-    chatLog.appendChild(loadingLi);
-    chatLog.scrollTop = chatLog.scrollHeight;
-    
-    // 보내기 버튼 비활성화
-    if (sendBtn) {
-        sendBtn.disabled = true;
-        sendBtn.textContent = '처리 중...';
-    }
+  chatLog.appendChild(loadingLi);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  // 보내기 버튼 비활성화
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.textContent = "처리 중...";
+  }
 }
 
 // 로딩 메시지 제거 함수
 function hideLoadingMessage() {
-    const loadingMessage = document.getElementById('loading-message');
-    if (loadingMessage) {
-        loadingMessage.remove();
-    }
-    
-    // 보내기 버튼 활성화
-    if (sendBtn) {
-        sendBtn.disabled = false;
-        sendBtn.textContent = '보내기';
-    }
+  const loadingMessage = document.getElementById("loading-message");
+  if (loadingMessage) {
+    loadingMessage.remove();
+  }
+
+  // 보내기 버튼 활성화
+  if (sendBtn) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = "보내기";
+  }
 }
 
 // 메시지 전송 공통 함수
@@ -453,7 +450,7 @@ async function sendMessage() {
     if (data.success) {
       // 로딩 메시지 제거
       hideLoadingMessage();
-      
+
       // 실제 응답 텍스트 키가 있으면 그걸 사용 (예: data.reply)
       addMessage(
         data.bot_message ?? `봇 응답 예시: "${message}"에 대한 답변입니다.`,
@@ -521,61 +518,61 @@ const CSRF = getCookie("csrftoken");
 
 // ====== 카드 선택/저장 기능 ======
 (function initCardSelectSave() {
-  const $btnSelect = document.getElementById('btnCardSelect');
-  const $btnSave   = document.getElementById('btnCardSave');
-  const $selCount  = document.getElementById('selCount');
+  const $btnSelect = document.getElementById("btnCardSelect");
+  const $btnSave = document.getElementById("btnCardSave");
+  const $selCount = document.getElementById("selCount");
 
   const $chatLog = chatLog;
 
   if ($btnSave) $btnSave.disabled = true;
   if (!$btnSelect || !$btnSave || !$selCount || !$chatLog) {
-    console.warn('카드 선택/저장 UI 요소를 찾지 못해 기능을 건너뜁니다.');
+    console.warn("카드 선택/저장 UI 요소를 찾지 못해 기능을 건너뜁니다.");
     return;
   }
 
-  let selecting   = false;
+  let selecting = false;
   let selectedIds = [];
 
   function updateSelectUI() {
-    [...$chatLog.querySelectorAll('li.msg')].forEach(li => {
+    [...$chatLog.querySelectorAll("li.msg")].forEach((li) => {
       const mid = li.dataset.mid;
       const chosen = selectedIds.includes(mid);
 
       if (selecting) {
-        li.classList.add('msg--selecting');
-        li.classList.toggle('msg--chosen', chosen);
+        li.classList.add("msg--selecting");
+        li.classList.toggle("msg--chosen", chosen);
 
-        let mark = li.querySelector('.select-mark');
+        let mark = li.querySelector(".select-mark");
         if (!mark) {
-          mark = document.createElement('span');
-          mark.className = 'select-mark';
-          mark.textContent = '✓';
+          mark = document.createElement("span");
+          mark.className = "select-mark";
+          mark.textContent = "✓";
           li.appendChild(mark);
         }
-        mark.style.display = 'inline';
-        mark.style.opacity = chosen ? '1' : '0.25';
+        mark.style.display = "inline";
+        mark.style.opacity = chosen ? "1" : "0.25";
       } else {
-        li.classList.remove('msg--selecting', 'msg--chosen');
-        const mark = li.querySelector('.select-mark');
+        li.classList.remove("msg--selecting", "msg--chosen");
+        const mark = li.querySelector(".select-mark");
         if (mark) mark.remove();
       }
     });
 
     $btnSave.disabled = !selecting || selectedIds.length === 0;
-    $selCount.style.display = selecting ? 'inline' : 'none';
+    $selCount.style.display = selecting ? "inline" : "none";
     $selCount.textContent = `${selectedIds.length}개 선택`;
-    $btnSelect.textContent = selecting ? '선택 취소' : '카드만들기';
+    $btnSelect.textContent = selecting ? "선택 취소" : "카드만들기";
   }
 
-  $btnSelect.addEventListener('click', () => {
+  $btnSelect.addEventListener("click", () => {
     selecting = !selecting;
     if (!selecting) selectedIds = [];
     updateSelectUI();
   });
 
-  $chatLog.addEventListener('click', (e) => {
+  $chatLog.addEventListener("click", (e) => {
     if (!selecting) return;
-    const li = e.target.closest('li.msg');
+    const li = e.target.closest("li.msg");
     if (!li) return;
     const mid = li.dataset.mid;
     if (!mid) return;
@@ -588,33 +585,39 @@ const CSRF = getCookie("csrftoken");
   });
 
   // 카드 저장
-  $btnSave.addEventListener('click', async () => {
+  $btnSave.addEventListener("click", async () => {
     if (!selecting) return;
-    if (!selectedSessionId) { alert('세션 ID가 없습니다.'); return; }
-    if (selectedIds.length === 0) { alert('선택된 메시지가 없습니다.'); return; }
+    if (!selectedSessionId) {
+      alert("세션 ID가 없습니다.");
+      return;
+    }
+    if (selectedIds.length === 0) {
+      alert("선택된 메시지가 없습니다.");
+      return;
+    }
 
-    const raw = prompt('카드 제목(비우면 세션 제목 사용)');
+    const raw = prompt("카드 제목(비우면 세션 제목 사용)");
     if (raw === null) return;
     const title = raw.trim();
 
     try {
-      const res = await fetch('/api-chat/cards/save/', {
-        method: 'POST',
+      const res = await fetch("/api-chat/cards/save/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken()
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
         },
-        credentials: 'same-origin',
+        credentials: "same-origin",
         body: JSON.stringify({
           session_id: Number(selectedSessionId),
           title,
-          message_ids: selectedIds.map(Number)
-        })
+          message_ids: selectedIds.map(Number),
+        }),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || '저장 실패');
-      alert('카드 저장 완료!');
+      if (!res.ok || !data.ok) throw new Error(data.error || "저장 실패");
+      alert("카드 저장 완료!");
     } catch (err) {
       console.error(err);
       alert(`저장 중 오류: ${err.message}`);
