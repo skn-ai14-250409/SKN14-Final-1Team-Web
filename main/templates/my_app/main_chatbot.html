@@ -24,15 +24,17 @@
       <ul id="chatLog" class="chat-log"></ul>
     </div>
 
-    <!-- 이미지 미리보기 컨테이너 추가 -->
+    <!-- 이미지 미리보기 컨테이너 -->
     <div id="imagePreview" style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: none;"></div>
 
     <div class="chat-input-area">
         <button id="uploadBtn">사진 업로드</button>
         <input type="file" id="imageInput" accept="image/*" style="display: none;">
-        <input id="chatInput" type="text" placeholder="질문하는 INPUT 영역">
+        <input id="chatInput" type="text" placeholder="API 관련 질문을 입력해보세요!(예시: 빅쿼리에서 INSERT하는법 알려줄래?)">
         <button id="voiceBtn" aria-label="음성 녹음">
+
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+
             <path d="M12 1.75a3.25 3.25 0 0 0-3.25 3.25v6a3.25 3.25 0 1 0 6.5 0v-6A3.25 3.25 0 0 0 12 1.75z"/>
             <path d="M5 11.5a7 7 0 0 0 14 0"/>
             <path d="M12 18.5v3"/>
@@ -43,16 +45,23 @@
   </div>
 
   <!-- 문서 검색 -->
-  <aside class="right-sidebar" id="docSearchSidebar" aria-label="문서 검색 사이드바" data-endpoint="/main/api/docsearch/">
+    <div class="sidebar-handle" id="toggleSidebarBtn" title="문서 검색"></div>
+    <aside class="right-sidebar" id="docSearchSidebar" aria-label="문서 검색 사이드바" data-endpoint="/main/api/docsearch/">
     <header class="sidebar-header">
       <h3>문서 검색</h3>
       <div class="sidebar-search">
         <input id="docSearchInput" type="text" placeholder="키워드 입력 (예: bigquery delete)">
-        <button id="docSearchBtn" type="button" title="검색">🔎</button>
+        <button id="docSearchBtn" type="button" title="검색">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        </button>
       </div>
+
       <div class="sidebar-sub">
-        <label class="sim-th">유사도 임계값</label>
-        <input id="similarityThreshold" type="number" min="0" max="1" step="0.01" value="0.6">
+        <label for="resultCount">상위 <span id="kValue">10</span>건</label>
+        <input id="resultCount" type="range" min="5" max="30" step="5" value="10">
       </div>
     </header>
 
@@ -61,14 +70,14 @@
       <ul id="docSearchResults" class="results"></ul>
     </div>
 
-
     <footer class="sidebar-footer">
       <span id="docSearchCount" class="count">0건</span>
       <button id="copyAllBtn" class="ghost">URL 모두 복사</button>
     </footer>
   </aside>
 </div>
+
 <script src="{% static 'my_app/js/chat/chat.js' %}"></script>
 <script src="{% static 'my_app/js/docsearch/sidebar.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %}

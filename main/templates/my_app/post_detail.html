@@ -17,7 +17,9 @@
            <div class="kebab-menu">
               <span></span><span></span><span></span>
               <div class="dropdown-menu">
+                  {% if request.user == post.author %}
                   <a href="{% url 'main:edit-post' post_id=post.id %}">수정하기</a>
+                  {% endif %}
                   <form action="{% url 'main:delete-post' post_id=post.id %}" method="post" style="display:inline;">
                      {% csrf_token %}
                      <button type="submit" class="dropdown-button">삭제하기</button>
@@ -63,7 +65,9 @@
            <div class="kebab-menu comment-kebab">
                <span></span><span></span><span></span>
                <div class="dropdown-menu">
+                   {% if request.user == comment.author %}
                    <a href="{% url 'main:edit-comment' comment_id=comment.id %}">수정하기</a>
+                   {% endif %}
                    <form action="{% url 'main:delete-comment' comment_id=comment.id %}" method="post">
                        {% csrf_token %}
                        <button type="submit" class="dropdown-button">삭제하기</button>

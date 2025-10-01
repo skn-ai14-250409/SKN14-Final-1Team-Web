@@ -46,9 +46,6 @@ def basic_chain_setting():
     
     추가로, 이번 사용자 질문에 이미지 분석 내용이 들어있고 사용자가 '이미지에 대한 질문을 하거나' 혹은 '이건 어때?' 와 같이 물어보다면 해당 이미지 분석 결과를 참고해서 답변해주세요.
     실제 답변 외에 프롬프트 내용은 답변에 포함시키지 마세요.
-    - 만약 이미지 분석 결과가 없거나 관련 없는 질문이라면, 이미지에 대해서는 언급하지 마세요.
-    - 금지 답변 예시) 이미지 분석과 관련된 질문이 포함되지 않았으므로, 이미지 분석 결과는 이번 답변에 포함되지 않았습니다.
-
     """
     )
 
@@ -59,7 +56,7 @@ def basic_chain_setting():
 
 def query_setting():
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         temperature=0,
         model_kwargs={"response_format": {"type": "json_object"}},
     )
@@ -110,20 +107,20 @@ def query_setting():
 
 
 def classify_chain_setting():
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
     classification_prompt = PromptTemplate.from_template(
         """
     다음 질문을 분석하여 **주요 목적**에 따라 분류하세요.
 
-    ## 분류 기준
+    ## 📋 분류 기준
     api: 구글 API 관련 질문이거나, 코딩, 프로그래밍, 보안, 데이터, 네트워킹, IT 기술 등 인터넷 관련 지식에 관한 질문입니다.  
         - 질문에 오타나 알 수 없는 단어가 있더라도, **IT 용어처럼 보이고, 질문 맥락상 기술적인 내용을 묻는 경우에만** `api`로 분류하세요.  
         - 단순히 이해할 수 없는 글자(예: ㅇㄹㄴㄹ, ㅋㅋㅋ, 아무 의미 없는 문자 나열)는 `api`가 아니라 `none`으로 분류하세요.
     basic: 완전 단순한 일상적인 질문 (날씨, 시간, 간단한 대화)
     none: 일상 질문도 아니고, 구글 API나 코딩, 프로그래밍, 인터넷과 전혀 관계 없는 전문적인 지식에 대한 질문
 
-    ## 출력 규칙
+    ## 📌 출력 규칙
     - 오직 다음 중 하나의 단어만 출력: `api`, `basic`, `none`
     - **절대 추가 설명 없이** 해당 단어만 출력
     - 예: `api`
@@ -134,7 +131,7 @@ def classify_chain_setting():
     이번 사용자 질문:
     {question}
 
-    ## 예시
+    ## 🧪 예시
     질문: 구글 캘린더 API에서 이벤트를 어떻게 추가하나요?  
     정답: api
 
@@ -231,7 +228,7 @@ def impossable_chain_setting():
         """
     너는 사용자의 **사용자의 질문**에 대한 내용을 몰라서 답변할 수 없는 챗봇이야.  
 
-    - 최근 대화 내용 및 사용자 질문을 인용해서, **"(사용자가 질문한 내용)은 제가 모르는 내용입니다. 일상 질문 혹은 구글 api 관련 질문만 답변드릴수 있어요"** 라고만 답해.
+    - 최근 대화 내용 및 사용자 질문을 인용해서, **(사용자가 질문한 내용)은 제가 모르는 내용입니다. 일상 질문 혹은 구글 api 관련 질문만 답변드릴수 있어요** 라고만 답해.
     (사용자가 질문한 내용)은 그대로 쓰지 말고 요약하여 잘 정제하여 답변할 때 인용하세요.
 
     최근 대화 내용:
@@ -288,7 +285,7 @@ def answer_quality_chain_setting_rag():
 
 def alternative_queries_chain_setting():
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         temperature=0,
         model_kwargs={"response_format": {"type": "json_object"}}
     )
